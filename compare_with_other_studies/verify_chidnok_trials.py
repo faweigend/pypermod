@@ -3,7 +3,8 @@ import logging
 import matplotlib.pyplot as plt
 import matplotlib
 
-from w_pm_modeling.performance_modeling_utility import plot_colors, plot_labels, plot_grayscale, plot_colors_linestyles, plot_grayscale_linestyles
+from w_pm_modeling.performance_modeling_utility import plot_colors, plot_labels, plot_grayscale, plot_colors_linestyles, \
+    plot_grayscale_linestyles
 from w_pm_modeling.visualise.skiba_vs_three_comp import simulate_chidnok_trials
 
 from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
@@ -76,6 +77,7 @@ if __name__ == "__main__":
     ax.set_title(r'$P240 \rightarrow (S,H,M,L)$')
     ax.set_xlabel("recovery bout intensity")
     ax.set_ylabel("TTE (seconds)")
+    ax.set_xticks([0, 1, 2, 3])
     ax.set_xticklabels(["S", "H", "M", "L"])
 
     plt.tight_layout()

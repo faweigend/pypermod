@@ -3,10 +3,10 @@ import logging
 import matplotlib.pyplot as plt
 import matplotlib
 
-from w_pm_modeling.performance_modeling_utility import plot_labels, plot_colors, plot_grayscale, plot_grayscale_linestyles, plot_colors_linestyles
+from w_pm_modeling.performance_modeling_utility import plot_labels, plot_colors, plot_grayscale, \
+    plot_grayscale_linestyles, plot_colors_linestyles
 from w_pm_modeling.visualise.skiba_vs_three_comp import simulate_caen_2021_trials
 from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
-
 
 if __name__ == "__main__":
     # general settings
