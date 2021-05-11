@@ -1,30 +1,34 @@
 import logging
 
-import matplotlib.pyplot as plt
 import matplotlib
-
-from w_pm_modeling.performance_modeling_utility import plot_labels, plot_colors, plot_grayscale, \
-    plot_grayscale_linestyles, plot_colors_linestyles
-from w_pm_modeling.visualise.skiba_vs_three_comp import simulate_caen_2021_trials
+import matplotlib.pyplot as plt
 from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
+from w_pm_modeling.performance_modeling_utility import plot_colors, plot_colors_linestyles, \
+    plot_grayscale_linestyles, plot_grayscale
+from w_pm_modeling.simulation.study_simulator import StudySimulator
 
 if __name__ == "__main__":
     # general settings
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
-    matplotlib.rcParams['font.size'] = 12
-    black_and_white = False
-    hz = 1
 
-    # Define lookups depending on color or grayscale
+    # plot font and font size settings
+    matplotlib.rcParams['font.size'] = 12
+    matplotlib.rcParams['pdf.fonttype'] = 42
+    matplotlib.rcParams['ps.fonttype'] = 42
+
+    # optional black and white layout
+    black_and_white = False
+
+    # set design according to desired color scheme
     if black_and_white is True:
-        color_lookup = plot_grayscale
-        linestyle_lookup = plot_grayscale_linestyles
-        label_lookup = plot_labels
+        plot_linestyle = plot_grayscale_linestyles
+        plot_color = plot_grayscale
     else:
-        color_lookup = plot_colors
-        linestyle_lookup = plot_colors_linestyles
-        label_lookup = plot_labels
+        plot_linestyle = plot_colors_linestyles
+        plot_color = plot_colors
+
+    hz = 10
 
     # fitted to Caen et al. 2021 (w_p = 19200 cp = 269) with recoveries from Caen et al. (2019)
     # general settings for three component hydraulic agent
@@ -43,7 +47,7 @@ if __name__ == "__main__":
         three_comp_hyd_agents.append(ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1], m_ae=p[2], m_ans=p[3], m_anf=p[4],
                                                        the=p[5], gam=p[6], phi=p[7]))
 
-    results = simulate_caen_2021_trials(three_comp_hyd_agents)
+    results = StudySimulator.simulate_caen_2021_trials(three_comp_hyd_agents)
 
     # set up the figure
     fig = plt.figure(figsize=(8, 5))
