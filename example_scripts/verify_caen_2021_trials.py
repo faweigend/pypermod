@@ -1,10 +1,8 @@
 import logging
 
-import matplotlib
 import matplotlib.pyplot as plt
-from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
-from w_pm_modeling.performance_modeling_utility import plot_colors, plot_colors_linestyles, \
-    plot_grayscale_linestyles, plot_grayscale
+import numpy as np
+from w_pm_modeling.performance_modeling_utility import PlotLayout
 from w_pm_modeling.simulation.study_simulator import StudySimulator
 
 if __name__ == "__main__":
@@ -12,23 +10,16 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-    # plot font and font size settings
-    matplotlib.rcParams['font.size'] = 12
-    matplotlib.rcParams['pdf.fonttype'] = 42
-    matplotlib.rcParams['ps.fonttype'] = 42
-
-    # optional black and white layout
-    black_and_white = False
-
-    # set design according to desired color scheme
-    if black_and_white is True:
-        plot_linestyle = plot_grayscale_linestyles
-        plot_color = plot_grayscale
-    else:
-        plot_linestyle = plot_colors_linestyles
-        plot_color = plot_colors
-
     hz = 10
+    # means from the paper
+    w_p = 19200
+    cp = 269
+
+    p_exp = (w_p / 240) + cp  # 348 in the paper
+    get = 179  # mean from the paper
+    p_rec = get * 0.9  # recovery at 90% of GET
+
+    rec_times = np.arange(0, 910, 10)
 
     # fitted to Caen et al. 2021 (w_p = 19200 cp = 269) with recoveries from Caen et al. (2019)
     # general settings for three component hydraulic agent
@@ -41,30 +32,31 @@ if __name__ == "__main__":
            0.12369693383481795,
            0.17661428891272302]]
 
-    # create the agents
-    three_comp_hyd_agents = []
-    for p in ps:
-        three_comp_hyd_agents.append(ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1], m_ae=p[2], m_ans=p[3], m_anf=p[4],
-                                                       the=p[5], gam=p[6], phi=p[7]))
+    results = StudySimulator.standard_comparison(w_p=w_p,
+                                                 cp=cp,
+                                                 hyd_agent_configs=ps,
+                                                 p_exp=p_exp,
+                                                 p_rec=p_rec,
+                                                 rec_times=rec_times)
 
-    results = StudySimulator.simulate_caen_2021_trials(three_comp_hyd_agents)
+    # the ground truth values from the paper
+    ground_truth_m_t = [30, 60, 120, 180, 240, 300, 600, 900]  # time steps
+    ground_truth_m_v = [28.6, 34.8, 44.2, 50.5, 55.1, 56.8, 73.7, 71.3]  # mean values
+    ground_truth_m_e = [8.2, 11.1, 9.7, 12.1, 13.3, 16.4, 19.3, 20.8]  # std errors
 
     # set up the figure
+    PlotLayout.set_rc_params()
     fig = plt.figure(figsize=(8, 5))
     ax = fig.add_subplot()
 
-    # Just get the ground truth values
-    ground_truth_m_t = list(results["ground_truth"]["means"].keys())
-    ground_truth_m_v = list(results["ground_truth"]["means"].values())
-    ground_truth_m_e = list(results["ground_truth"]["stds"].values())
-
     ax.errorbar(ground_truth_m_t, ground_truth_m_v, ground_truth_m_e,
                 linestyle='None', marker='o', capsize=3,
-                color=color_lookup["ground_truth"], label=label_lookup["ground_truth"])
+                color=PlotLayout.get_plot_color("ground_truth"),
+                label=PlotLayout.get_plot_label("ground_truth"))
 
     hyd_agents = []
     # plot the agent dynamics
-    for agent_n, agent_d in results["agents"].items():
+    for agent_n, agent_d in results.items():
 
         # collect hydraulic agents in list in case multiple are analysed
         if "ThreeCompHydAgent" in agent_n:
@@ -72,28 +64,31 @@ if __name__ == "__main__":
             continue
 
         # plot the ground truth
-        ax.plot(agent_d,
-                color=color_lookup[agent_n],
-                linestyle=linestyle_lookup[agent_n],
-                label=label_lookup[agent_n])
+        ax.plot(rec_times,
+                agent_d,
+                color=PlotLayout.get_plot_color(agent_n),
+                linestyle=PlotLayout.get_plot_linestyle(agent_n),
+                label=PlotLayout.get_plot_label(agent_n))
 
-    linestyle = linestyle_lookup["ThreeCompHydAgent"]
-    color = color_lookup["ThreeCompHydAgent"]
-    label = label_lookup["ThreeCompHydAgent"]
+    color = PlotLayout.get_plot_color("ThreeCompHydAgent")
+    linestyle = PlotLayout.get_plot_linestyle("ThreeCompHydAgent")
+    label = PlotLayout.get_plot_label("ThreeCompHydAgent")
     # add the number of agents if more than one is simulated
     if len(hyd_agents) > 1:
         label += "(" + str(len(hyd_agents)) + ")"
 
     # plot the hydraulic agents
     if len(hyd_agents) > 0:
-        ax.plot(hyd_agents[0],
+        ax.plot(rec_times,
+                hyd_agents[0],
                 linestyle=linestyle,
                 color=color,
                 label=label)
 
     if len(hyd_agents) > 1:
         for hyd_agent_data in hyd_agents[1:]:
-            ax.plot(hyd_agent_data,
+            ax.plot(rec_times,
+                    hyd_agent_data,
                     linestyle=linestyle,
                     color=color)
 

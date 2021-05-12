@@ -1,5 +1,8 @@
 from collections import defaultdict
 
+import matplotlib
+import w_pm_modeling.performance_modeling_config
+
 plot_labels = {
     "CpAgentSkiba2012": "skiba2012",
     "CpAgentSkiba2015": "skiba2015",
@@ -15,7 +18,7 @@ plot_labels = {
 }
 
 # used in verification plots
-plot_colors = {
+plot_color_scheme = {
     "skiba2012": "tab:orange",
     "skiba2015": "tab:red",
     "bartram": "tab:purple",
@@ -52,7 +55,7 @@ plot_grayscale = {
     "T_ground_truth": (0.6, 0.6, 0.6)
 }
 
-plot_colors_linestyles = defaultdict(lambda: "-")
+plot_color_linestyles = defaultdict(lambda: "-")
 
 plot_grayscale_linestyles = {
     "skiba2012": "-.",
@@ -71,3 +74,31 @@ plot_grayscale_linestyles = {
     "T_ground_truth": "-",
     "intensity": "-"
 }
+
+
+class PlotLayout:
+
+    @staticmethod
+    def set_rc_params():
+        # plot font and font size settings
+        matplotlib.rcParams['font.size'] = 12
+        matplotlib.rcParams['pdf.fonttype'] = 42
+        matplotlib.rcParams['ps.fonttype'] = 42
+
+    @staticmethod
+    def get_plot_color(item_str: str):
+        if w_pm_modeling.performance_modeling_config.black_and_white is True:
+            return plot_grayscale[item_str]
+        else:
+            return plot_color_scheme[item_str]
+
+    @staticmethod
+    def get_plot_label(item_str: str):
+        return plot_labels[item_str]
+
+    @staticmethod
+    def get_plot_linestyle(item_str: str):
+        if w_pm_modeling.performance_modeling_config.black_and_white is True:
+            return plot_grayscale_linestyles[item_str]
+        else:
+            return plot_color_linestyles[item_str]
