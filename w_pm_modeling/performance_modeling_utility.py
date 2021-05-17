@@ -77,9 +77,15 @@ plot_grayscale_linestyles = {
 
 
 class PlotLayout:
+    """
+    Helperclass to standardise the layout for plots
+    """
 
     @staticmethod
     def set_rc_params():
+        """
+        Sets standardised font and fontsize
+        """
         # plot font and font size settings
         matplotlib.rcParams['font.size'] = 12
         matplotlib.rcParams['pdf.fonttype'] = 42
@@ -87,7 +93,11 @@ class PlotLayout:
 
     @staticmethod
     def get_plot_color(item_str: str):
-
+        """
+        Returns the assigned color for given item. It considers different settings for black and white.
+        :param item_str: lookup item as string
+        :return: color label for given item
+        """
         # use lookup according to grayscale setting
         if w_pm_modeling.performance_modeling_config.black_and_white is True:
             lookup = plot_grayscale
@@ -98,11 +108,20 @@ class PlotLayout:
 
     @staticmethod
     def get_plot_label(item_str: str):
+        """
+        Returns the assigned label for given item.
+        :param item_str: lookup item as string
+        :return: label for given item
+        """
         return plot_labels[item_str]
 
     @staticmethod
     def get_plot_linestyle(item_str: str):
-
+        """
+        Returns the assigned linestyle for given item. It considers different settings for black and white.
+        :param item_str: lookup item as string
+        :return: linestyle for given item
+        """
         # use lookup according to grayscale setting
         if w_pm_modeling.performance_modeling_config.black_and_white is True:
             lookup = plot_grayscale_linestyles
@@ -113,6 +132,13 @@ class PlotLayout:
 
     @staticmethod
     def __use_lookup(lookup, item_str):
+        """
+        Helper function to look_up item str in corresponding dictionary. Special cases for enumerated
+        hydraulic models are considered.
+        :param lookup: the dictionary to look the given item_str up in
+        :param item_str: item to look up
+        :return: looked up value
+        """
         # check for hydraulic agents with numbers
         if type(lookup) is not defaultdict and item_str not in lookup:
             if "ThreeCompHydAgent" in item_str:
