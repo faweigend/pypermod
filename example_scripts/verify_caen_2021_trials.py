@@ -49,55 +49,20 @@ if __name__ == "__main__":
     fig = plt.figure(figsize=(8, 5))
     ax = fig.add_subplot()
 
+    # plot the ground truth obs
     ax.errorbar(ground_truth_m_t, ground_truth_m_v, ground_truth_m_e,
                 linestyle='None', marker='o', capsize=3,
                 color=PlotLayout.get_plot_color("ground_truth"),
                 label=PlotLayout.get_plot_label("ground_truth"))
 
-    hyd_agents = []
     # plot the agent dynamics
     for agent_n, agent_d in results.items():
-
-        # collect hydraulic agents in list in case multiple are analysed
-        if "ThreeCompHydAgent" in agent_n:
-            hyd_agents.append(agent_d)
-            continue
-
-        # plot the ground truth
         ax.plot(rec_times,
                 agent_d,
                 color=PlotLayout.get_plot_color(agent_n),
-                linestyle=PlotLayout.get_plot_linestyle(agent_n),
-                label=PlotLayout.get_plot_label(agent_n))
+                linestyle=PlotLayout.get_plot_linestyle(agent_n))
 
-    color = PlotLayout.get_plot_color("ThreeCompHydAgent")
-    linestyle = PlotLayout.get_plot_linestyle("ThreeCompHydAgent")
-    label = PlotLayout.get_plot_label("ThreeCompHydAgent")
-    # add the number of agents if more than one is simulated
-    if len(hyd_agents) > 1:
-        label += "(" + str(len(hyd_agents)) + ")"
-
-    # plot the hydraulic agents
-    if len(hyd_agents) > 0:
-        ax.plot(rec_times,
-                hyd_agents[0],
-                linestyle=linestyle,
-                color=color,
-                label=label)
-
-    if len(hyd_agents) > 1:
-        for hyd_agent_data in hyd_agents[1:]:
-            ax.plot(rec_times,
-                    hyd_agent_data,
-                    linestyle=linestyle,
-                    color=color)
-
-    # sort the legend into the right order
-    handles, labels = ax.get_legend_handles_labels()
-    # sort both labels and handles by labels
-    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
-    ax.legend(handles, labels)
-
+    # finalise layout
     # ax.set_title("Caen et al. (2021)")
     ax.set_title(r'$P240 \rightarrow 161$' " W")
     ax.set_xlabel("recovery bout duration (sec)")
@@ -105,6 +70,27 @@ if __name__ == "__main__":
     ax.set_xticklabels(ax.get_xticks(), rotation=-45, ha='center')
     ax.set_ylabel("W' recovery (%)")
 
+    # Create the legend
+    for p_res_key, p_res_val in results.items():
+        if "ThreeCompHyd" in p_res_key:
+            continue
+        ax.plot([],
+                color=PlotLayout.get_plot_color(p_res_key),
+                linestyle=PlotLayout.get_plot_linestyle(p_res_key),
+                label=PlotLayout.get_plot_label(p_res_key))
+    hyd_label = PlotLayout.get_plot_label("ThreeCompHydAgent")
+    hyd_label += "({})".format(len(ps)) if len(ps) > 1 else ""
+    ax.plot([],
+            color=PlotLayout.get_plot_color("ThreeCompHydAgent"),
+            linestyle=PlotLayout.get_plot_linestyle("ThreeCompHydAgent"),
+            label=hyd_label)
+    # sort the legend into the right order
+    handles, labels = ax.get_legend_handles_labels()
+    # sort both labels and handles by labels
+    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
+    ax.legend(handles, labels)
+
+    # finish plot
     plt.tight_layout()
     plt.show()
     plt.close(fig=fig)

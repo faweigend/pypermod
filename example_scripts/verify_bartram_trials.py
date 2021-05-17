@@ -21,14 +21,16 @@ if __name__ == "__main__":
     rec_times = np.arange(0, 420, 5)
 
     # three component hydraulic agent configuration
-    ps = [[28295.84803812729,
-           115866.92894681037,
-           393.69013448575697,
-           125.81789182612417,
-           10.42071828931923,
-           0.8323218320947604,
-           0.034587477091268214,
-           0.13458173082205677]]
+    ps = [
+        [28295.84803812729,
+         115866.92894681037,
+         393.69013448575697,
+         125.81789182612417,
+         10.42071828931923,
+         0.8323218320947604,
+         0.034587477091268214,
+         0.13458173082205677]
+    ]
 
     # use simulation function to obtain results
     results = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=ps,
@@ -39,53 +41,14 @@ if __name__ == "__main__":
     fig = plt.figure(figsize=(8, 5))
     ax = fig.add_subplot()
 
-    hyd_agents = []
+    # plot simulated agent data
     for p_res_key, p_res_val in results.items():
-
-        # collect hydraulic agents in list in case multiple are analysed
-        if "ThreeCompHydAgent" in p_res_key:
-            hyd_agents.append(p_res_val)
-            continue
-
-        # get assigned colors and styles for agent types
         ax.plot(rec_times,
                 p_res_val,
                 linestyle=PlotLayout.get_plot_linestyle(p_res_key),
-                color=PlotLayout.get_plot_color(p_res_key),
-                label=PlotLayout.get_plot_label(p_res_key))
+                color=PlotLayout.get_plot_color(p_res_key))
 
-    # set hydraulic agent design according to desired color scheme
-    linestyle = PlotLayout.get_plot_linestyle("ThreeCompHydAgent")
-    color = PlotLayout.get_plot_color("ThreeCompHydAgent")
-    label = PlotLayout.get_plot_label("ThreeCompHydAgent")
-
-    if len(hyd_agents) > 1:
-        label += "(" + str(len(hyd_agents)) + ")"
-
-    # plot the first hydraulic agent with label
-    if len(hyd_agents) > 0:
-        ax.plot(rec_times,
-                hyd_agents[0],
-                linestyle=linestyle,
-                color=color,
-                label=label)
-
-    # add additional ones of more are available
-    if len(hyd_agents) > 1:
-        for hyd_agent_data in hyd_agents[1:]:
-            ax.plot(rec_times,
-                    hyd_agent_data,
-                    linestyle=linestyle,
-                    color=color)
-
-    # sort the legend into the right order
-    handles, labels = ax.get_legend_handles_labels()
-
-    # sort both labels and handles by labels
-    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
-    ax.legend(handles, labels)
-
-    # assign plot labels
+    # finalise layout
     if prec < 50:
         prec_label = "{}W".format(prec)
     else:
@@ -97,6 +60,27 @@ if __name__ == "__main__":
     # ax.set_xticks([120, 240, 360])
     ax.set_ylabel("W' recovery (%)")
 
+    # Create the legend
+    for p_res_key, p_res_val in results.items():
+        if "ThreeCompHyd" in p_res_key:
+            continue
+        ax.plot([],
+                color=PlotLayout.get_plot_color(p_res_key),
+                linestyle=PlotLayout.get_plot_linestyle(p_res_key),
+                label=PlotLayout.get_plot_label(p_res_key))
+    hyd_label = PlotLayout.get_plot_label("ThreeCompHydAgent")
+    hyd_label += "({})".format(len(ps)) if len(ps) > 1 else ""
+    ax.plot([],
+            color=PlotLayout.get_plot_color("ThreeCompHydAgent"),
+            linestyle=PlotLayout.get_plot_linestyle("ThreeCompHydAgent"),
+            label=hyd_label)
+    # sort the legend into the right order
+    handles, labels = ax.get_legend_handles_labels()
+    # sort both labels and handles by labels
+    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
+    ax.legend(handles, labels)
+
+    # finish plot
     plt.subplots_adjust(right=0.96)
     plt.show()
     plt.close(fig=fig)

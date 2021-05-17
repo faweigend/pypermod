@@ -87,10 +87,14 @@ class PlotLayout:
 
     @staticmethod
     def get_plot_color(item_str: str):
+
+        # use lookup according to grayscale setting
         if w_pm_modeling.performance_modeling_config.black_and_white is True:
-            return plot_grayscale[item_str]
+            lookup = plot_grayscale
         else:
-            return plot_color_scheme[item_str]
+            lookup = plot_color_scheme
+
+        return PlotLayout.__use_lookup(lookup, item_str)
 
     @staticmethod
     def get_plot_label(item_str: str):
@@ -98,7 +102,22 @@ class PlotLayout:
 
     @staticmethod
     def get_plot_linestyle(item_str: str):
+
+        # use lookup according to grayscale setting
         if w_pm_modeling.performance_modeling_config.black_and_white is True:
-            return plot_grayscale_linestyles[item_str]
+            lookup = plot_grayscale_linestyles
         else:
-            return plot_color_linestyles[item_str]
+            lookup = plot_color_linestyles
+
+        return PlotLayout.__use_lookup(lookup, item_str)
+
+    @staticmethod
+    def __use_lookup(lookup, item_str):
+        # check for hydraulic agents with numbers
+        if type(lookup) is not defaultdict and item_str not in lookup:
+            if "ThreeCompHydAgent" in item_str:
+                return lookup["ThreeCompHydAgent"]
+            else:
+                raise UserWarning("{} not in {}".format(item_str, lookup))
+
+        return lookup[item_str]
