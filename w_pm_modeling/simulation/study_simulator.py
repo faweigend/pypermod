@@ -9,20 +9,25 @@ from w_pm_modeling.simulation.simulator_basis import SimulatorBasis
 
 
 class StudySimulator(SimulatorBasis):
+    """
+    An extension of the standard simulator that adds convenience functions to recreate trials of studies
+    that investigated W' recovery dynamics
+    """
 
     @staticmethod
     def standard_comparison(w_p: float, cp: float, hyd_agent_configs: list, p_exp: float,
                             p_rec: float, rec_times: np.ndarray, hz: int):
         """
-
-        :param w_p:
-        :param cp:
-        :param hyd_agent_configs:
-        :param p_exp:
-        :param p_rec:
-        :param rec_times:
-        :param hz:
-        :return:
+        This function employs the WB1 -> RB -> WB2 protocol proposed by Caen et al. to estimate recovery ratios.
+        Recovery dynamics after a given intensity, at a given recovery intensity, and over a given time are estimated.
+        :param w_p: W' of subject
+        :param cp: CP of subject
+        :param hyd_agent_configs: configurations (or just one) of hydraulic agents fitted to the subject
+        :param p_exp: intensity that leads to exhaustion
+        :param p_rec: recovery intensity
+        :param rec_times: recovery times to estimate
+        :param hz: HZ setting for agents
+        :return: simulation results in a dictionary
         """
 
         # add agents dict to results
@@ -71,7 +76,7 @@ class StudySimulator(SimulatorBasis):
         :param hig: high rec intensity
         :param med: medium rec intensity
         :param low: low rec intensity
-        :return: trial results in a dict
+        :return: simulation results in a dict
         """
 
         # results dict
@@ -127,7 +132,7 @@ class StudySimulator(SimulatorBasis):
         :param hyd_agent_configs: three comp agent configurations
         :param trials: a list expected to consist of pairs that indicate [(t_exp, t_rec), ...]
         :param hz: hz for all agents
-        :return: results in a dict
+        :return: simulation results in a dict
         """
 
         agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp)
