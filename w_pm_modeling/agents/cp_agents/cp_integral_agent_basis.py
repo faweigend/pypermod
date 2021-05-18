@@ -1,8 +1,8 @@
 import logging
 from abc import abstractmethod
 
-from w_pm_modeling.agents.integral_agent_basis import IntegralAgentBasis
 import numpy as np
+from w_pm_modeling.agents.integral_agent_basis import IntegralAgentBasis
 
 
 class CpIntegralAgentBasis(IntegralAgentBasis):
@@ -178,7 +178,13 @@ class CpIntegralAgentBasis(IntegralAgentBasis):
         walks through stored data and creates the corresponding W'bal history
         """
         np_data = np.array(self._data)
-        self._dcp = self._cp - np.mean(np_data[(np_data - self._cp) < 0])
+
+        # dcp only works if power demand is below CP at any point
+        if np.any(np_data[(np_data - self._cp) < 0]):
+            self._dcp = self._cp - np.mean(np_data[(np_data - self._cp) < 0])
+        else:
+            self._dcp = 0
+
         self._w_bal_hist = []
         for i, tp in enumerate(self._data):
             # keep track of time (assumes 1 step per sec)
