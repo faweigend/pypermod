@@ -1,4 +1,5 @@
 import math
+
 from w_pm_modeling.agents.cp_agents.cp_integral_agent_basis import CpIntegralAgentBasis
 
 
@@ -11,14 +12,15 @@ class CpAgentSkiba2012(CpIntegralAgentBasis):
     Depending on average difference to CP of the whole recovery bout.
     """
 
-    def __init__(self, w_p: float, cp: float):
+    def __init__(self, w_p: float, cp: float, hz: int):
         """
         constructor with basic constants
-        :param cp:
-        :param w_p:
+        :param cp: CP
+        :param w_p: W'
+        :param hz: the time steps per second the agent operates in
         """
 
-        super().__init__(w_p=w_p, cp=cp)
+        super().__init__(w_p=w_p, cp=cp, hz=hz)
 
     def _recover(self):
         """
@@ -31,7 +33,7 @@ class CpAgentSkiba2012(CpIntegralAgentBasis):
             tau = 546 * pow(math.e, (-0.01 * self._dcp)) + 316
             # EQ (2) in Skiba et al. 2012
             # decrease expended W' according to time if power output is below cp
-            w_exp = self._w_u * pow(math.e, -(self._t - self._u) / tau)
+            w_exp = self._w_u * pow(math.e, -(self._hz_t - self._u) / tau)
         else:
             w_exp = 0
 

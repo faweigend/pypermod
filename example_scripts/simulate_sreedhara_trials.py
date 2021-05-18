@@ -10,7 +10,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-    hz = 1
+    hz = 10
 
     # averages from paper
     w_p = 12082
@@ -59,6 +59,7 @@ if __name__ == "__main__":
 
     # set up the figure
     fig = plt.figure(figsize=(12, 6))
+    PlotLayout.set_rc_params()
     ax1 = fig.add_subplot(1, 3, 1)
     ax2 = fig.add_subplot(1, 3, 2, sharey=ax1)
     ax3 = fig.add_subplot(1, 3, 3, sharey=ax1)

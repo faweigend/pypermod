@@ -10,6 +10,8 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
+    hz = 10
+
     # averaged values from paper
     cp = 241
     w_p = 21100
@@ -42,7 +44,7 @@ if __name__ == "__main__":
     results = StudySimulator.simulate_chidnok_trials(w_p=w_p, cp=cp,
                                                      hyd_agent_configs=ps,
                                                      p6_p=p6_p, sev=sev, hig=hig,
-                                                     med=med, low=low)
+                                                     med=med, low=low, hz=hz)
 
     # initiate the plot
     fig = plt.figure(figsize=(8, 5))

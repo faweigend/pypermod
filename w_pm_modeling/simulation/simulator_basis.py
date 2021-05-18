@@ -1,12 +1,11 @@
 import logging
-import numpy as np
 
+import numpy as np
+from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from w_pm_modeling.agents.cp_agents.cp_differential_agent_basis import CpDifferentialAgentBasis
 from w_pm_modeling.agents.cp_agents.cp_integral_agent_basis import CpIntegralAgentBasis
-from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
 
 
-# TODO: recovery dynamics need a cleaner estimation. Now every second is calculated. That is overkill! Also integral agents with a higher hz are needed.
 class SimulatorBasis:
     """
     Contains convenience functions to run simulations with performance modelling agents. Exemplary simulations are
@@ -14,104 +13,6 @@ class SimulatorBasis:
     """
     # the maximal number of steps for a single simulation run
     step_limit = 5000
-
-    @staticmethod
-    def do_a_tte(agent, p_exp, step_function=None):
-        """
-        a normal time to exhaustion test
-        :param agent:
-        :param p_exp:
-        :param step_function:
-        :return:
-        """
-        agent.reset()
-
-        if step_function is None:
-            step_function = agent.perform_one_step
-
-        # WB1 Exhaust...
-        agent.set_power(p_exp)
-        steps = 0
-        while not agent.is_exhausted() and steps < SimulatorBasis.step_limit:
-            step_function()
-            steps += 1
-        wb1_t = agent.get_time()
-
-        if not agent.is_exhausted():
-            raise UserWarning("exhaustion not reached!")
-
-        return wb1_t
-
-    @staticmethod
-    def get_recovery_dynamics_caen(agent, p_exp: float, p_rec: float, t_rec: int):
-        """
-        returns recovery dynamics of given agent according to Caen et al.'s WB1 -> RB -> WB2 protocol.
-        Integral and differential agents need to be treated differently
-        :param agent:
-        :param p_exp:
-        :param p_rec:
-        :param t_rec: total recovery time frame dynamics are needed for
-        :return:
-        """
-
-        # The handling in case of an integral agent
-        if isinstance(agent, CpIntegralAgentBasis):
-            # Integral agents provide a build-in function
-            dyns = (np.array(agent.get_recovery_dynamics(p_rec=p_rec))[:(t_rec + 1)] / agent.w_p) * 100.0
-            if len(dyns) < (t_rec + 1):
-                appendix = [100.0] * (t_rec - len(dyns) + 1)
-                dyns = np.hstack([dyns, appendix])
-            return dyns
-        elif isinstance(agent, CpDifferentialAgentBasis) or isinstance(agent, ThreeCompHydAgent):
-            # iterate t_recs starting from 0 until t_rec is reached
-            t_rec_i = 0
-            w_bal_hist = [SimulatorBasis.get_recovery_ratio_caen(agent, p_exp, p_rec, t_rec_i)]
-            while t_rec_i < t_rec:
-                # next time step
-                t_rec_i += 1
-                # skip calculations if already recovered
-                if w_bal_hist[-1] > 99.9:
-                    w_bal_hist.append(100.0)
-                else:
-                    w_bal_hist.append(SimulatorBasis.get_recovery_ratio_caen(agent, p_exp, p_rec, t_rec_i))
-            return w_bal_hist
-        else:
-            logging.warning("unknown agent type {}".format(agent))
-
-    @staticmethod
-    def get_recovery_dynamics_sreedhara(agent, p_exp: float, t_exp: int, p_rec: float, t_rec: int):
-        """
-        returns recovery dynamics of given agent according to the protocol by Sreedhara et al.
-        2min at P4 -> recovery -> P4 all out. Recovery is (t_WB1 + t_WB2 - 240s) / 240s
-        :param agent:
-        :param p_exp:
-        :param t_exp:
-        :param p_rec:
-        :param t_rec:
-        :return:
-        """
-
-        t_rec_i = 0
-
-        # iterate t_recs starting from 0 until t_rec is reached
-        w_bal_hist = [SimulatorBasis.get_recovery_ratio_sreedhara(agent,
-                                                                  p_exp,
-                                                                  t_exp,
-                                                                  p_rec,
-                                                                  t_rec_i)]
-        while t_rec_i < t_rec:
-            # next time step
-            t_rec_i += 1
-            # skip calculations if already recovered
-            if w_bal_hist[-1] > 99.9:
-                w_bal_hist.append(100.0)
-            else:
-                w_bal_hist.append(SimulatorBasis.get_recovery_ratio_sreedhara(agent,
-                                                                              p_exp,
-                                                                              t_exp,
-                                                                              p_rec,
-                                                                              t_rec_i))
-        return w_bal_hist
 
     @staticmethod
     def get_recovery_ratio_caen(agent, p_exp, p_rec, t_rec):
@@ -125,15 +26,25 @@ class SimulatorBasis:
         :return: ratio in percent
         """
 
+        agent.reset()
+        hz = agent.hz
+
         # The handling agent types
         if isinstance(agent, CpIntegralAgentBasis):
-            # Integral agents provide a build-in function
-            return agent.get_recovery_ratio(p_exp, p_rec, t_rec)
-        elif isinstance(agent, CpDifferentialAgentBasis) or isinstance(agent, ThreeCompHydAgent):
-            # Use the caen trials for recovery estimations in the differential case
-            hz = agent.hz
-            agent.reset()
+            # consider hz setting of agent
+            t_rec = t_rec * hz
+            # use build-in function of integral agents
+            dynamics = agent.get_recovery_dynamics(p_rec, max_t=t_rec)
+            ratio = 100.0
+            # no recovery if no recovery time
+            if t_rec == 0:
+                ratio = 0.0
+            # if rec_time is not in dynamics recovery is already at 100%
+            elif t_rec < len(dynamics):
+                ratio = (dynamics[t_rec - 1] / agent.w_p) * 100.0
+            return ratio
 
+        elif isinstance(agent, CpDifferentialAgentBasis) or isinstance(agent, ThreeCompHydAgent):
             # WB1 Exhaust...
             agent.set_power(p_exp)
             steps = 0
@@ -167,6 +78,8 @@ class SimulatorBasis:
     def get_recovery_ratio_sreedhara(agent, p_exp, t_exp, p_rec, t_rec):
         """
         Use the protocol by Sreedhara et al. to estimate recovery
+        For example with p_exp as P$:
+        2min at P4 -> recovery -> P4 all out. Recovery is (t_WB1 + t_WB2 - 240s) / 240s
         :param agent:
         :param p_exp: exercise intensity
         :param t_exp: time of predicted exhaustion at p_exp
@@ -185,7 +98,7 @@ class SimulatorBasis:
             w_bal_hist = agent.estimate_w_p_bal_to_data(data)
             t3 = w_bal_hist.index(0)  # time point of exhaustion
             # the equation to estimate recovery from ttes of both bouts
-            return ((120.0 + (float(t3) - (120.0 + t_rec)) - 240.0) / 240.0) * 100.0
+            return ((round(t_exp / 2) + (float(t3) - (round(t_exp / 2) + t_rec)) - t_exp) / t_exp) * 100.0
 
         elif isinstance(agent, CpDifferentialAgentBasis) or isinstance(agent, ThreeCompHydAgent):
             # start from 0
@@ -212,7 +125,7 @@ class SimulatorBasis:
             t3 = agent.get_time()
 
             # apply Sreedhara et al.'s equation
-            return ((t1 + (t3 - t2) - t_exp) / t_exp) * 100.0
+            return ((t1 + (t3 - t2) - (t_exp / agent.hz)) / (t_exp / agent.hz)) * 100.0
         else:
             logging.warning("unknown agent type {}".format(agent))
 

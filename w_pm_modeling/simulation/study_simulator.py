@@ -35,7 +35,7 @@ class StudySimulator(SimulatorBasis):
 
         agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
         agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
-        agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp)
+        agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
 
         agents = [agent_bartram, agent_skiba_2015, agent_skiba_2012]
 
@@ -64,7 +64,7 @@ class StudySimulator(SimulatorBasis):
 
     @staticmethod
     def simulate_chidnok_trials(w_p: float, cp: float, hyd_agent_configs: list, p6_p: float,
-                                sev: float, hig: float, med: float, low: float):
+                                sev: float, hig: float, med: float, low: float, hz: int):
         """
         Simulates the trials made by Chidnok et al. 2012.
         It utilises the intensities p6_p, sev, hig, med, low to create their trial setup of 60 sec and 30 sec intervals
@@ -76,17 +76,16 @@ class StudySimulator(SimulatorBasis):
         :param hig: high rec intensity
         :param med: medium rec intensity
         :param low: low rec intensity
+        :param hz: time steps per second for the agents
         :return: simulation results in a dict
         """
 
         # results dict
         trial_results = {}
 
-        # integral agents have to work with 1hz
-        hz = 1
         agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
         agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
-        agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp)
+        agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
 
         agents = [agent_bartram, agent_skiba_2015, agent_skiba_2012]
 
@@ -135,7 +134,7 @@ class StudySimulator(SimulatorBasis):
         :return: simulation results in a dict
         """
 
-        agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp)
+        agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
         agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
         agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
 
@@ -226,7 +225,7 @@ class StudySimulator(SimulatorBasis):
 
         agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
         agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
-        agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp)
+        agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
 
         agents = [agent_bartram, agent_skiba_2015, agent_skiba_2012]
 
@@ -248,11 +247,12 @@ class StudySimulator(SimulatorBasis):
 
             # make use of insert function to not overwrite saved data
             results = StudySimulator.__insert_with_enumeration(agent, agent_data, results)
-
+            # update about progress
+            logging.info("{} simulation done".format(agent.get_name()))
         return results
 
     @staticmethod
-    def __insert_with_enumeration(agent, agent_data, results):
+    def __insert_with_enumeration(agent, agent_data: list, results: dict):
         """
         Checks if agent with the same name has stored data already and enumerates in case
         :param agent: agent that produced data

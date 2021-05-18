@@ -14,14 +14,14 @@ class CpIntegralAgentBasis(IntegralAgentBasis):
     * performance above CP drains W' in a linear fashion
     """
 
-    def __init__(self, w_p: float, cp: float):
+    def __init__(self, w_p: float, cp: float, hz: int):
         """
         constructor with basic constants
         :param cp:
         :param w_p:
         """
 
-        super().__init__()
+        super().__init__(hz=hz)
 
         # constants
         self._w_p = w_p
@@ -34,8 +34,6 @@ class CpIntegralAgentBasis(IntegralAgentBasis):
         self._dcp = None
         self._w_u = None
         self._u = None
-
-        self._t = 0
 
     def reset(self):
         """
@@ -50,15 +48,11 @@ class CpIntegralAgentBasis(IntegralAgentBasis):
         self._u = None
 
         self._t = 0
+        self._hz_t = 0
 
     def get_w_p_balance_history(self):
         """:return: """
         return self._w_bal_hist
-
-    @property
-    def hz(self):
-        """:return: hz. Integral hz default to 1"""
-        return 1
 
     @property
     def cp(self):
@@ -69,24 +63,6 @@ class CpIntegralAgentBasis(IntegralAgentBasis):
     def w_p(self):
         """:return: anaerobic capacity"""
         return self._w_p
-
-    def get_recovery_ratio(self, p_exp: float, p_rec: float, t_rec: int):
-        """
-        run a recovery estimation trial
-        :param p_exp:
-        :param p_rec:
-        :param t_rec:
-        :return: ratio as a percentage of W'
-        """
-        dynamics = self.get_recovery_dynamics(p_rec)
-        ratio = 100.0
-        # no recovery if no recovery time
-        if t_rec == 0:
-            ratio = 0.0
-        # if rec_time is not in dynamics recovery is already at 100%
-        elif t_rec < len(dynamics):
-            ratio = (dynamics[t_rec - 1] / self._w_p) * 100.0
-        return ratio
 
     def get_expenditure_dynamics(self, p: float, w_bal: float = None):
         """
@@ -130,12 +106,13 @@ class CpIntegralAgentBasis(IntegralAgentBasis):
         dynamics = self.get_expenditure_dynamics(p=p, w_bal=w_bal)
         return len(dynamics)
 
-    def get_recovery_dynamics(self, p_rec: float, init_w_bal: float = None):
+    def get_recovery_dynamics(self, p_rec: float, init_w_bal: float = None, max_t: float = 5000):
         """
         Returns recovery dynamics given recovery power p. Position 0 in the resulting array is the initial w'bal.
         The integral approach does not consider changes in p_rec during recovery estimations.
         :param p_rec: recovery bout intensity
         :param init_w_bal: the W'bal to start recovery from
+        :param max_t: maximal time steps to be computed
         :return: W'bal history starting at second 0
         """
         # reset internal params
@@ -152,11 +129,13 @@ class CpIntegralAgentBasis(IntegralAgentBasis):
             self._w_bal_hist = [init_w_bal]
 
         self._dcp = self._cp - p_rec
-        self._u = self._t
+        self._u = self._hz_t
         self._w_u = self._w_p - self._get_last_entry()
 
-        while self._get_last_entry() < self._w_p:
+        while self._get_last_entry() < self._w_p and self._t < max_t:
             self._t += 1
+            # consider hz for recovery steps
+            self._hz_t = self._t / self._hz
             self._recover()
 
         # because it started with the initial time step using wp
@@ -187,13 +166,14 @@ class CpIntegralAgentBasis(IntegralAgentBasis):
 
         self._w_bal_hist = []
         for i, tp in enumerate(self._data):
-            # keep track of time (assumes 1 step per sec)
+            # keep track of time
             self._t = i + 1
+            self._hz_t = self._t / self._hz
 
             if tp >= self._cp:
                 # update u and w'u as long as energy is expended
                 # self._dcp = None
-                self._u = self._t
+                self._u = self._hz_t
                 self._expend(tp)
                 self._w_u = self._w_p - self._w_bal_hist[-1]
             else:
@@ -216,7 +196,7 @@ class CpIntegralAgentBasis(IntegralAgentBasis):
         """
         last = self._get_last_entry()
         # cannot drop further than 0 because agent is exhausted
-        self._w_bal_hist.append(max(last - (p - self._cp), 0))
+        self._w_bal_hist.append(max(last - (p - self._cp) / self._hz, 0))
 
     @abstractmethod
     def _recover(self):
