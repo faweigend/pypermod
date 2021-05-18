@@ -1,6 +1,5 @@
 import logging
 
-import numpy as np
 from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from w_pm_modeling.agents.cp_agents.cp_differential_agent_basis import CpDifferentialAgentBasis
 from w_pm_modeling.agents.cp_agents.cp_integral_agent_basis import CpIntegralAgentBasis
@@ -130,49 +129,11 @@ class SimulatorBasis:
             logging.warning("unknown agent type {}".format(agent))
 
     @staticmethod
-    def simulate_test_run(agent):
-        """
-        Simulate a test run on an artificial course to investigate expenditure and recovery dynamics
-        :return:
-        """
-        # 3 minute intervals considering the hz setting of the agent
-        inter = 180 * agent.hz
-
-        # the power demands over the artificial course
-        course = [100] * inter + \
-                 [250] * inter + \
-                 [100] * inter + \
-                 [250] * inter + \
-                 [50] * inter + \
-                 [50] * inter + \
-                 [50] * inter + \
-                 [300] * inter + \
-                 [200] * inter
-
-        agent.reset()
-
-        times = np.arange(0, len(course)) / agent.hz
-
-        # differentiate between integral and differential agent
-        if isinstance(agent, CpIntegralAgentBasis):
-            w_bal_hist = agent.estimate_w_p_bal_to_data(course)
-            return times, course, w_bal_hist
-
-        elif isinstance(agent, CpDifferentialAgentBasis):
-            balances, powers = [], []
-            for tick in course:
-                agent.set_power(tick)
-                powers.append(agent.perform_one_step())
-                balances.append(agent.get_w_p_balance())
-
-            return times, powers, balances
-
-    @staticmethod
     def simulate_course(agent, course_data):
         """
         lets given agent run the given course
         :param agent:
-        :param course_data:
+        :param course_data: Expected as a list of intensities in Watts
         :return:
         """
 

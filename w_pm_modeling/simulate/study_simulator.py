@@ -5,7 +5,7 @@ from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from w_pm_modeling.agents.cp_agents.cp_agent_bartram import CpAgentBartram
 from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2012 import CpAgentSkiba2012
 from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2015 import CpAgentSkiba2015
-from w_pm_modeling.simulation.simulator_basis import SimulatorBasis
+from w_pm_modeling.simulate.simulator_basis import SimulatorBasis
 
 
 class StudySimulator(SimulatorBasis):

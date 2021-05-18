@@ -3,7 +3,7 @@ import logging
 import matplotlib.pyplot as plt
 import numpy as np
 from w_pm_modeling.performance_modeling_utility import PlotLayout
-from w_pm_modeling.simulation.study_simulator import StudySimulator
+from w_pm_modeling.simulate.study_simulator import StudySimulator
 
 if __name__ == "__main__":
     # general settings

@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setuptools.setup(
     name="performance_modeling",
-    version="1.0.1",
+    version="1.0.2",
     description="Performance modeling examples including Critical Power based agents "
                 "and simulations on past recovery dynamic studies",
     long_description=README,
