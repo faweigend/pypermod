@@ -1,47 +1,61 @@
 import logging
 
 import matplotlib.pyplot as plt
-import matplotlib
-
-from w_pm_modeling.performance_modeling_utility import plot_labels, plot_colors, plot_grayscale, plot_colors_linestyles, plot_grayscale_linestyles
-from w_pm_modeling.visualise.skiba_vs_three_comp import simulate_sreedhara_trials
-from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
+import numpy as np
+from w_pm_modeling.performance_modeling_utility import PlotLayout
+from w_pm_modeling.simulation.study_simulator import StudySimulator
 
 if __name__ == "__main__":
     # general settings
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
-    matplotlib.rcParams['font.size'] = 12
-    black_and_white = False
+
     hz = 1
 
-    # Define lookups depending on color or grayscale
-    if black_and_white is True:
-        color_lookup = plot_grayscale
-        linestyle_lookup = plot_grayscale_linestyles
-        label_lookup = plot_labels
-    else:
-        color_lookup = plot_colors
-        linestyle_lookup = plot_colors_linestyles
-        label_lookup = plot_labels
+    # averages from paper
+    w_p = 12082
+    cp = 302
+
+    # exercise intensity at p4
+    t_exp = 240
+    p_exp = (w_p / t_exp) + cp
+
+    # recovery intensities
+    p_rec_l = 20  # low intensity from paper too
+    p_rec_m = 188.1  # med intensity
+    p_rec_h = 255.5  # high intensity
+
+    rec_times = np.arange(0, 910, 10)
 
     # fitted to Sreedhara et al. (w_p = 12082 cp = 302)
     # averages from paper W' and CP measures and
     # Caen et al. recovery measures
-    p = [            16847.124347298122,
+    ps = [
+        [
+            16847.124347298122,
             84121.41847324179,
             302.58742411581034,
             74.46271992319922,
             6.142624655991003,
             0.8866234723310764,
             0.013290340188260058,
-            0.0874563364053417]
+            0.0874563364053417
+        ]
+    ]
 
-    # create the agent
-    three_comp_agent = ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1], m_ae=p[2], m_ans=p[3], m_anf=p[4],
-                                         the=p[5], gam=p[6], phi=p[7])
+    # ground truth values from paper
+    ground_truth_t = [120, 360, 900]
+    ground_truth_l_v = [33.7, 40.62, 39.01]
+    ground_truth_m_v = [18.95, 31.51, 19.2]
+    ground_truth_h_v = [3.31, 6.47, -15.53]
 
-    results = simulate_sreedhara_trials(three_comp_agent)
+    # simulate all agents
+    l_results = StudySimulator.simulate_sreedhara_trials(w_p=w_p, cp=cp, hyd_agent_configs=ps, p_rec=p_rec_l,
+                                                         p_exp=p_exp, t_exp=t_exp, rec_times=rec_times, hz=hz)
+    m_results = StudySimulator.simulate_sreedhara_trials(w_p=w_p, cp=cp, hyd_agent_configs=ps, p_rec=p_rec_m,
+                                                         p_exp=p_exp, t_exp=t_exp, rec_times=rec_times, hz=hz)
+    h_results = StudySimulator.simulate_sreedhara_trials(w_p=w_p, cp=cp, hyd_agent_configs=ps, p_rec=p_rec_h,
+                                                         p_exp=p_exp, t_exp=t_exp, rec_times=rec_times, hz=hz)
 
     # set up the figure
     fig = plt.figure(figsize=(12, 6))
@@ -49,44 +63,28 @@ if __name__ == "__main__":
     ax2 = fig.add_subplot(1, 3, 2, sharey=ax1)
     ax3 = fig.add_subplot(1, 3, 3, sharey=ax1)
 
-    # Sreedhara plots
-    intensities = list(results["ground_truth"].values())
+    # plot ground truth
+    ax1.scatter(ground_truth_t, ground_truth_l_v, color=PlotLayout.get_plot_color("ground_truth"))
+    ax2.scatter(ground_truth_t, ground_truth_m_v, color=PlotLayout.get_plot_color("ground_truth"))
+    ax3.scatter(ground_truth_t, ground_truth_h_v, color=PlotLayout.get_plot_color("ground_truth"))
 
-    low_int = intensities[0]
-    ax1.scatter(low_int.keys(), low_int.values(), color=color_lookup["ground_truth"],
-                label=label_lookup["ground_truth"])
-    med_int = intensities[1]
-    ax2.scatter(med_int.keys(), med_int.values(), color=color_lookup["ground_truth"],
-                label=label_lookup["ground_truth"])
-    hig_int = intensities[2]
-    ax3.scatter(hig_int.keys(), hig_int.values(), color=color_lookup["ground_truth"],
-                label=label_lookup["ground_truth"])
+    # plot simulated agent data
+    for agent_name, agent_data in l_results.items():
+        ax1.plot(rec_times, agent_data,
+                 color=PlotLayout.get_plot_color(agent_name),
+                 linestyle=PlotLayout.get_plot_linestyle(agent_name))
+        ax2.plot(rec_times, m_results[agent_name],
+                 color=PlotLayout.get_plot_color(agent_name),
+                 linestyle=PlotLayout.get_plot_linestyle(agent_name))
+        ax3.plot(rec_times, h_results[agent_name],
+                 color=PlotLayout.get_plot_color(agent_name),
+                 linestyle=PlotLayout.get_plot_linestyle(agent_name))
 
-    for agent_name, agent_trials in results["agents"].items():
-        # get values of trial dict
-        trial_vals = list(agent_trials.values())
-        # plot results in corresponding axis
-        ax1.plot(trial_vals[0],
-                 color=color_lookup[agent_name],
-                 linestyle=linestyle_lookup[agent_name],
-                 label=label_lookup[agent_name])
+    # create legend
+    handles = PlotLayout.create_standardised_legend(l_results.keys(), ground_truth=True)
+    ax1.legend(handles=handles)
 
-        ax2.plot(trial_vals[1],
-                 color=color_lookup[agent_name],
-                 linestyle=linestyle_lookup[agent_name],
-                 label=label_lookup[agent_name])
-
-        ax3.plot(trial_vals[2],
-                 color=color_lookup[agent_name],
-                 linestyle=linestyle_lookup[agent_name],
-                 label=label_lookup[agent_name])
-
-    p_rec_l = 20  # low intensity from paper too
-    p_rec_m = 188.1  # med intensity
-    p_rec_h = 255.5  # high intensity
-    cp = 302
-
-    ax1.legend()
+    # finish layout
     fig.suptitle("Sreedhara et al. (2020)")
     # ax1.set_title(r'$P4 \rightarrow  20W$')
     # ax2.set_title(r'$P4 \rightarrow  {:0>2}W$'.format(p_rec_m))
@@ -106,6 +104,5 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.subplots_adjust(top=0.85, bottom=0.15, )
     fig.text(0.5, 0.04, 'recovery duration (min)', ha='center')
-
     plt.show()
     plt.close(fig=fig)

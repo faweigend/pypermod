@@ -82,7 +82,7 @@ plot_grayscale_linestyles = {
 
 class PlotLayout:
     """
-    Helperclass to standardise the layout for plots
+    Helperclass to standardise the layout for all plots
     """
 
     @staticmethod
@@ -99,16 +99,21 @@ class PlotLayout:
     def create_standardised_legend(agents, ground_truth: bool = False, errorbar: bool = False):
         """
         Creates a legend in standardised format
-        :param agents:
-        :return:
+        :param agents: list of agent names used for the lookup of color, linestyle, etc.
+        :param ground_truth: whether a ground truth label should be added
+        :param errorbar: whether the ground truth label should have errorbars for std
+        :return: a list of legend handles
         """
 
+        # will be filled with proxies
         handles = []
 
+        # count hydraulic agents for info in label
         hyd_num = sum(["ThreeCompHydAgent" in s for s in agents])
 
-        # Create the legend
+        # Create proxies for ever agent
         for p_res_key in agents:
+            # skip hydraulic agents. They are summarised as one after the loop
             if "ThreeCompHyd" in p_res_key:
                 continue
             handles.append(Line2D([], [],
@@ -116,6 +121,7 @@ class PlotLayout:
                                   linestyle=PlotLayout.get_plot_linestyle(p_res_key),
                                   label=PlotLayout.get_plot_label(p_res_key)))
 
+        # summarise hydraulic agents in one entry
         hyd_label = PlotLayout.get_plot_label("ThreeCompHydAgent")
         if hyd_num > 1:
             hyd_label += " ({})".format(hyd_num)
@@ -124,7 +130,7 @@ class PlotLayout:
                               linestyle=PlotLayout.get_plot_linestyle("ThreeCompHydAgent"),
                               label=hyd_label))
 
-        # plot the ground truth obs if required
+        # plot the ground truth legend entry if required
         if ground_truth is True:
             if errorbar is True:
                 line = Line2D([], [], linestyle='None', marker='o',
@@ -183,7 +189,7 @@ class PlotLayout:
     @staticmethod
     def __use_lookup(lookup, item_str):
         """
-        Helper function to look_up item str in corresponding dictionary. Special cases for enumerated
+        Helper function to look up item_str in corresponding dictionary. Special cases for enumerated
         hydraulic models are considered.
         :param lookup: the dictionary to look the given item_str up in
         :param item_str: item to look up
