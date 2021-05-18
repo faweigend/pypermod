@@ -39,13 +39,13 @@ if __name__ == "__main__":
 
     # run simulations for all four conditions
     results_p4_cp_33 = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=ps, p_exp=p_4,
-                                                          p_rec=cp_33, rec_times=rec_times)
+                                                          p_rec=cp_33, rec_times=rec_times, hz=hz)
     results_p4_cp_66 = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=ps, p_exp=p_4,
-                                                          p_rec=cp_66, rec_times=rec_times)
+                                                          p_rec=cp_66, rec_times=rec_times, hz=hz)
     results_p8_cp_33 = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=ps, p_exp=p_8,
-                                                          p_rec=cp_33, rec_times=rec_times)
+                                                          p_rec=cp_33, rec_times=rec_times, hz=hz)
     results_p8_cp_66 = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=ps, p_exp=p_8,
-                                                          p_rec=cp_66, rec_times=rec_times)
+                                                          p_rec=cp_66, rec_times=rec_times, hz=hz)
 
     # separated ground truth values from the paper
     ground_truth_t = [120, 240, 360]
@@ -72,8 +72,7 @@ if __name__ == "__main__":
     # plot ground truth obs
     color = PlotLayout.get_plot_color("ground_truth")
     linestyle = PlotLayout.get_plot_linestyle("ground_truth")
-    ax1.scatter(ground_truth_t, ground_truth_p4_cp33, color=color, linestyle=linestyle,
-                label=PlotLayout.get_plot_label("ground_truth"))
+    ax1.scatter(ground_truth_t, ground_truth_p4_cp33, color=color, linestyle=linestyle)
     ax2.scatter(ground_truth_t, ground_truth_p4_cp66, color=color, linestyle=linestyle)
     ax3.scatter(ground_truth_t, ground_truth_p8_cp33, color=color, linestyle=linestyle)
     ax4.scatter(ground_truth_t, ground_truth_p8_cp66, color=color, linestyle=linestyle)
@@ -86,7 +85,6 @@ if __name__ == "__main__":
         ax4.plot(rec_times, results_p8_cp_66[p_res_key], color=PlotLayout.get_plot_color(p_res_key))
 
     # finalise layout
-    ax1.legend()
     fig.suptitle("Caen et al. (2019)")
     ax1.set_title(r'$P4 \rightarrow CP33$')
     ax2.set_title(r'$P4 \rightarrow CP66$')
@@ -99,25 +97,10 @@ if __name__ == "__main__":
     for ax in [ax1, ax2, ax3, ax4]:
         ax.set_xticks([0, 120, 240, 360])
 
-    # Create the legend
-    for p_res_key, p_res_val in results_p4_cp_33.items():
-        if "ThreeCompHyd" in p_res_key:
-            continue
-        ax1.plot([],
-                 color=PlotLayout.get_plot_color(p_res_key),
-                 linestyle=PlotLayout.get_plot_linestyle(p_res_key),
-                 label=PlotLayout.get_plot_label(p_res_key))
-    hyd_label = PlotLayout.get_plot_label("ThreeCompHydAgent")
-    hyd_label += "({})".format(len(ps)) if len(ps) > 1 else ""
-    ax1.plot([],
-             color=PlotLayout.get_plot_color("ThreeCompHydAgent"),
-             linestyle=PlotLayout.get_plot_linestyle("ThreeCompHydAgent"),
-             label=hyd_label)
-    # sort the legend into the right order
-    handles, labels = ax1.get_legend_handles_labels()
-    # sort both labels and handles by labels
-    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
-    ax1.legend(handles, labels)
+    # create legend
+    handles = PlotLayout.create_standardised_legend(agents=results_p8_cp_33.keys(),
+                                                    ground_truth=True)
+    ax1.legend(handles=handles)
 
     # finish plot
     plt.tight_layout()

@@ -1,7 +1,11 @@
 from collections import defaultdict
 
 import matplotlib
+import numpy as np
 import w_pm_modeling.performance_modeling_config
+from matplotlib.collections import LineCollection
+from matplotlib.container import ErrorbarContainer
+from matplotlib.lines import Line2D
 
 plot_labels = {
     "CpAgentSkiba2012": "skiba2012",
@@ -90,6 +94,52 @@ class PlotLayout:
         matplotlib.rcParams['font.size'] = 12
         matplotlib.rcParams['pdf.fonttype'] = 42
         matplotlib.rcParams['ps.fonttype'] = 42
+
+    @staticmethod
+    def create_standardised_legend(agents, ground_truth: bool = False, errorbar: bool = False):
+        """
+        Creates a legend in standardised format
+        :param agents:
+        :return:
+        """
+
+        handles = []
+
+        hyd_num = sum(["ThreeCompHydAgent" in s for s in agents])
+
+        # Create the legend
+        for p_res_key in agents:
+            if "ThreeCompHyd" in p_res_key:
+                continue
+            handles.append(Line2D([], [],
+                                  color=PlotLayout.get_plot_color(p_res_key),
+                                  linestyle=PlotLayout.get_plot_linestyle(p_res_key),
+                                  label=PlotLayout.get_plot_label(p_res_key)))
+
+        hyd_label = PlotLayout.get_plot_label("ThreeCompHydAgent")
+        if hyd_num > 1:
+            hyd_label += " ({})".format(hyd_num)
+        handles.append(Line2D([], [],
+                              color=PlotLayout.get_plot_color("ThreeCompHydAgent"),
+                              linestyle=PlotLayout.get_plot_linestyle("ThreeCompHydAgent"),
+                              label=hyd_label))
+
+        # plot the ground truth obs if required
+        if ground_truth is True:
+            if errorbar is True:
+                line = Line2D([], [], linestyle='None', marker='o',
+                              color=PlotLayout.get_plot_color("ground_truth"))
+                barline = LineCollection(np.empty((2, 2, 2)))
+                err = ErrorbarContainer((line, [line], [barline]), has_xerr=False, has_yerr=True,
+                                        label=PlotLayout.get_plot_label("ground_truth"))
+                handles.append(err)
+            else:
+                handles.append(Line2D([], [],
+                                      linestyle='None', marker='o',
+                                      color=PlotLayout.get_plot_color("ground_truth"),
+                                      label=PlotLayout.get_plot_label("ground_truth")))
+
+        return handles
 
     @staticmethod
     def get_plot_color(item_str: str):

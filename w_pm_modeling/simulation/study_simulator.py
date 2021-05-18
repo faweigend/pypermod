@@ -10,7 +10,7 @@ from w_pm_modeling.simulation.simulator_basis import SimulatorBasis
 class StudySimulator(SimulatorBasis):
 
     @staticmethod
-    def standard_comparison(w_p, cp, hyd_agent_configs, p_exp, p_rec, rec_times):
+    def standard_comparison(w_p, cp, hyd_agent_configs, p_exp, p_rec, rec_times, hz):
         """
         :param cp_agents:
         :param hyd_agetns:
@@ -23,7 +23,6 @@ class StudySimulator(SimulatorBasis):
         # add agents dict to results
         trial_results = {}
 
-        hz = 10
         agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
         agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
         agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp)
@@ -121,7 +120,8 @@ class StudySimulator(SimulatorBasis):
                 trial_results[agent.get_name()] = agent_results
             else:
                 # add index to agent name if another agent of same type was simulated before
-                new_name = agent.get_name() + "_" + str(sum([agent.get_name() in s for s in list(trial_results.keys())]))
+                new_name = agent.get_name() + "_" + str(
+                    sum([agent.get_name() in s for s in list(trial_results.keys())]))
                 trial_results[new_name] = agent_results
 
         return trial_results

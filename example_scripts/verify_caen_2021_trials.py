@@ -10,7 +10,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-    hz = 10
+    hz = 1
     # means from the paper
     w_p = 19200
     cp = 269
@@ -37,7 +37,8 @@ if __name__ == "__main__":
                                                  hyd_agent_configs=ps,
                                                  p_exp=p_exp,
                                                  p_rec=p_rec,
-                                                 rec_times=rec_times)
+                                                 rec_times=rec_times,
+                                                 hz=hz)
 
     # the ground truth values from the paper
     ground_truth_m_t = [30, 60, 120, 180, 240, 300, 600, 900]  # time steps
@@ -52,8 +53,7 @@ if __name__ == "__main__":
     # plot the ground truth obs
     ax.errorbar(ground_truth_m_t, ground_truth_m_v, ground_truth_m_e,
                 linestyle='None', marker='o', capsize=3,
-                color=PlotLayout.get_plot_color("ground_truth"),
-                label=PlotLayout.get_plot_label("ground_truth"))
+                color=PlotLayout.get_plot_color("ground_truth"))
 
     # plot the agent dynamics
     for agent_n, agent_d in results.items():
@@ -70,25 +70,11 @@ if __name__ == "__main__":
     ax.set_xticklabels(ax.get_xticks(), rotation=-45, ha='center')
     ax.set_ylabel("W' recovery (%)")
 
-    # Create the legend
-    for p_res_key, p_res_val in results.items():
-        if "ThreeCompHyd" in p_res_key:
-            continue
-        ax.plot([],
-                color=PlotLayout.get_plot_color(p_res_key),
-                linestyle=PlotLayout.get_plot_linestyle(p_res_key),
-                label=PlotLayout.get_plot_label(p_res_key))
-    hyd_label = PlotLayout.get_plot_label("ThreeCompHydAgent")
-    hyd_label += "({})".format(len(ps)) if len(ps) > 1 else ""
-    ax.plot([],
-            color=PlotLayout.get_plot_color("ThreeCompHydAgent"),
-            linestyle=PlotLayout.get_plot_linestyle("ThreeCompHydAgent"),
-            label=hyd_label)
-    # sort the legend into the right order
-    handles, labels = ax.get_legend_handles_labels()
-    # sort both labels and handles by labels
-    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
-    ax.legend(handles, labels)
+    # get legend
+    handles = PlotLayout.create_standardised_legend(agents=results.keys(),
+                                                    ground_truth=True,
+                                                    errorbar=True)
+    ax.legend(handles=handles)
 
     # finish plot
     plt.tight_layout()

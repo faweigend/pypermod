@@ -47,6 +47,7 @@ if __name__ == "__main__":
     # initiate the plot
     fig = plt.figure(figsize=(8, 5))
     ax = fig.add_subplot()
+    PlotLayout.set_rc_params()
 
     # plot ground truth obs
     ax.errorbar(np.arange(len(ground_truth_v)), ground_truth_v, ground_truth_e,
@@ -69,25 +70,11 @@ if __name__ == "__main__":
     ax.set_xticks([0, 1, 2, 3])
     ax.set_xticklabels(["S", "H", "M", "L"])
 
-    # Create the legend
-    for p_res_key, p_res_val in results.items():
-        if "ThreeCompHyd" in p_res_key:
-            continue
-        ax.plot([],
-                color=PlotLayout.get_plot_color(p_res_key),
-                linestyle=PlotLayout.get_plot_linestyle(p_res_key),
-                label=PlotLayout.get_plot_label(p_res_key))
-    hyd_label = PlotLayout.get_plot_label("ThreeCompHydAgent")
-    hyd_label += "({})".format(len(ps)) if len(ps) > 1 else ""
-    ax.plot([],
-            color=PlotLayout.get_plot_color("ThreeCompHydAgent"),
-            linestyle=PlotLayout.get_plot_linestyle("ThreeCompHydAgent"),
-            label=hyd_label)
-    # sort the legend into the right order
-    handles, labels = ax.get_legend_handles_labels()
-    # sort both labels and handles by labels
-    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
-    ax.legend(handles, labels)
+    # create legend
+    handles = PlotLayout.create_standardised_legend(agents=results.keys(),
+                                                    ground_truth=True,
+                                                    errorbar=True)
+    ax.legend(handles=handles)
 
     # finish plot
     plt.tight_layout()

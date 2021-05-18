@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     # use simulation function to obtain results
     results = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=ps,
-                                                 p_exp=p_exp, p_rec=prec, rec_times=rec_times)
+                                                 p_exp=p_exp, p_rec=prec, rec_times=rec_times, hz=hz)
 
     # plot setup
     PlotLayout.set_rc_params()
@@ -61,24 +61,8 @@ if __name__ == "__main__":
     ax.set_ylabel("W' recovery (%)")
 
     # Create the legend
-    for p_res_key, p_res_val in results.items():
-        if "ThreeCompHyd" in p_res_key:
-            continue
-        ax.plot([],
-                color=PlotLayout.get_plot_color(p_res_key),
-                linestyle=PlotLayout.get_plot_linestyle(p_res_key),
-                label=PlotLayout.get_plot_label(p_res_key))
-    hyd_label = PlotLayout.get_plot_label("ThreeCompHydAgent")
-    hyd_label += "({})".format(len(ps)) if len(ps) > 1 else ""
-    ax.plot([],
-            color=PlotLayout.get_plot_color("ThreeCompHydAgent"),
-            linestyle=PlotLayout.get_plot_linestyle("ThreeCompHydAgent"),
-            label=hyd_label)
-    # sort the legend into the right order
-    handles, labels = ax.get_legend_handles_labels()
-    # sort both labels and handles by labels
-    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
-    ax.legend(handles, labels)
+    handles = PlotLayout.create_standardised_legend(agents=results.keys())
+    ax.legend(handles=handles)
 
     # finish plot
     plt.subplots_adjust(right=0.96)
