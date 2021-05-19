@@ -1,5 +1,5 @@
 import logging
-from abc import abstractmethod
+import math
 
 import numpy as np
 from w_pm_modeling.agents.integral_agent_basis import IntegralAgentBasis
@@ -26,33 +26,6 @@ class CpIntegralAgentBasis(IntegralAgentBasis):
         # constants
         self._w_p = w_p
         self._cp = cp
-
-        # fully rested, balance equals w_p
-        self._w_bal_hist = []
-        self._data = []
-
-        self._dcp = None
-        self._w_u = None
-        self._u = None
-
-    def reset(self):
-        """
-        resets all parameters
-        :return:
-        """
-        self._w_bal_hist = []
-        self._data = []
-
-        self._dcp = None
-        self._w_u = None
-        self._u = None
-
-        self._t = 0
-        self._hz_t = 0
-
-    def get_w_p_balance_history(self):
-        """:return: """
-        return self._w_bal_hist
 
     @property
     def cp(self):
@@ -147,59 +120,32 @@ class CpIntegralAgentBasis(IntegralAgentBasis):
         :param data:
         :return resulting W'bal history
         """
-        self.reset()
-        self._data = data
-        self._process_data()
-        return self._w_bal_hist
+        return self._process_data(data)
 
-    def _process_data(self):
+    def _process_data(self, data):
         """
         walks through stored data and creates the corresponding W'bal history
         """
-        np_data = np.array(self._data)
+        np_data = np.array(data)
+        w_bal_hist = []
 
         # dcp only works if power demand is below CP at any point
         if np.any(np_data[(np_data - self._cp) < 0]):
-            self._dcp = self._cp - np.mean(np_data[(np_data - self._cp) < 0])
+            dcp = self._cp - np.mean(np_data[(np_data - self._cp) < 0])
         else:
-            self._dcp = 0
+            dcp = 0
 
-        self._w_bal_hist = []
-        for i, tp in enumerate(self._data):
-            # keep track of time
-            self._t = i + 1
-            self._hz_t = self._t / self._hz
+        # Wexp is the cumulative sum of expended energy above CP
+        np_exp = np.where((np_data - self._cp) > 0, np_data - self._cp, 0)
 
-            if tp >= self._cp:
-                # update u and w'u as long as energy is expended
-                # self._dcp = None
-                self._u = self._hz_t
-                self._expend(tp)
-                self._w_u = self._w_p - self._w_bal_hist[-1]
-            else:
-                # otherwise use recovery procedure
-                self._recover()
+        # EQ (3) in Skiba et al. 2012
+        tau = 546 * pow(math.e, (-0.01 * dcp)) + 316
 
-    def _get_last_entry(self):
-        """
-        :return: last W'bal history entry or W' as default
-        """
-        if len(self._w_bal_hist) == 0:
-            return self._w_p
-        else:
-            return self._w_bal_hist[-1]
+        # EQ (2) in Skiba et al. 2012
+        for t in range(len(np_data)):
+            sum_t = 0
+            for u in range(t):
+                sum_t += np_exp[u] * pow(math.e, -(t - u) / tau)
+            w_bal_hist.append(self._w_p - sum_t)
 
-    def _expend(self, p):
-        """
-        draw energy from the W' capacity. Typically in a linear fashion.
-        :param p: power demands
-        """
-        last = self._get_last_entry()
-        # cannot drop further than 0 because agent is exhausted
-        self._w_bal_hist.append(max(last - (p - self._cp) / self._hz, 0))
-
-    @abstractmethod
-    def _recover(self):
-        """
-        recovering happens for p < cp. It reduces W' exp and increases W' balance
-        """
+        return w_bal_hist

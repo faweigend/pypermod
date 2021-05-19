@@ -189,7 +189,7 @@ class StudySimulator(SimulatorBasis):
 
                 # now assemble whole protocol
                 p_intervals = ([p4] * trial[0] + [p_rec] * trial[1]) * num_of_intervals
-                p_exhaust = [p4] * 3000
+                p_exhaust = [p4] * 5000
                 p_total = p_intervals + p_exhaust
 
                 # get W'bal history from agent

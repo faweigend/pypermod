@@ -10,8 +10,13 @@ class IntegralAgentBasis:
         :param hz: The steps per second this agent operates in
         """
         self._hz = hz
-        self._hz_t = 0
-        self._t = 0
+
+    def reset(self):
+        """
+        empty reset function
+        :return:
+        """
+        pass
 
     def get_name(self):
         """
