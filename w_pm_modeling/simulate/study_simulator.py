@@ -3,6 +3,7 @@ import logging
 import numpy as np
 from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from w_pm_modeling.agents.cp_agents.cp_agent_bartram import CpAgentBartram
+from w_pm_modeling.agents.cp_agents.cp_agent_fit_caen import CpAgentFitCaen
 from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2012 import CpAgentSkiba2012
 from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2015 import CpAgentSkiba2015
 from w_pm_modeling.simulate.simulator_basis import SimulatorBasis
@@ -36,8 +37,9 @@ class StudySimulator(SimulatorBasis):
         agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
         agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
         agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
+        agent_fit_caen = CpAgentFitCaen(w_p=w_p, cp=cp, hz=hz)
 
-        agents = [agent_bartram, agent_skiba_2015, agent_skiba_2012]
+        agents = [agent_bartram, agent_skiba_2015, agent_fit_caen]
 
         # create the hydraulic agents
         for p in hyd_agent_configs:
@@ -85,9 +87,10 @@ class StudySimulator(SimulatorBasis):
 
         agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
         agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
-        agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
+        # agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
+        agent_fit_caen = CpAgentFitCaen(w_p=w_p, cp=cp, hz=hz)
 
-        agents = [agent_bartram, agent_skiba_2015, agent_skiba_2012]
+        agents = [agent_bartram, agent_skiba_2015, agent_fit_caen]
 
         # create the hydraulic agents
         for p in hyd_agent_configs:

@@ -10,7 +10,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-    hz = 10
+    hz = 1
     # measures taken from Bartram et al.
     w_p = 23300
     cp = 393

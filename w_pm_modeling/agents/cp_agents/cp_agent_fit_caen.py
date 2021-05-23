@@ -3,12 +3,12 @@ import math
 from w_pm_modeling.agents.cp_agents.cp_differential_agent_basis import CpDifferentialAgentBasis
 
 
-class CpAgentSkiba2015(CpDifferentialAgentBasis):
+class CpAgentFitCaen(CpDifferentialAgentBasis):
     """
-    The virtual agent model employing the 2 parameter CP model and Skiba's 2015 recovery kinetics.
+    The virtual agent model employing the 2 parameter CP model and exponential recovery kinetics.
     Characteristics:
     * performance above CP drains W' in a linear fashion
-    * performance below CP allows W' to recover in exponential fashion. Depending on difference to CP.
+    * performance below CP allows W' to recover in exponential fashion. Depending on a fixed tau that's given.
     * depleted W' results in exhaustion
     """
 
@@ -28,11 +28,9 @@ class CpAgentSkiba2015(CpDifferentialAgentBasis):
         # restore W' if some was expended
         if self._w_exp > 0.1:
 
-            # quote Sreedhara: Dcp is the difference between CP and average power output
-            # during intervals below CP
+            # use results from fitting to caen measurements
             dcp = sum(self._dcp_history) / len(self._dcp_history)
-
-            tau = self._w_p / dcp
+            tau = 850.822466610013 * pow(math.e, (-0.02542815195305181 * dcp)) + 261.82954131635853
 
             # EQ (4) in Clarke and Skiba et. al. 2015
             # decrease expended W' according to time if power output is below cp

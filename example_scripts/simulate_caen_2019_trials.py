@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # general settings
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
-    hz = 10
+    hz = 1
 
     # measures taken from Caen et al.
     # general settings for skiba agent

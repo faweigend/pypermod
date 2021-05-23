@@ -10,7 +10,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-    hz = 10
+    hz = 1
     # means from the paper
     w_p = 19200
     cp = 269
@@ -25,13 +25,13 @@ if __name__ == "__main__":
     # general settings for three component hydraulic agent
     ps = [
         [20677.1733445497,
-           179472.5078726373,
-           269.3909629386831,
-           87.53155946812194,
-           8.867173757279756,
-           0.8086915379675802,
-           0.12369693383481795,
-           0.17661428891272302]
+         179472.5078726373,
+         269.3909629386831,
+         87.53155946812194,
+         8.867173757279756,
+         0.8086915379675802,
+         0.12369693383481795,
+         0.17661428891272302]
     ]
 
     results = StudySimulator.standard_comparison(w_p=w_p,

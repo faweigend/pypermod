@@ -1,6 +1,7 @@
 import logging
 
 from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
+from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2012 import CpAgentSkiba2012
 from w_pm_modeling.agents.cp_agents.cp_differential_agent_basis import CpDifferentialAgentBasis
 from w_pm_modeling.agents.cp_agents.cp_integral_agent_basis import CpIntegralAgentBasis
 
@@ -12,6 +13,47 @@ class SimulatorBasis:
     """
     # the maximal number of steps for a single simulation run
     step_limit = 5000
+
+    @staticmethod
+    def simulate_tte(agent, p_exp):
+        """
+        estimates time to exhaustion for given agent at given intensity
+        :param agent:
+        :param p_exp:
+        :return:
+        """
+
+        agent.reset()
+
+        # ... integral agents
+        if isinstance(agent, CpIntegralAgentBasis):
+            w_bal_hist = agent.get_expenditure_dynamics(p_exp)
+            return w_bal_hist
+
+        # ... differential agent
+        elif isinstance(agent, CpDifferentialAgentBasis):
+            agent.set_power(p_exp)
+            step = 0
+            w_bal_hist = []
+            while agent.is_exhausted() is False and step < SimulatorBasis.step_limit:
+                agent.perform_one_step()
+                w_bal_hist.append(agent.get_w_p_balance())
+            if agent.is_exhausted() is False:
+                raise UserWarning("Exhaustion not reached")
+            return w_bal_hist
+        # ... hydraulic agent
+        elif isinstance(agent, ThreeCompHydAgent):
+            agent.set_power(p_exp)
+            step = 0
+            w_bal_hist = []
+            while agent.is_exhausted() is False and step < SimulatorBasis.step_limit:
+                agent.perform_one_step()
+                w_bal_hist.append(agent.get_w_p_ratio())
+            if agent.is_exhausted() is False:
+                raise UserWarning("Exhaustion not reached")
+            return w_bal_hist
+        # unknown type warning
+        raise UserWarning("No procedure implemented for agent type {}".format(agent))
 
     @staticmethod
     def get_recovery_ratio_caen(agent, p_exp, p_rec, t_rec):
@@ -29,18 +71,25 @@ class SimulatorBasis:
         hz = agent.hz
 
         # The handling agent types
-        if isinstance(agent, CpIntegralAgentBasis):
-            # consider hz setting of agent
-            t_rec = t_rec * hz
-            # use build-in function of integral agents
-            dynamics = agent.get_recovery_dynamics(p_rec, max_t=t_rec)
-            ratio = 100.0
-            # no recovery if no recovery time
-            if t_rec == 0:
-                ratio = 0.0
-            # if rec_time is not in dynamics recovery is already at 100%
-            elif t_rec < len(dynamics):
-                ratio = (dynamics[t_rec - 1] / agent.w_p) * 100.0
+        if isinstance(agent, CpAgentSkiba2012):
+            dcp = agent.cp - p_rec
+            # simulate Caen trials with defined DPC
+            c_exp_bal = agent.get_expenditure_dynamics(p_exp=p_exp, dcp=dcp)
+
+            # setup course according to found TTE
+            caen_course = [p_exp] * len(c_exp_bal) + [p_rec] * t_rec + [p_exp] * len(c_exp_bal)
+            # get W'bal history
+            caen_bal = SimulatorBasis.simulate_course(agent, caen_course)
+
+            # look for the time of exhaustion in the second exercise bout
+            found_i = 0
+            for i in range(len(c_exp_bal) + t_rec, len(caen_bal)):
+                if caen_bal[i] <= 0:
+                    found_i = i - (len(c_exp_bal) + t_rec) + 1  # plus 1 because the time step 0 is reached is included
+                    break
+
+            # Time of WB2 divided by time of WB1 is the ratio of recovery
+            ratio = (found_i / len(c_exp_bal)) * 100.0
             return ratio
 
         elif isinstance(agent, CpDifferentialAgentBasis) or isinstance(agent, ThreeCompHydAgent):

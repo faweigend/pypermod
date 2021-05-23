@@ -3,12 +3,12 @@ import math
 from w_pm_modeling.agents.cp_agents.cp_differential_agent_basis import CpDifferentialAgentBasis
 
 
-class CpAgentSkiba2015(CpDifferentialAgentBasis):
+class CpAgentFixTau(CpDifferentialAgentBasis):
     """
-    The virtual agent model employing the 2 parameter CP model and Skiba's 2015 recovery kinetics.
+    The virtual agent model employing the 2 parameter CP model and exponential recovery kinetics.
     Characteristics:
     * performance above CP drains W' in a linear fashion
-    * performance below CP allows W' to recover in exponential fashion. Depending on difference to CP.
+    * performance below CP allows W' to recover in exponential fashion. Depending on a fixed tau that's given.
     * depleted W' results in exhaustion
     """
 
@@ -20,6 +20,23 @@ class CpAgentSkiba2015(CpDifferentialAgentBasis):
         """
         super().__init__(w_p=w_p, cp=cp, hz=hz)
 
+        self._tau = 100
+
+    @property
+    def tau(self):
+        """
+        getter for time constant tau
+        """
+        return self._tau
+
+    @tau.setter
+    def tau(self, new_tau):
+        """
+        setter for tai
+        :param new_tau:
+        """
+        self._tau = new_tau
+
     def _recover(self, p: float):
         """
         recovering happens for p < cp. It reduces W' exp and increases W' balance
@@ -27,16 +44,9 @@ class CpAgentSkiba2015(CpDifferentialAgentBasis):
 
         # restore W' if some was expended
         if self._w_exp > 0.1:
-
-            # quote Sreedhara: Dcp is the difference between CP and average power output
-            # during intervals below CP
-            dcp = sum(self._dcp_history) / len(self._dcp_history)
-
-            tau = self._w_p / dcp
-
             # EQ (4) in Clarke and Skiba et. al. 2015
             # decrease expended W' according to time if power output is below cp
-            new_exp = self._w_u * pow(math.e, ((-(self._hz_t - self._u)) / tau))
+            new_exp = self._w_u * pow(math.e, ((-(self._hz_t - self._u)) / self._tau))
             self._w_exp = new_exp
         else:
             self._w_exp = 0

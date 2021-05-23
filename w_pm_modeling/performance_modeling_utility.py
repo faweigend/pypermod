@@ -8,6 +8,7 @@ from matplotlib.container import ErrorbarContainer
 from matplotlib.lines import Line2D
 
 plot_labels = {
+    "CpAgentFitCaen" : "fitCaen",
     "CpAgentSkiba2012": "skiba2012",
     "CpAgentSkiba2015": "skiba2015",
     "CpAgentBartram": "bartram",
@@ -23,6 +24,7 @@ plot_labels = {
 
 # used in verification plots
 plot_color_scheme = {
+    "CpAgentFitCaen" : "black",
     "skiba2012": "tab:orange",
     "skiba2015": "tab:red",
     "bartram": "tab:purple",
