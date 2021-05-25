@@ -1,6 +1,5 @@
 import logging
 
-import matplotlib
 import matplotlib.pyplot as plt
 from performance_modeling.w_pm_modeling.agents.cp_agents.cp_agent_bartram import CpAgentBartram
 from performance_modeling.w_pm_modeling.agents.cp_agents.cp_agent_skiba_2012 import CpAgentSkiba2012
@@ -37,7 +36,7 @@ if __name__ == "__main__":
              [300] * inter + \
              [200] * inter
 
-    agents = [agent_sk12, agent_sk15, agent_bart]
+    agents = [agent_sk15, agent_bart, agent_sk12]
 
     # Simulator takes agents and runs them through a simulation course
     sim = SimulatorBasis()

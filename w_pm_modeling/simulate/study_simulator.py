@@ -39,7 +39,7 @@ class StudySimulator(SimulatorBasis):
         agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
         agent_fit_caen = CpAgentFitCaen(w_p=w_p, cp=cp, hz=hz)
 
-        agents = [agent_bartram, agent_skiba_2015, agent_fit_caen]
+        agents = [agent_bartram, agent_skiba_2015] #, agent_skiba_2012]
 
         # create the hydraulic agents
         for p in hyd_agent_configs:
@@ -53,11 +53,15 @@ class StudySimulator(SimulatorBasis):
 
             # get recovery ratio for every time frame to be considered
             for t_rec in rec_times:
-                ratio = SimulatorBasis.get_recovery_ratio_caen(agent, p_exp=p_exp, p_rec=p_rec, t_rec=t_rec)
+                ratio = SimulatorBasis.get_recovery_ratio_caen(agent,
+                                                               p_exp=p_exp,
+                                                               p_rec=p_rec,
+                                                               t_rec=t_rec)
                 agent_data.append(ratio)
 
             # make use of insert function to not overwrite saved data
-            trial_results = StudySimulator.__insert_with_enumeration(agent=agent, agent_data=agent_data,
+            trial_results = StudySimulator.__insert_with_enumeration(agent=agent,
+                                                                     agent_data=agent_data,
                                                                      results=trial_results)
             # update about progress
             logging.info("{} simulation done".format(agent.get_name()))

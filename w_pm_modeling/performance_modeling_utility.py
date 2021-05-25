@@ -124,13 +124,14 @@ class PlotLayout:
                                   label=PlotLayout.get_plot_label(p_res_key)))
 
         # summarise hydraulic agents in one entry
-        hyd_label = PlotLayout.get_plot_label("ThreeCompHydAgent")
-        if hyd_num > 1:
-            hyd_label += " ({})".format(hyd_num)
-        handles.append(Line2D([], [],
-                              color=PlotLayout.get_plot_color("ThreeCompHydAgent"),
-                              linestyle=PlotLayout.get_plot_linestyle("ThreeCompHydAgent"),
-                              label=hyd_label))
+        if hyd_num > 0:
+            hyd_label = PlotLayout.get_plot_label("ThreeCompHydAgent")
+            if hyd_num > 1:
+                hyd_label += " ({})".format(hyd_num)
+            handles.append(Line2D([], [],
+                                  color=PlotLayout.get_plot_color("ThreeCompHydAgent"),
+                                  linestyle=PlotLayout.get_plot_linestyle("ThreeCompHydAgent"),
+                                  label=hyd_label))
 
         # plot the ground truth legend entry if required
         if ground_truth is True:

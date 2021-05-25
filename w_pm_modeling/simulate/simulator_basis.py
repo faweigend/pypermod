@@ -38,6 +38,7 @@ class SimulatorBasis:
             while agent.is_exhausted() is False and step < SimulatorBasis.step_limit:
                 agent.perform_one_step()
                 w_bal_hist.append(agent.get_w_p_balance())
+                step += 1
             if agent.is_exhausted() is False:
                 raise UserWarning("Exhaustion not reached")
             return w_bal_hist
@@ -49,6 +50,7 @@ class SimulatorBasis:
             while agent.is_exhausted() is False and step < SimulatorBasis.step_limit:
                 agent.perform_one_step()
                 w_bal_hist.append(agent.get_w_p_ratio())
+                step += 1
             if agent.is_exhausted() is False:
                 raise UserWarning("Exhaustion not reached")
             return w_bal_hist
