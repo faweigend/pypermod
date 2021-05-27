@@ -1,9 +1,7 @@
-import math
-
-from w_pm_modeling.agents.cp_agents.cp_differential_agent_basis import CpDifferentialAgentBasis
+from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2015 import CpAgentSkiba2015
 
 
-class CpAgentFitCaen(CpDifferentialAgentBasis):
+class CpAgentFitCaen(CpAgentSkiba2015):
     """
     The virtual agent model employing the 2 parameter CP model and exponential recovery kinetics.
     Characteristics:
@@ -12,32 +10,12 @@ class CpAgentFitCaen(CpDifferentialAgentBasis):
     * depleted W' results in exhaustion
     """
 
-    def __init__(self, w_p: float, cp: float, hz: int = 1):
+    def _get_tau(self):
         """
-        constructor with basic constants
-        :param cp:
-        :param w_p:
+        :return: tau estimation according to fitting to measures by Caen et al.
         """
-        super().__init__(w_p=w_p, cp=cp, hz=hz)
-
-    def _recover(self, p: float):
-        """
-        recovering happens for p < cp. It reduces W' exp and increases W' balance
-        """
-
-        # restore W' if some was expended
-        if self._w_exp > 0.1:
-
-            # use results from fitting to caen measurements
-            dcp = sum(self._dcp_history) / len(self._dcp_history)
-            tau = 850.822466610013 * pow(math.e, (-0.02542815195305181 * dcp)) + 261.82954131635853
-
-            # EQ (4) in Clarke and Skiba et. al. 2015
-            # decrease expended W' according to time if power output is below cp
-            new_exp = self._w_u * pow(math.e, ((-(self._hz_t - self._u)) / tau))
-            self._w_exp = new_exp
-        else:
-            self._w_exp = 0
-
-        # Update balance
-        self._w_bal = self._w_p - self._w_exp
+        dcp = sum(self._dcp_history) / len(self._dcp_history)
+        # tau = 850.822466610013 * pow(math.e, (-0.02542815195305181 * dcp)) + 261.82954131635853 # skiba fit result
+        # tau = 2559.6395321524374 * pow(dcp, -0.46856788359687684) + 41.08002216973527  # bart fit result
+        tau = 2199.656151360503 * pow(dcp, - 0.4071892025253823)  # bart fit with two param
+        return tau

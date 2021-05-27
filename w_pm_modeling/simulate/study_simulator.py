@@ -1,4 +1,5 @@
 import logging
+import math
 
 import numpy as np
 from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
@@ -14,6 +15,71 @@ class StudySimulator(SimulatorBasis):
     An extension of the standard simulator that adds convenience functions to recreate trials of studies
     that investigated W' recovery dynamics
     """
+
+    @staticmethod
+    def get_standard_error_measures(w_p: float, cp: float,
+                                    hyd_agent_configs: list, hz: int,
+                                    ground_truth_t: list,
+                                    ground_truth_v: list,
+                                    ground_truth_p_exp: list,
+                                    ground_truth_p_rec: list):
+        """
+        compares agent results with ground truth and prints estimated RMSE and AIC
+        :param w_p:
+        :param cp:
+        :param hyd_agent_configs:
+        :param ground_truth_t: ground truth times
+        :param ground_truth_v: ground truth values
+        :param ground_truth_p_exp:
+        :param ground_truth_p_rec:
+        :param hz:
+        :return:
+        """
+
+        agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
+        agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
+        agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
+        agent_fit_caen = CpAgentFitCaen(w_p=w_p, cp=cp, hz=hz)
+
+        agents = [agent_bartram, agent_skiba_2015, agent_fit_caen]  # agent_skiba_2012]
+
+        # create the hydraulic agents
+        for p in hyd_agent_configs:
+            agents.append(
+                ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1], m_ae=p[2], m_ans=p[3], m_anf=p[4],
+                                  the=p[5], gam=p[6], phi=p[7]))
+
+        error_summary = {}
+        # plot simulated agent data
+        for agent in agents:
+            # two  lists to be filled with expected and actual values
+            exp, act = [], []
+            for i in range(len(ground_truth_t)):
+                # get simulated value
+                ratio = SimulatorBasis.get_recovery_ratio_caen(agent,
+                                                               p_exp=ground_truth_p_exp[i],
+                                                               p_rec=ground_truth_p_rec[i],
+                                                               t_rec=ground_truth_t[i])
+                exp.append(ground_truth_v[i])
+                act.append(ratio)
+            # add error summary into dict
+            error_summary[agent.get_name()] = StudySimulator.__apply_error_measure(exp=exp, act=act)
+        print(error_summary)
+
+    @staticmethod
+    def __apply_error_measure(exp: list, act: list):
+        """
+        simply applies established error measures using both input lists
+        :param exp: a list containing the expected values
+        :param act: a list containing the actual values
+        :return: 
+        """
+        se = []  # squared errors
+        for i, ex in enumerate(exp):
+            se.append(math.pow(ex - act[i], 2))
+        # use all squared errors to estimate the RMSE
+        rmse = math.sqrt(np.mean(se))
+        return rmse
 
     @staticmethod
     def standard_comparison(w_p: float, cp: float, hyd_agent_configs: list, p_exp: float,
@@ -39,7 +105,7 @@ class StudySimulator(SimulatorBasis):
         agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
         agent_fit_caen = CpAgentFitCaen(w_p=w_p, cp=cp, hz=hz)
 
-        agents = [agent_bartram, agent_skiba_2015] #, agent_skiba_2012]
+        agents = [agent_bartram, agent_skiba_2015, agent_fit_caen]  # agent_skiba_2012]
 
         # create the hydraulic agents
         for p in hyd_agent_configs:
@@ -91,10 +157,10 @@ class StudySimulator(SimulatorBasis):
 
         agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
         agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
-        # agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
+        agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
         agent_fit_caen = CpAgentFitCaen(w_p=w_p, cp=cp, hz=hz)
 
-        agents = [agent_bartram, agent_skiba_2015, agent_fit_caen]
+        agents = [agent_bartram, agent_skiba_2015, agent_fit_caen] #, agent_skiba_2012]
 
         # create the hydraulic agents
         for p in hyd_agent_configs:
@@ -109,8 +175,8 @@ class StudySimulator(SimulatorBasis):
         for agent in agents:
             agent_data = []
             for trial in trials:
-                # 2700 steps of trial0 intervals of 30 interspaced with trial1 intervals of 60
-                whole_test = ([trial[0]] * (60 * hz) + [trial[1]] * (30 * hz)) * 30
+                # 1800 steps of trial0 intervals of 60 interspaced with trial1 intervals of 30
+                whole_test = ([trial[0]] * (60 * hz) + [trial[1]] * (30 * hz)) * 20
                 bal = SimulatorBasis.simulate_course(agent=agent, course_data=whole_test)
 
                 # look for the point of exhaustion

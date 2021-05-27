@@ -1,9 +1,7 @@
-import math
-
-from w_pm_modeling.agents.cp_agents.cp_differential_agent_basis import CpDifferentialAgentBasis
+from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2015 import CpAgentSkiba2015
 
 
-class CpAgentFixTau(CpDifferentialAgentBasis):
+class CpAgentFixTau(CpAgentSkiba2015):
     """
     The virtual agent model employing the 2 parameter CP model and exponential recovery kinetics.
     Characteristics:
@@ -37,19 +35,9 @@ class CpAgentFixTau(CpDifferentialAgentBasis):
         """
         self._tau = new_tau
 
-    def _recover(self, p: float):
+    def _get_tau(self):
         """
-        recovering happens for p < cp. It reduces W' exp and increases W' balance
+        This function is called by the parent's class _recovery method
+        :return: stored tau
         """
-
-        # restore W' if some was expended
-        if self._w_exp > 0.1:
-            # EQ (4) in Clarke and Skiba et. al. 2015
-            # decrease expended W' according to time if power output is below cp
-            new_exp = self._w_u * pow(math.e, ((-(self._hz_t - self._u)) / self._tau))
-            self._w_exp = new_exp
-        else:
-            self._w_exp = 0
-
-        # Update balance
-        self._w_bal = self._w_p - self._w_exp
+        return self._tau

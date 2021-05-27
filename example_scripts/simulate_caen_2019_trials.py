@@ -2,7 +2,6 @@ import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
-from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2012 import CpAgentSkiba2012
 from w_pm_modeling.performance_modeling_utility import PlotLayout
 from w_pm_modeling.simulate.study_simulator import StudySimulator
 
@@ -26,16 +25,16 @@ if __name__ == "__main__":
 
     # fitted to Bartram et al. and Ferguson et al. recovery measures
     ps = [
-        # [
-        #     15526.629149872091,
-        #     68352.75597080137,
-        #     248.19813883137562,
-        #     96.80164094813664,
-        #     10.247146084511353,
-        #     0.7397944818727281,
-        #     0.07576781919703725,
-        #     0.23674229355251739
-        # ]
+        [
+            15526.629149872091,
+            68352.75597080137,
+            248.19813883137562,
+            96.80164094813664,
+            10.247146084511353,
+            0.7397944818727281,
+            0.07576781919703725,
+            0.23674229355251739
+        ]
     ]
 
     # run simulations for all four conditions
@@ -85,40 +84,40 @@ if __name__ == "__main__":
         ax3.plot(rec_times, results_p8_cp_33[p_res_key], color=PlotLayout.get_plot_color(p_res_key))
         ax4.plot(rec_times, results_p8_cp_66[p_res_key], color=PlotLayout.get_plot_color(p_res_key))
 
-    # finalise layout
-    # fig.suptitle("Caen et al. (2019)")
-    # ax1.set_title(r'$P4 \rightarrow CP33$')
-    # ax2.set_title(r'$P4 \rightarrow CP66$')
-    # ax3.set_title(r'$P8 \rightarrow CP33$')
-    # ax4.set_title(r'$P8 \rightarrow CP66$')
-    # create legend
-    # handles = PlotLayout.create_standardised_legend(agents=results_p8_cp_33.keys(),
-    #                                                 ground_truth=True)
-
     # START presentation additions
-    agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
-    sk2012_cp33_rec = np.array(agent_skiba_2012.get_recovery_dynamics(cp_33, rec_times[-1])) / w_p * 100.0
-    sk2012_cp66_rec = np.array(agent_skiba_2012.get_recovery_dynamics(cp_66, rec_times[-1])) / w_p * 100.0
-    ax1.plot(np.arange(0, rec_times[-1] + 1), sk2012_cp33_rec,
-             color=PlotLayout.get_plot_color(agent_skiba_2012.get_name()))
-    ax2.plot(np.arange(0, rec_times[-1] + 1), sk2012_cp66_rec,
-             color=PlotLayout.get_plot_color(agent_skiba_2012.get_name()))
-    ax3.plot(np.arange(0, rec_times[-1] + 1), sk2012_cp33_rec,
-             color=PlotLayout.get_plot_color(agent_skiba_2012.get_name()))
-    ax4.plot(np.arange(0, rec_times[-1] + 1), sk2012_cp66_rec,
-             color=PlotLayout.get_plot_color(agent_skiba_2012.get_name()))
-    ax1.set_title(r'$Exp\;High \rightarrow Rec\;Low$')
-    ax2.set_title(r'$Exp\;High \rightarrow Rec\;High$')
-    ax3.set_title(r'$Exp\;Low \rightarrow Rec\;Low$')
-    ax4.set_title(r'$Exp\;Low \rightarrow Rec\;High$')
-    keys = list(results_p8_cp_33.keys())
-    keys.append(agent_skiba_2012.get_name())
-    handles = PlotLayout.create_standardised_legend(agents=keys, ground_truth=True)
-    ax1.axhline(40, linestyle=":", color="tab:gray", alpha=0.5)
-    ax2.axhline(40, linestyle=":", color="tab:gray", alpha=0.5)
-    ax3.axhline(40, linestyle=":", color="tab:gray", alpha=0.5)
-    ax4.axhline(40, linestyle=":", color="tab:gray", alpha=0.5)
+    # agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
+    # sk2012_cp33_rec = np.array(agent_skiba_2012.get_recovery_dynamics(cp_33, rec_times[-1])) / w_p * 100.0
+    # sk2012_cp66_rec = np.array(agent_skiba_2012.get_recovery_dynamics(cp_66, rec_times[-1])) / w_p * 100.0
+    # ax1.plot(np.arange(0, rec_times[-1] + 1), sk2012_cp33_rec,
+    #          color=PlotLayout.get_plot_color(agent_skiba_2012.get_name()))
+    # ax2.plot(np.arange(0, rec_times[-1] + 1), sk2012_cp66_rec,
+    #          color=PlotLayout.get_plot_color(agent_skiba_2012.get_name()))
+    # ax3.plot(np.arange(0, rec_times[-1] + 1), sk2012_cp33_rec,
+    #          color=PlotLayout.get_plot_color(agent_skiba_2012.get_name()))
+    # ax4.plot(np.arange(0, rec_times[-1] + 1), sk2012_cp66_rec,
+    #          color=PlotLayout.get_plot_color(agent_skiba_2012.get_name()))
+    # ax1.set_title(r'$Exp\;High \rightarrow Rec\;Low$')
+    # ax2.set_title(r'$Exp\;High \rightarrow Rec\;High$')
+    # ax3.set_title(r'$Exp\;Low \rightarrow Rec\;Low$')
+    # ax4.set_title(r'$Exp\;Low \rightarrow Rec\;High$')
+    # keys = list(results_p8_cp_33.keys())
+    # keys.append(agent_skiba_2012.get_name())
+    # handles = PlotLayout.create_standardised_legend(agents=keys, ground_truth=True)
+    # ax1.axhline(40, linestyle=":", color="tab:gray", alpha=0.5)
+    # ax2.axhline(40, linestyle=":", color="tab:gray", alpha=0.5)
+    # ax3.axhline(40, linestyle=":", color="tab:gray", alpha=0.5)
+    # ax4.axhline(40, linestyle=":", color="tab:gray", alpha=0.5)
     # END presentation additions
+
+    # finalise layout
+    fig.suptitle("Caen et al. (2019)")
+    ax1.set_title(r'$P4 \rightarrow CP33$')
+    ax2.set_title(r'$P4 \rightarrow CP66$')
+    ax3.set_title(r'$P8 \rightarrow CP33$')
+    ax4.set_title(r'$P8 \rightarrow CP66$')
+    # create legend
+    handles = PlotLayout.create_standardised_legend(agents=results_p8_cp_33.keys(),
+                                                    ground_truth=True)
 
     ax1.set_ylabel("W' recovery (%)")
     ax3.set_ylabel("W' recovery (%)")

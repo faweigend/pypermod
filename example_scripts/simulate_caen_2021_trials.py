@@ -43,9 +43,17 @@ if __name__ == "__main__":
                                                  hz=hz)
 
     # the ground truth values from the paper
-    ground_truth_m_t = [30, 60, 120, 180, 240, 300, 600, 900]  # time steps
-    ground_truth_m_v = [28.6, 34.8, 44.2, 50.5, 55.1, 56.8, 73.7, 71.3]  # mean values
-    ground_truth_m_e = [8.2, 11.1, 9.7, 12.1, 13.3, 16.4, 19.3, 20.8]  # std errors
+    ground_truth_t = [30, 60, 120, 180, 240, 300, 600, 900]  # time steps
+    ground_truth_v = [28.6, 34.8, 44.2, 50.5, 55.1, 56.8, 73.7, 71.3]  # mean values
+    ground_truth_e = [8.2, 11.1, 9.7, 12.1, 13.3, 16.4, 19.3, 20.8]  # std errors
+    ground_truth_p_exp = [p_exp] * len(ground_truth_t)  # p_exp for every condition
+    ground_truth_p_rec = [p_rec] * len(ground_truth_t)  # p_rec for every condition
+    StudySimulator.get_standard_error_measures(w_p=w_p, cp=cp,
+                                               hyd_agent_configs=ps, hz=hz,
+                                               ground_truth_t=ground_truth_t,
+                                               ground_truth_v=ground_truth_v,
+                                               ground_truth_p_exp=ground_truth_p_exp,
+                                               ground_truth_p_rec=ground_truth_p_rec)
 
     # set up the figure
     PlotLayout.set_rc_params()
@@ -53,7 +61,7 @@ if __name__ == "__main__":
     ax = fig.add_subplot()
 
     # plot the ground truth obs
-    ax.errorbar(ground_truth_m_t, ground_truth_m_v, ground_truth_m_e,
+    ax.errorbar(ground_truth_t, ground_truth_v, ground_truth_e,
                 linestyle='None', marker='o', capsize=3,
                 color=PlotLayout.get_plot_color("ground_truth"))
 

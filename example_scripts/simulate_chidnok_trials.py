@@ -62,8 +62,7 @@ if __name__ == "__main__":
         color = PlotLayout.get_plot_color(p_res_key)
         linestyle = PlotLayout.get_plot_linestyle(p_res_key)
         ax.scatter(np.arange(len(p_res_val)), p_res_val, color=color)
-        ax.plot(np.arange(len(p_res_val)), p_res_val, color=color,
-                linestyle=linestyle)
+
 
     # finalise Layout
     ax.set_title(r'$P240 \rightarrow (S,H,M,L)$')

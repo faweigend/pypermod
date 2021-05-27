@@ -25,11 +25,10 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
 
         # fully rested, balance equals w_p
         self._w_bal = w_p
-        self._w_exp = 0
+        self._w_exp_t = 0
         # expenditure at last utilisation
-        self._w_u = 0
-
-        # time since w_p was last utilised
+        self._w_exp_u = 0
+        # time at which w_p was last utilised
         self._u = 0
 
         # e.g. used for skiba2015. The average of all past DCPs is used for the recovery slope estimations
@@ -53,8 +52,8 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
         """resets capacity, time and power parameters"""
         super().reset()
         self._w_bal = self._w_p
-        self._w_exp = 0
-        self._w_u = 0
+        self._w_exp_t = 0
+        self._w_exp_u = 0
         self._u = 0
 
     def _estimate_possible_power_output(self):
@@ -81,7 +80,7 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
             self._u = self._hz_t
             p = self._spend_capacity(p)
             # update expenditure at u
-            self._w_u = self._w_exp
+            self._w_exp_u = self._w_exp_t
 
         # return possible power output
         return p
@@ -93,7 +92,7 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
             1) when the athlete works exactly at CP
             2) works below CP and W'bal is full
         """
-        return self._pow == self._cp or (self._pow < self._cp and self._w_exp <= (self._w_p * 0.01))
+        return self._pow == self._cp or (self._pow < self._cp and self._w_exp_t <= (self._w_p * 0.01))
 
     def is_exhausted(self):
         """simple exhaustion check using W' balance"""
@@ -101,7 +100,7 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
 
     def is_recovered(self):
         """simple recovery check using W' expended"""
-        return self._w_exp <= (self._w_p * 0.01)
+        return self._w_exp_t <= (self._w_p * 0.01)
 
     def _spend_capacity(self, p: float):
         """
@@ -116,14 +115,14 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
             # not enough balance to perform on requested power
             p = self._w_bal + self._cp
             self._w_bal = 0
-            self._w_exp = self._w_p
+            self._w_exp_t = self._w_p
         else:
             # increase expended W'
-            self._w_exp += anaer_p
+            self._w_exp_t += anaer_p
             # expended W' cannot exceed W'
-            self._w_exp = min(self._w_p, self._w_exp)
+            self._w_exp_t = min(self._w_p, self._w_exp_t)
             # Update balance
-            self._w_bal = self._w_p - self._w_exp
+            self._w_bal = self._w_p - self._w_exp_t
 
         return p
 
@@ -133,11 +132,11 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
         """
 
         # nothing to do if fully recovered
-        if self._w_exp > 0:
+        if self._w_exp_t > 0:
             diff = (self._cp - self._pow) / self._hz
-            self._w_exp -= diff
+            self._w_exp_t -= diff
             # cannot be less expended than 0
-            self._w_exp = max(self._w_exp, 0)
+            self._w_exp_t = max(self._w_exp_t, 0)
 
         # Update balance
-        self._w_bal = self._w_p - self._w_exp
+        self._w_bal = self._w_p - self._w_exp_t

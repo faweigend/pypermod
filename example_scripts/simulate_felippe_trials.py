@@ -16,7 +16,7 @@ if __name__ == "__main__":
     w_p = 22000
     cp = 173
 
-    p6 = 223  # taken from the paper
+    p_exp = 223  # P6 taken from the paper
     p_rec = 0  # from paper too (passive recovery)
     # chosen to give enough detail in the beginning
     rec_times = np.arange(0, 910, 10)
@@ -41,10 +41,18 @@ if __name__ == "__main__":
         (180.0 / 397.0) * 100.0,
         (254.0 / 400.0) * 100.0
     ]
+    ground_truth_p_exp = [p_exp] * len(ground_truth_t)  # p_exp for every condition
+    ground_truth_p_rec = [p_rec] * len(ground_truth_t)  # p_rec for every condition
+    StudySimulator.get_standard_error_measures(w_p=w_p, cp=cp,
+                                               hyd_agent_configs=ps, hz=hz,
+                                               ground_truth_t=ground_truth_t,
+                                               ground_truth_v=ground_truth_v,
+                                               ground_truth_p_exp=ground_truth_p_exp,
+                                               ground_truth_p_rec=ground_truth_p_rec)
 
     # use simulation function to obtain results
     results = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=ps,
-                                                 p_exp=p6, p_rec=p_rec, rec_times=rec_times, hz=hz)
+                                                 p_exp=p_exp, p_rec=p_rec, rec_times=rec_times, hz=hz)
 
     # set up the figure
     fig = plt.figure()
