@@ -1,7 +1,7 @@
-from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2015 import CpAgentSkiba2015
+from w_pm_modeling.agents.cp_agents.wbal_ode_agent import WbalODEAgent
 
 
-class CpAgentFixTau(CpAgentSkiba2015):
+class WbalODEAgentFixTau(WbalODEAgent):
     """
     The virtual agent model employing the 2 parameter CP model and exponential recovery kinetics.
     Characteristics:
@@ -17,7 +17,6 @@ class CpAgentFixTau(CpAgentSkiba2015):
         :param w_p:
         """
         super().__init__(w_p=w_p, cp=cp, hz=hz)
-
         self._tau = 100
 
     @property

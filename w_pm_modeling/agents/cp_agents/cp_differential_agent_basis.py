@@ -18,21 +18,11 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
         """
 
         super().__init__(hz=hz)
-
         # constants
         self._w_p = w_p
         self._cp = cp
-
         # fully rested, balance equals w_p
         self._w_bal = w_p
-        self._w_exp_t = 0
-        # expenditure at last utilisation
-        self._w_exp_u = 0
-        # time at which w_p was last utilised
-        self._u = 0
-
-        # e.g. used for skiba2015. The average of all past DCPs is used for the recovery slope estimations
-        self._dcp_history = []
 
     def get_w_p_balance(self):
         """:return: """
@@ -52,9 +42,6 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
         """resets capacity, time and power parameters"""
         super().reset()
         self._w_bal = self._w_p
-        self._w_exp_t = 0
-        self._w_exp_u = 0
-        self._u = 0
 
     def _estimate_possible_power_output(self):
         """
@@ -62,26 +49,11 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
         :return: the amount of power that the athlete was able to put out
         """
         p = self._pow
-
         # update W exp and power output
         if p < self._cp:
-
-            # the dcp history is used for recovery speed estimations by skiba et al.
-            if self._w_bal != self._w_p:
-                self._dcp_history.append(self._cp - p)
             self._recover(p)
         else:
-
-            # clear history when recovery is over
-            if len(self._dcp_history) > 0:
-                self._dcp_history.clear()
-
-            # update u to current time
-            self._u = self._hz_t
             p = self._spend_capacity(p)
-            # update expenditure at u
-            self._w_exp_u = self._w_exp_t
-
         # return possible power output
         return p
 
@@ -92,7 +64,7 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
             1) when the athlete works exactly at CP
             2) works below CP and W'bal is full
         """
-        return self._pow == self._cp or (self._pow < self._cp and self._w_exp_t <= (self._w_p * 0.01))
+        return self._pow == self._cp or (self._pow < self._cp and self._w_bal >= (self._w_p * 0.01))
 
     def is_exhausted(self):
         """simple exhaustion check using W' balance"""
@@ -100,11 +72,11 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
 
     def is_recovered(self):
         """simple recovery check using W' expended"""
-        return self._w_exp_t <= (self._w_p * 0.01)
+        return self._w_bal >= (self._w_p * 0.01)
 
     def _spend_capacity(self, p: float):
         """
-        Capacity is spent for p > cp. It updates W'exp and W' bal and returns the
+        Capacity is spent for p > cp. It updates W'bal and returns the
         achieved power output
         """
 
@@ -114,15 +86,13 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
         if self._w_bal < anaer_p:
             # not enough balance to perform on requested power
             p = self._w_bal + self._cp
-            self._w_bal = 0
-            self._w_exp_t = self._w_p
+            self._w_bal = 0.0
         else:
             # increase expended W'
-            self._w_exp_t += anaer_p
-            # expended W' cannot exceed W'
-            self._w_exp_t = min(self._w_p, self._w_exp_t)
+            self._w_bal -= anaer_p
             # Update balance
-            self._w_bal = self._w_p - self._w_exp_t
+            self._w_bal = min(self._w_p, self._w_bal)
+            self._w_bal = max(0.0, self._w_bal)
 
         return p
 
@@ -132,11 +102,10 @@ class CpDifferentialAgentBasis(DifferentialAgentBasis):
         """
 
         # nothing to do if fully recovered
-        if self._w_exp_t > 0:
+        if self._w_bal < (self._w_p * 0.01):
             diff = (self._cp - self._pow) / self._hz
-            self._w_exp_t -= diff
-            # cannot be less expended than 0
-            self._w_exp_t = max(self._w_exp_t, 0)
-
-        # Update balance
-        self._w_bal = self._w_p - self._w_exp_t
+            self._w_bal += diff
+            # cannot be more recovered than w'
+            self._w_bal = min(self._w_p, self._w_bal)
+        else:
+            self._w_bal = self._w_p

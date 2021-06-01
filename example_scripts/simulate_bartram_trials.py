@@ -2,7 +2,7 @@ import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
-from w_pm_modeling.agents.cp_agents.cp_agent_bartram import CpAgentBartram
+from w_pm_modeling.agents.cp_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from w_pm_modeling.performance_modeling_utility import PlotLayout
 from w_pm_modeling.simulate.study_simulator import StudySimulator
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     # setup ground truth values and print error measurements
     ground_truth_t = [60]
-    bartram_agent = CpAgentBartram(w_p=w_p, cp=cp, hz=1)
+    bartram_agent = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=1)
     ground_truth_v = [StudySimulator.get_recovery_ratio_caen(bartram_agent,
                                                              p_exp=p_exp,
                                                              p_rec=p_rec,
@@ -79,7 +79,7 @@ if __name__ == "__main__":
                  r'$\rightarrow {}$'.format(prec_label))
     ax.set_xlabel("recovery bout duration (sec)")
     # ax.set_xticks([120, 240, 360])
-    ax.set_ylabel("W' recovery (%)")
+    ax.set_ylabel("W' recovery ratio (%)")
 
     # Create the legend
     handles = PlotLayout.create_standardised_legend(agents=results.keys(), ground_truth=True)

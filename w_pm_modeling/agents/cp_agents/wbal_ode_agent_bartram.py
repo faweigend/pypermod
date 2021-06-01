@@ -1,7 +1,7 @@
-from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2015 import CpAgentSkiba2015
+from w_pm_modeling.agents.cp_agents.wbal_ode_agent import WbalODEAgent
 
 
-class CpAgentBartram(CpAgentSkiba2015):
+class WbalODEAgentBartram(WbalODEAgent):
     """
     The virtual agent model employing the 2 parameter CP model and Bartram's adjusted recovery kinetics.
     Characteristics:
@@ -13,7 +13,5 @@ class CpAgentBartram(CpAgentSkiba2015):
         """
         :return: tau estimation according to Bartram et al.
         """
-        # quote Sreedhara: Dcp is the difference between CP and average power output
-        # during intervals below CP
-        dcp = sum(self._dcp_history) / len(self._dcp_history)
+        dcp = self._cp - self._pow
         return 2287.2 * pow(dcp, -0.688)

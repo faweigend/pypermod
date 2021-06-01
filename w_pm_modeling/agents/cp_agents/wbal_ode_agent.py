@@ -3,7 +3,7 @@ import math
 from w_pm_modeling.agents.cp_agents.cp_differential_agent_basis import CpDifferentialAgentBasis
 
 
-class CpAgentSkiba2015(CpDifferentialAgentBasis):
+class WbalODEAgent(CpDifferentialAgentBasis):
     """
     The virtual agent model employing the 2 parameter CP model and Skiba's 2015 recovery kinetics.
     Characteristics:
@@ -22,11 +22,10 @@ class CpAgentSkiba2015(CpDifferentialAgentBasis):
 
     def _get_tau(self):
         """
-        :return: tau estimation according to Skiba et al. 2015
+        :return: tau estimation according to Skiba et al. 2021
         """
-        # quote Sreedhara: Dcp is the difference between CP and average power output
-        # during intervals below CP
-        dcp = sum(self._dcp_history) / len(self._dcp_history)
+        # difference to CP
+        dcp = self._cp - self._pow
         return self._w_p / dcp
 
     def _recover(self, p: float):
@@ -35,16 +34,9 @@ class CpAgentSkiba2015(CpDifferentialAgentBasis):
         """
 
         # restore W' if some was expended
-        if self._w_exp_t > 0.1:
-            # use internal method to get tau (can be updated by subclasses)
+        if self._w_bal < self._w_p - 0.1:
             tau = self._get_tau()
-
-            # EQ (4) in Clarke and Skiba et. al. 2015
-            # decrease expended W' according to time if power output is below cp
-            new_exp = self._w_exp_u * pow(math.e, ((-(self._hz_t - self._u)) / tau))
-            self._w_exp_t = new_exp
+            # according to Eq 12 in Skiba 2021
+            self._w_bal = self._w_p - ((self._w_p - self._w_bal) * pow(math.e, (- self.hz / tau)))
         else:
-            self._w_exp_t = 0
-
-        # Update balance
-        self._w_bal = self._w_p - self._w_exp_t
+            self._w_bal = self._w_p

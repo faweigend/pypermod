@@ -21,7 +21,7 @@ class CpAgentSkiba2012(CpIntegralAgentBasis):
         super().__init__(w_p=w_p, cp=cp, hz=hz)
 
     @staticmethod
-    def __estimate_tau(dcp: float):
+    def _estimate_tau(dcp: float):
         """
         Applies Eq 3 from Skiba et al. 2012 to estimate tau from given dcp
         :param dcp: Average difference to CP during recovery bouts
@@ -47,7 +47,7 @@ class CpAgentSkiba2012(CpIntegralAgentBasis):
             # ... if not, DCP is 0 in this case because it is a TTE
             dcp = 0
 
-        tau = self.__estimate_tau(dcp)
+        tau = self._estimate_tau(dcp)
 
         # use parent class method
         return self._get_expenditure_dynamics(p_exp=p_exp, tau=tau)
@@ -61,7 +61,7 @@ class CpAgentSkiba2012(CpIntegralAgentBasis):
         :return: W'bal history
         """
         dcp = self._cp - p_rec
-        tau = self.__estimate_tau(dcp)
+        tau = self._estimate_tau(dcp)
         # use parent class method
         return self._get_recovery_dynamics(p_rec=p_rec, max_steps=max_steps, tau=tau)
 
@@ -78,6 +78,6 @@ class CpAgentSkiba2012(CpIntegralAgentBasis):
         else:
             logging.warning("No recovery found in data. DCP set to 0")
             dcp = 0
-        tau = self.__estimate_tau(dcp)
+        tau = self._estimate_tau(dcp)
         # use parent class method
         return self._process_data(data, tau)

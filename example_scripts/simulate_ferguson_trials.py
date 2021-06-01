@@ -77,7 +77,7 @@ if __name__ == "__main__":
     ax.set_title(r'$P360 \rightarrow 20W$')
     ax.set_xlabel("recovery bout duration (sec)")
     ax.set_xticks([0, 120, 360, 900])
-    ax.set_ylabel("W' recovery (%)")
+    ax.set_ylabel("W' recovery ratio (%)")
 
     plt.subplots_adjust(right=0.96)
     plt.show()

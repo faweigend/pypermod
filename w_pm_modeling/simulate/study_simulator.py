@@ -3,11 +3,14 @@ import math
 
 import numpy as np
 from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
-from w_pm_modeling.agents.cp_agents.cp_agent_bartram import CpAgentBartram
-from w_pm_modeling.agents.cp_agents.cp_agent_fit_caen import CpAgentFitCaen
+from w_pm_modeling.agents.cp_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from w_pm_modeling.agents.cp_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
+from w_pm_modeling.agents.cp_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
 from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2012 import CpAgentSkiba2012
-from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2015 import CpAgentSkiba2015
+from w_pm_modeling.agents.cp_agents.wbal_ode_agent import WbalODEAgent
 from w_pm_modeling.simulate.simulator_basis import SimulatorBasis
+
+from handler.simple_fitter.tau_to_recovery_fitter import TauToRecoveryFitter
 
 
 class StudySimulator(SimulatorBasis):
@@ -36,10 +39,10 @@ class StudySimulator(SimulatorBasis):
         :return:
         """
 
-        agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
-        agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
+        agent_skiba_2015 = WbalODEAgent(w_p=w_p, cp=cp, hz=hz)
+        agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
         agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
-        agent_fit_caen = CpAgentFitCaen(w_p=w_p, cp=cp, hz=hz)
+        agent_fit_caen = WbalODEAgentWeigend(w_p=w_p, cp=cp, hz=hz)
 
         agents = [agent_bartram, agent_skiba_2015, agent_fit_caen]  # agent_skiba_2012]
 
@@ -62,24 +65,45 @@ class StudySimulator(SimulatorBasis):
                                                                t_rec=ground_truth_t[i])
                 exp.append(ground_truth_v[i])
                 act.append(ratio)
+
+            # define number of free parameters according to agent type
+            if isinstance(agent, WbalODEAgentBartram):
+                k = 2
+            elif isinstance(agent, WbalODEAgent):
+                k = 1
+            elif isinstance(agent, WbalODEAgentWeigend):
+                k = 3
+            elif isinstance(agent, ThreeCompHydAgent):
+                k = 8
+            else:
+                k = 1
+
             # add error summary into dict
-            error_summary[agent.get_name()] = StudySimulator.__apply_error_measure(exp=exp, act=act)
+            error_summary[agent.get_name()] = StudySimulator.__apply_error_measure(exp=exp, act=act, k=k)
         print(error_summary)
 
     @staticmethod
-    def __apply_error_measure(exp: list, act: list):
+    def __apply_error_measure(exp: list, act: list, k: int):
         """
         simply applies established error measures using both input lists
         :param exp: a list containing the expected values
         :param act: a list containing the actual values
+        :param k: number of parameters for AIC and BIC
         :return: 
         """
         se = []  # squared errors
         for i, ex in enumerate(exp):
             se.append(math.pow(ex - act[i], 2))
-        # use all squared errors to estimate the RMSE
-        rmse = math.sqrt(np.mean(se))
-        return rmse
+
+        # RSS (residual sum of squares)
+        rss = sum(se)
+        n = len(se)
+
+        # estimate used error measures
+        rmse = math.sqrt(rss / len(se))
+        aic = n * math.log(rss / n) + 2 * k + ((2 * k * (k + 1)) / (n - k - 1))
+        bic = n * math.log(rss / n) + k * math.log(n)
+        return rmse, aic, bic
 
     @staticmethod
     def standard_comparison(w_p: float, cp: float, hyd_agent_configs: list, p_exp: float,
@@ -100,10 +124,10 @@ class StudySimulator(SimulatorBasis):
         # add agents dict to results
         trial_results = {}
 
-        agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
-        agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
+        agent_skiba_2015 = WbalODEAgent(w_p=w_p, cp=cp, hz=hz)
+        agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
         agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
-        agent_fit_caen = CpAgentFitCaen(w_p=w_p, cp=cp, hz=hz)
+        agent_fit_caen = WbalODEAgentWeigend(w_p=w_p, cp=cp, hz=hz)
 
         agents = [agent_bartram, agent_skiba_2015, agent_fit_caen]  # agent_skiba_2012]
 
@@ -155,17 +179,17 @@ class StudySimulator(SimulatorBasis):
         # results dict
         trial_results = {}
 
-        agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
-        agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
-        agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
-        agent_fit_caen = CpAgentFitCaen(w_p=w_p, cp=cp, hz=hz)
+        agent_skiba_2015 = WbalODEAgent(w_p=w_p, cp=cp, hz=hz)
+        agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
+        agent_fit_caen = WbalODEAgentWeigend(w_p=w_p, cp=cp, hz=hz)
 
-        agents = [agent_bartram, agent_skiba_2015, agent_fit_caen] #, agent_skiba_2012]
+        agents = [agent_bartram, agent_skiba_2015, agent_fit_caen]
 
         # create the hydraulic agents
         for p in hyd_agent_configs:
             agents.append(
-                ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1], m_ae=p[2], m_ans=p[3], m_anf=p[4],
+                ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1],
+                                  m_ae=p[2], m_ans=p[3], m_anf=p[4],
                                   the=p[5], gam=p[6], phi=p[7]))
 
         # experimental trials
@@ -208,8 +232,8 @@ class StudySimulator(SimulatorBasis):
         """
 
         agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
-        agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
-        agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
+        agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
+        agent_skiba_2015 = WbalODEAgent(w_p=w_p, cp=cp, hz=hz)
 
         agents = [agent_skiba_2012, agent_skiba_2015, agent_bartram]
 
@@ -296,8 +320,8 @@ class StudySimulator(SimulatorBasis):
 
         results = {}
 
-        agent_skiba_2015 = CpAgentSkiba2015(w_p=w_p, cp=cp, hz=hz)
-        agent_bartram = CpAgentBartram(w_p=w_p, cp=cp, hz=hz)
+        agent_skiba_2015 = WbalODEAgent(w_p=w_p, cp=cp, hz=hz)
+        agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
         agent_skiba_2012 = CpAgentSkiba2012(w_p=w_p, cp=cp, hz=hz)
 
         agents = [agent_bartram, agent_skiba_2015, agent_skiba_2012]

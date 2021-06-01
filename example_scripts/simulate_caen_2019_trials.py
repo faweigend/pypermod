@@ -119,8 +119,8 @@ if __name__ == "__main__":
     handles = PlotLayout.create_standardised_legend(agents=results_p8_cp_33.keys(),
                                                     ground_truth=True)
 
-    ax1.set_ylabel("W' recovery (%)")
-    ax3.set_ylabel("W' recovery (%)")
+    ax1.set_ylabel("W' recovery ratio (%)")
+    ax3.set_ylabel("W' recovery ratio (%)")
     ax3.set_xlabel("recovery bout duration (sec)")
     ax4.set_xlabel("recovery bout duration (sec)")
     for ax in [ax1, ax2, ax3, ax4]:
