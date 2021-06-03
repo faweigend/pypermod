@@ -1,14 +1,16 @@
 import math
+from abc import abstractmethod
 
 from w_pm_modeling.agents.cp_agents.cp_differential_agent_basis import CpDifferentialAgentBasis
 
 
 class WbalODEAgent(CpDifferentialAgentBasis):
     """
-    The virtual agent model employing the 2 parameter CP model and Skiba's 2015 recovery kinetics.
+    The most basic virtual agent model employing the 2 parameter CP model and ODE
+    recovery according to Skiba et al 2021.
     Characteristics:
     * performance above CP drains W' in a linear fashion
-    * performance below CP allows W' to recover in exponential fashion. Depending on difference to CP.
+    * performance below CP allows W' to recover in a curvelinear fashion according to tau.
     * depleted W' results in exhaustion
     """
 
@@ -20,13 +22,11 @@ class WbalODEAgent(CpDifferentialAgentBasis):
         """
         super().__init__(w_p=w_p, cp=cp, hz=hz)
 
-    def _get_tau(self):
+    @abstractmethod
+    def _get_tau_to_dcp(self, dcp: float):
         """
-        :return: tau estimation according to Skiba et al. 2021
+        :return: tau estimation according using DCP
         """
-        # difference to CP
-        dcp = self._cp - self._pow
-        return self._w_p / dcp
 
     def _recover(self, p: float):
         """
@@ -35,7 +35,8 @@ class WbalODEAgent(CpDifferentialAgentBasis):
 
         # restore W' if some was expended
         if self._w_bal < self._w_p - 0.1:
-            tau = self._get_tau()
+            dcp = self._cp - p
+            tau = self._get_tau_to_dcp(dcp=dcp)
             # according to Eq 12 in Skiba 2021
             self._w_bal = self._w_p - ((self._w_p - self._w_bal) * pow(math.e, (- self.hz / tau)))
         else:

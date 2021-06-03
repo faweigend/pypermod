@@ -34,9 +34,9 @@ class WbalODEAgentFixTau(WbalODEAgent):
         """
         self._tau = new_tau
 
-    def _get_tau(self):
+    def _get_tau_to_dcp(self, dcp: float):
         """
-        This function is called by the parent's class _recovery method
+        Ignores dcp and returns fix tau
         :return: stored tau
         """
         return self._tau

@@ -1,9 +1,8 @@
 import logging
 
 from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
-from w_pm_modeling.agents.cp_agents.cp_agent_skiba_2012 import CpAgentSkiba2012
 from w_pm_modeling.agents.cp_agents.cp_differential_agent_basis import CpDifferentialAgentBasis
-from w_pm_modeling.agents.cp_agents.cp_integral_agent_basis import CpIntegralAgentBasis
+from w_pm_modeling.agents.cp_agents.wbal_int_agent import WbalIntAgent
 
 
 class SimulatorBasis:
@@ -26,7 +25,7 @@ class SimulatorBasis:
         agent.reset()
 
         # ... integral agents
-        if isinstance(agent, CpIntegralAgentBasis):
+        if isinstance(agent, WbalIntAgent):
             w_bal_hist = agent.get_expenditure_dynamics(p_exp)
             return w_bal_hist
 
@@ -73,7 +72,7 @@ class SimulatorBasis:
         hz = agent.hz
 
         # The handling agent types
-        if isinstance(agent, CpAgentSkiba2012):
+        if isinstance(agent, WbalIntAgent):
             dcp = agent.cp - p_rec
             # simulate Caen trials with defined DPC
             c_exp_bal = agent.get_expenditure_dynamics(p_exp=p_exp, dcp=dcp)
@@ -143,7 +142,7 @@ class SimulatorBasis:
         t_rec = float(t_rec * agent.hz)
 
         # estimate recovery ratios for integral agents
-        if isinstance(agent, CpIntegralAgentBasis):
+        if isinstance(agent, WbalIntAgent):
             data = [p_exp] * round(t_exp / 2) + [p_rec] * round(t_rec) + [p_exp] * round(t_exp * 1.5)
             w_bal_hist = agent.estimate_w_p_bal_to_data(data)
             t3 = w_bal_hist.index(0)  # time point of exhaustion
@@ -192,7 +191,7 @@ class SimulatorBasis:
         # estimate W' bal history for...
         w_bal_hist = []
         # ... integral agents
-        if isinstance(agent, CpIntegralAgentBasis):
+        if isinstance(agent, WbalIntAgent):
             w_bal_hist = agent.estimate_w_p_bal_to_data(course_data)
         # ... differential agent
         elif isinstance(agent, CpDifferentialAgentBasis):

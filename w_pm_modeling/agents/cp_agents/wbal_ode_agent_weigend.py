@@ -10,12 +10,11 @@ class WbalODEAgentWeigend(WbalODEAgent):
     * depleted W' results in exhaustion
     """
 
-    def _get_tau(self):
+    def _get_tau_to_dcp(self, dcp: float):
         """
         :return: tau estimation according to fitting to measures by Caen et al.
         """
-        dcp = self._cp - self._pow
         # tau = 850.822466610013 * pow(math.e, (-0.02542815195305181 * dcp)) + 261.82954131635853 # skiba fit result
-        # tau = 2559.6395321524374 * pow(dcp, -0.46856788359687684) + 41.08002216973527  # bart fit result
-        tau = 2199.656151360503 * pow(dcp, - 0.4071892025253823)  # bart fit with two param
+        tau = 2559.6395321524374 * pow(dcp, -0.46856788359687684) + 41.08002216973527  # bart fit result
+        # tau = 2199.656151360503 * pow(dcp, - 0.4071892025253823)  # bart fit with two param
         return tau

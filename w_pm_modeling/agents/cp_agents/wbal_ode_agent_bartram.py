@@ -9,9 +9,8 @@ class WbalODEAgentBartram(WbalODEAgent):
     * performance below CP allows W' to recover in exponential fashion. Depending on difference to CP.
     """
 
-    def _get_tau(self):
+    def _get_tau_to_dcp(self, dcp: float):
         """
         :return: tau estimation according to Bartram et al.
         """
-        dcp = self._cp - self._pow
         return 2287.2 * pow(dcp, -0.688)

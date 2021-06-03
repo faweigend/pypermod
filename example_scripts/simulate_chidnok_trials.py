@@ -10,7 +10,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-    hz = 10
+    hz = 1
 
     # averaged values from paper
     cp = 241
@@ -62,7 +62,6 @@ if __name__ == "__main__":
         color = PlotLayout.get_plot_color(p_res_key)
         linestyle = PlotLayout.get_plot_linestyle(p_res_key)
         ax.scatter(np.arange(len(p_res_val)), p_res_val, color=color)
-
 
     # finalise Layout
     ax.set_title(r'$P240 \rightarrow (S,H,M,L)$')
