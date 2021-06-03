@@ -3,10 +3,10 @@ from collections import defaultdict
 
 import matplotlib.pyplot as plt
 import numpy as np
-from w_pm_modeling.agents.cp_agents.wbal_int_agent_fix_tau import WbalIntAgentFixTau
-from w_pm_modeling.agents.cp_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
-from w_pm_modeling.agents.cp_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
-from w_pm_modeling.agents.cp_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
+from w_pm_modeling.agents.wbal_agents.wbal_int_agent_fix_tau import WbalIntAgentFixTau
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from w_pm_modeling.performance_modeling_utility import PlotLayout
 from w_pm_modeling.simulate.study_simulator import StudySimulator
 

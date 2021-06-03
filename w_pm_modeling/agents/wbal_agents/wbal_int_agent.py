@@ -3,35 +3,14 @@ import math
 from abc import abstractmethod
 
 import numpy as np
-from w_pm_modeling.agents.integral_agent_basis import IntegralAgentBasis
+from w_pm_modeling.agents.cp_agent_basis import CpAgentBasis
 
 
-class WbalIntAgent(IntegralAgentBasis):
+class WbalIntAgent(CpAgentBasis):
     """
     The virtual agent model. Integral agents need the entire exercise to be
     known before estimations can be made. A convolutional integral is applied.
     """
-
-    def __init__(self, w_p: float, cp: float, hz: int):
-        """
-        constructor with basic constants
-        :param cp:
-        :param w_p:
-        """
-        super().__init__(hz=hz)
-        # constants
-        self._w_p = w_p
-        self._cp = cp
-
-    @property
-    def cp(self):
-        """:return: critical power"""
-        return self._cp
-
-    @property
-    def w_p(self):
-        """:return: anaerobic capacity"""
-        return self._w_p
 
     @abstractmethod
     def _get_tau_to_dcp(self, dcp: float):

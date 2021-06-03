@@ -1,11 +1,11 @@
 import logging
 
 import matplotlib.pyplot as plt
-from performance_modeling.w_pm_modeling.agents.cp_agents.wbal_int_agent_skiba import WbalIntAgentSkiba
-from performance_modeling.w_pm_modeling.agents.cp_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from performance_modeling.w_pm_modeling.agents.wbal_agents.wbal_int_agent_skiba import WbalIntAgentSkiba
+from performance_modeling.w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from performance_modeling.w_pm_modeling.simulate.simulator_basis import SimulatorBasis
-from w_pm_modeling.agents.cp_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
-from w_pm_modeling.agents.cp_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from w_pm_modeling.performance_modeling_utility import PlotLayout
 
 if __name__ == "__main__":
@@ -63,14 +63,14 @@ if __name__ == "__main__":
 
     # label plot
     ax.set_ylabel("exercise intensity")
-    ax2.set_ylabel("W' balance")
+    ax2.set_ylabel(r'$W^\prime_{bal}$' + " balance")
     ax.set_xlabel("time (min)")
 
     ax.set_yticks([agent_ode.cp])
     ax.set_yticklabels(["CP"])
 
     ax2.set_yticks([0, agent_ode.w_p])
-    ax2.set_yticklabels([0, "W'"])
+    ax2.set_yticklabels([0, r'$W^\prime$'])
 
     # format x ticks to minutes
     ax.set_xticks(range(0, len(course) + 5, 180))

@@ -4,9 +4,9 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 import numpy as np
 from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
-from w_pm_modeling.agents.cp_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
-from w_pm_modeling.agents.cp_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
-from w_pm_modeling.agents.cp_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from w_pm_modeling.performance_modeling_utility import PlotLayout
 from w_pm_modeling.simulate.study_simulator import StudySimulator
 
@@ -65,13 +65,15 @@ if __name__ == "__main__":
     for p_res_key, p_res_val in results.items():
         ax.scatter(np.arange(len(p_res_val)), p_res_val,
                    color=PlotLayout.get_plot_color(p_res_key),
-                   marker=PlotLayout.get_plot_marker(p_res_key))
+                   marker=PlotLayout.get_plot_marker(p_res_key),
+                   s=60)
 
-    ax.set_title(r'$P100$')
-    ax.set_xlabel("recovery intensity (watts)")
+    ax.set_title("expenditure P100\nrecovery time 60 sec")
+    ax.set_xlabel("recovery intensity (" + r'$D_{CP}$' + ")")
     ax.set_xticks(np.arange(len(p_recs)))
-    ax.set_xticklabels(p_recs)
-    ax.set_ylabel("W' recovery ratio (%)")
+    ax.set_xticklabels([50, 100, 150, 200])
+    ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
+    ax.grid(axis="y", linestyle=':', alpha=0.5)
 
     # Create the legend
     handles = PlotLayout.create_standardised_legend(agents=results.keys(),

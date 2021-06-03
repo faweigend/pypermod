@@ -1,20 +1,18 @@
-from w_pm_modeling.agents.cp_agents.wbal_ode_agent import WbalODEAgent
+from w_pm_modeling.agents.wbal_agents.wbal_int_agent import WbalIntAgent
 
 
-class WbalODEAgentFixTau(WbalODEAgent):
+class WbalIntAgentFixTau(WbalIntAgent):
     """
-    The virtual agent model employing the 2 parameter CP model and exponential recovery kinetics.
-    Characteristics:
-    * performance above CP drains W' in a linear fashion
-    * performance below CP allows W' to recover in exponential fashion. Depending on a fixed tau that's given.
-    * depleted W' results in exhaustion
+    The virtual agent model employing Skiba's 2012 Equation for expenditure and recovery kinetics.
+    This agent version allows to set a fix tau different from the fitted tau/dcp relationship from Skiba 2012
     """
 
     def __init__(self, w_p: float, cp: float, hz: int = 1):
         """
         constructor with basic constants
-        :param cp:
-        :param w_p:
+        :param cp: CP
+        :param w_p: W'
+        :param hz: the time steps per second the agent operates in
         """
         super().__init__(w_p=w_p, cp=cp, hz=hz)
         self._tau = 100
@@ -36,7 +34,8 @@ class WbalODEAgentFixTau(WbalODEAgent):
 
     def _get_tau_to_dcp(self, dcp: float):
         """
-        Ignores dcp and returns fix tau
-        :return: stored tau
+        Ignores given DCP and returns fix tau
+        :param dcp: Average difference to CP during recovery bouts
+        :return: Tau
         """
         return self._tau

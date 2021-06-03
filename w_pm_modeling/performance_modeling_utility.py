@@ -8,12 +8,12 @@ from matplotlib.container import ErrorbarContainer
 from matplotlib.lines import Line2D
 
 plot_labels = {
-    "WbalODEAgentWeigend": "fitCaen",
-    "WbalIntAgentSkiba": "WbalIntAgentSkiba",
-    "WbalODEAgentSkiba": "skiba2015",
-    "WbalODEAgentBartram": "bartram",
+    "WbalODEAgentWeigend": r'$\mathcal{T}_{weig}$',
+    "WbalIntAgentSkiba": r'$W^\prime_{bal-int}$',
+    "WbalODEAgentSkiba": r'$\mathcal{T}_{skib}$',
+    "WbalODEAgentBartram": r'$\mathcal{T}_{bart}$',
     "WbalODEAgentFixTau": "fixTau",
-    "ThreeCompHydAgent": "hydraulic",
+    "ThreeCompHydAgent": r'$hydraulic_{weig}$',
     "ground_truth": "observation",
     "T_WbalIntAgentSkiba": "WbalIntAgentSkiba",
     "T_WbalODEAgentSkiba": "skiba2015",
@@ -126,6 +126,11 @@ class PlotLayout:
         matplotlib.rcParams['font.size'] = 12
         matplotlib.rcParams['pdf.fonttype'] = 42
         matplotlib.rcParams['ps.fonttype'] = 42
+        matplotlib.rcParams['axes.labelsize'] = 11
+        matplotlib.rcParams['axes.titlesize'] = 12
+        matplotlib.rcParams['xtick.labelsize'] = 12
+        matplotlib.rcParams['ytick.labelsize'] = 12
+        matplotlib.rcParams['legend.fontsize'] = 11
 
     @staticmethod
     def create_standardised_legend(agents, ground_truth: bool = False, errorbar: bool = False, scatter: bool = False):
@@ -193,15 +198,20 @@ class PlotLayout:
         # plot the ground truth legend entry if required
         if ground_truth is True:
             if errorbar is True:
-                line = Line2D([], [], linestyle='None', marker='o',
+                line = Line2D([], [],
+                              linestyle='None',
+                              marker='o',
                               color=PlotLayout.get_plot_color("ground_truth"))
                 barline = LineCollection(np.empty((2, 2, 2)))
-                err = ErrorbarContainer((line, [line], [barline]), has_xerr=False, has_yerr=True,
+                err = ErrorbarContainer((line, [line], [barline]),
+                                        has_xerr=False,
+                                        has_yerr=True,
                                         label=PlotLayout.get_plot_label("ground_truth"))
                 handles.append(err)
             else:
                 handles.append(Line2D([], [],
-                                      linestyle='None', marker='o',
+                                      linestyle='None',
+                                      marker='o',
                                       color=PlotLayout.get_plot_color("ground_truth"),
                                       label=PlotLayout.get_plot_label("ground_truth")))
 

@@ -1,7 +1,7 @@
-from w_pm_modeling.agents.cp_agents.wbal_ode_agent import WbalODEAgent
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_exponential import WbalODEAgentExponential
 
 
-class WbalODEAgentBartram(WbalODEAgent):
+class WbalODEAgentBartram(WbalODEAgentExponential):
     """
     The virtual agent model employing the 2 parameter CP model and Bartram's adjusted recovery kinetics.
     Characteristics:

@@ -38,23 +38,25 @@ if __name__ == "__main__":
     ground_truth_t = [120, 360, 900]
     ground_truth_v = [37, 65, 86]  # means
     ground_truth_e = [5, 6, 4]  # stds
-    ground_truth_p_exp = [p_exp] * len(ground_truth_t)  # p_exp for every condition
-    ground_truth_p_rec = [p_rec] * len(ground_truth_t)  # p_rec for every condition
-    StudySimulator.get_standard_error_measures(w_p=w_p, cp=cp,
-                                               hyd_agent_configs=ps, hz=hz,
-                                               ground_truth_t=ground_truth_t,
-                                               ground_truth_v=ground_truth_v,
-                                               ground_truth_p_exp=ground_truth_p_exp,
-                                               ground_truth_p_rec=ground_truth_p_rec)
+
+    # ground_truth_p_exp = [p_exp] * len(ground_truth_t)  # p_exp for every condition
+    # ground_truth_p_rec = [p_rec] * len(ground_truth_t)  # p_rec for every condition
+    # StudySimulator.get_standard_error_measures(w_p=w_p, cp=cp,
+    #                                            hyd_agent_configs=ps, hz=hz,
+    #                                            ground_truth_t=ground_truth_t,
+    #                                            ground_truth_v=ground_truth_v,
+    #                                            ground_truth_p_exp=ground_truth_p_exp,
+    #                                            ground_truth_p_rec=ground_truth_p_rec)
 
     # run the simulations
     results = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=ps,
                                                  p_exp=p_exp, p_rec=p_rec, rec_times=rec_times, hz=hz)
 
     # set up the figure
+    PlotLayout.set_rc_params()
     fig = plt.figure(figsize=(8, 5))
     ax = fig.add_subplot()
-    PlotLayout.set_rc_params()
+
 
     # plot the ground truth
     ax.errorbar(ground_truth_t, ground_truth_v, ground_truth_e,
@@ -74,10 +76,10 @@ if __name__ == "__main__":
 
     # finish layout
     # ax.set_title("Ferguson et al. (2010)\n"r'$P6 \rightarrow 20W$')
-    ax.set_title(r'$P360 \rightarrow 20W$')
+    ax.set_title("expenditure P360\nrecovery 20 watts")
     ax.set_xlabel("recovery bout duration (sec)")
     ax.set_xticks([0, 120, 360, 900])
-    ax.set_ylabel("W' recovery ratio (%)")
+    ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
 
     plt.subplots_adjust(right=0.96)
     plt.show()

@@ -10,7 +10,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-    hz = 1
+    hz = 10
     # means from the paper
     w_p = 19200
     cp = 269
@@ -74,11 +74,11 @@ if __name__ == "__main__":
 
     # finalise layout
     # ax.set_title("Caen et al. (2021)")
-    ax.set_title(r'$P240 \rightarrow 161$' " W")
+    ax.set_title("expenditure P240\nrecovery 161 watts")
     ax.set_xlabel("recovery bout duration (sec)")
     ax.set_xticks([30, 60, 120, 180, 240, 300, 600, 900])
     ax.set_xticklabels(ax.get_xticks(), rotation=-45, ha='center')
-    ax.set_ylabel("W' recovery ratio (%)")
+    ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
 
     # get legend
     handles = PlotLayout.create_standardised_legend(agents=results.keys(),

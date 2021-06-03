@@ -1,8 +1,8 @@
 import logging
 
 from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
-from w_pm_modeling.agents.cp_agents.cp_differential_agent_basis import CpDifferentialAgentBasis
-from w_pm_modeling.agents.cp_agents.wbal_int_agent import WbalIntAgent
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_linear import CpODEAgentBasisLinear
+from w_pm_modeling.agents.wbal_agents.wbal_int_agent import WbalIntAgent
 
 
 class SimulatorBasis:
@@ -30,7 +30,7 @@ class SimulatorBasis:
             return w_bal_hist
 
         # ... differential agent
-        elif isinstance(agent, CpDifferentialAgentBasis):
+        elif isinstance(agent, CpODEAgentBasisLinear):
             agent.set_power(p_exp)
             step = 0
             w_bal_hist = []
@@ -93,7 +93,7 @@ class SimulatorBasis:
             ratio = (found_i / len(c_exp_bal)) * 100.0
             return ratio
 
-        elif isinstance(agent, CpDifferentialAgentBasis) or isinstance(agent, ThreeCompHydAgent):
+        elif isinstance(agent, CpODEAgentBasisLinear) or isinstance(agent, ThreeCompHydAgent):
             # WB1 Exhaust...
             agent.set_power(p_exp)
             steps = 0
@@ -149,7 +149,7 @@ class SimulatorBasis:
             # the equation to estimate recovery from ttes of both bouts
             return ((round(t_exp / 2) + (float(t3) - (round(t_exp / 2) + t_rec)) - t_exp) / t_exp) * 100.0
 
-        elif isinstance(agent, CpDifferentialAgentBasis) or isinstance(agent, ThreeCompHydAgent):
+        elif isinstance(agent, CpODEAgentBasisLinear) or isinstance(agent, ThreeCompHydAgent):
             # start from 0
             agent.reset()
 
@@ -194,7 +194,7 @@ class SimulatorBasis:
         if isinstance(agent, WbalIntAgent):
             w_bal_hist = agent.estimate_w_p_bal_to_data(course_data)
         # ... differential agent
-        elif isinstance(agent, CpDifferentialAgentBasis):
+        elif isinstance(agent, CpODEAgentBasisLinear):
             for tick in course_data:
                 agent.set_power(tick)
                 agent.perform_one_step()
