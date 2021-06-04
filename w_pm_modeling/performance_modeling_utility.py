@@ -8,18 +8,21 @@ from matplotlib.container import ErrorbarContainer
 from matplotlib.lines import Line2D
 
 plot_labels = {
+    "p_exp": r'$P_{exp}$',
+    "p_rec": r'$P_{rec}$',
+    "t_rec": r'$T_{rec}$',
     "WbalODEAgentWeigend": r'$\mathcal{T}_{weig}$',
     "WbalIntAgentSkiba": r'$W^\prime_{bal-int}$',
     "WbalODEAgentSkiba": r'$\mathcal{T}_{skib}$',
     "WbalODEAgentBartram": r'$\mathcal{T}_{bart}$',
     "WbalODEAgentFixTau": "fixTau",
     "ThreeCompHydAgent": r'$hydraulic_{weig}$',
-    "ground_truth": "observation",
+    "ground_truth": "ground truth",
     "T_WbalIntAgentSkiba": "WbalIntAgentSkiba",
     "T_WbalODEAgentSkiba": "skiba2015",
     "T_WbalODEAgentBartram": "bartram",
     "T_ThreeCompHydAgent": "hydraulic",
-    "T_ground_truth": "observation",
+    "T_ground_truth": "ground truth",
     "intensity": "intensity"
 }
 

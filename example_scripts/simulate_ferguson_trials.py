@@ -5,12 +5,14 @@ import numpy as np
 from w_pm_modeling.performance_modeling_utility import PlotLayout
 from w_pm_modeling.simulate.study_simulator import StudySimulator
 
-if __name__ == "__main__":
-    # general settings
-    logging.basicConfig(level=logging.INFO,
-                        format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-    hz = 1
+def simulate_ferguson(plot: bool = False, hz: int = 1) -> dict:
+    """
+    Runs the whole comparison on observations by Ferguson et al.
+    :param plot: whether the overview should be plotted or not
+    :param hz: Simulation computations per second. 1/hz defines delta t for used agents
+    :return: predicted and ground truth measurements in a dict
+    """
 
     # published means from the paper
     w_p = 21600
@@ -39,48 +41,62 @@ if __name__ == "__main__":
     ground_truth_v = [37, 65, 86]  # means
     ground_truth_e = [5, 6, 4]  # stds
 
-    # ground_truth_p_exp = [p_exp] * len(ground_truth_t)  # p_exp for every condition
-    # ground_truth_p_rec = [p_rec] * len(ground_truth_t)  # p_rec for every condition
-    # StudySimulator.get_standard_error_measures(w_p=w_p, cp=cp,
-    #                                            hyd_agent_configs=ps, hz=hz,
-    #                                            ground_truth_t=ground_truth_t,
-    #                                            ground_truth_v=ground_truth_v,
-    #                                            ground_truth_p_exp=ground_truth_p_exp,
-    #                                            ground_truth_p_rec=ground_truth_p_rec)
-
     # run the simulations
-    results = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=ps,
+    sims = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=ps,
                                                  p_exp=p_exp, p_rec=p_rec, rec_times=rec_times, hz=hz)
+    # display overview plot if required
+    if plot is True:
+        # set up the figure
+        PlotLayout.set_rc_params()
+        fig = plt.figure(figsize=(8, 5))
+        ax = fig.add_subplot()
 
-    # set up the figure
-    PlotLayout.set_rc_params()
-    fig = plt.figure(figsize=(8, 5))
-    ax = fig.add_subplot()
+        # plot the ground truth
+        ax.errorbar(ground_truth_t, ground_truth_v, ground_truth_e,
+                    linestyle='None', marker='o', capsize=3,
+                    color=PlotLayout.get_plot_color("ground_truth"))
+
+        # plot the simulated agent dynamics
+        for agent_n, agent_d in sims.items():
+            ax.plot(rec_times,
+                    agent_d,
+                    color=PlotLayout.get_plot_color(agent_n),
+                    linestyle=PlotLayout.get_plot_linestyle(agent_n))
+
+        # create legend
+        handles = PlotLayout.create_standardised_legend(sims.keys(), ground_truth=True, errorbar=True)
+        ax.legend(handles=handles)
+
+        # finish layout
+        # ax.set_title("Ferguson et al. (2010)\n"r'$P6 \rightarrow 20W$')
+        ax.set_title("expenditure P360\nrecovery 20 watts")
+        ax.set_xlabel("recovery bout duration (sec)")
+        ax.set_xticks([0, 120, 360, 900])
+        ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
+
+        plt.subplots_adjust(right=0.96)
+        plt.show()
+        plt.close(fig=fig)
+
+    ret_results = {}
+    # assemble results dict for big comparison
+    for i, t in enumerate(ground_truth_t):
+        name = "P240 20 watts T{}".format(t)
+        ret_results[name] = {
+            PlotLayout.get_plot_label("p_exp"): p_exp,
+            PlotLayout.get_plot_label("p_rec"): p_rec,
+            PlotLayout.get_plot_label("t_rec"): t,
+            PlotLayout.get_plot_label("ground_truth"): ground_truth_v[i]
+        }
+        for k, v in sims.items():
+            ret_results[name][PlotLayout.get_plot_label(k)] = round(
+                v[np.where(rec_times == t)[0][0]], 1)
+
+    return ret_results
 
 
-    # plot the ground truth
-    ax.errorbar(ground_truth_t, ground_truth_v, ground_truth_e,
-                linestyle='None', marker='o', capsize=3,
-                color=PlotLayout.get_plot_color("ground_truth"))
-
-    # plot the simulated agent dynamics
-    for agent_n, agent_d in results.items():
-        ax.plot(rec_times,
-                agent_d,
-                color=PlotLayout.get_plot_color(agent_n),
-                linestyle=PlotLayout.get_plot_linestyle(agent_n))
-
-    # create legend
-    handles = PlotLayout.create_standardised_legend(results.keys(), ground_truth=True, errorbar=True)
-    ax.legend(handles=handles)
-
-    # finish layout
-    # ax.set_title("Ferguson et al. (2010)\n"r'$P6 \rightarrow 20W$')
-    ax.set_title("expenditure P360\nrecovery 20 watts")
-    ax.set_xlabel("recovery bout duration (sec)")
-    ax.set_xticks([0, 120, 360, 900])
-    ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
-
-    plt.subplots_adjust(right=0.96)
-    plt.show()
-    plt.close(fig=fig)
+if __name__ == "__main__":
+    # general settings
+    logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
+    simulate_ferguson(plot=True)

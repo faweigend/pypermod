@@ -10,12 +10,14 @@ from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgent
 from w_pm_modeling.performance_modeling_utility import PlotLayout
 from w_pm_modeling.simulate.study_simulator import StudySimulator
 
-if __name__ == "__main__":
-    # general settings
-    logging.basicConfig(level=logging.INFO,
-                        format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-    hz = 1
+def simulate_chidnok(plot: bool = False, hz: int = 1) -> dict:
+    """
+    Runs the whole comparison on observations by Caen et al.
+    :param plot: whether the overview should be plotted or not
+    :param hz: Simulation computations per second. 1/hz defines delta t for used agents
+    :return: predicted and ground truth measurements in a dict
+    """
 
     # averaged values from paper
     cp = 241
@@ -65,42 +67,65 @@ if __name__ == "__main__":
             ratio = StudySimulator.get_recovery_ratio_caen(agent, p_exp=p_exp, p_rec=p_rec, t_rec=t_rec)
             results[agent.get_name()].append(ratio)
 
-    # initiate the plot
-    PlotLayout.set_rc_params()
-    fig = plt.figure(figsize=(5, 5))
-    ax = fig.add_subplot()
+    # plot overview if required
+    if plot is True:
+        # initiate the plot
+        PlotLayout.set_rc_params()
+        fig = plt.figure(figsize=(5, 5))
+        ax = fig.add_subplot()
 
-    # plot ground truth obs
-    ax.scatter(np.arange(len(ground_truth_fit_ratio)),
-               ground_truth_fit_ratio,
-               color=PlotLayout.get_plot_color("ground_truth"),
-               marker=PlotLayout.get_plot_marker("ground_truth"),
-               s=60)
-
-    # plot simulated agent data
-    for p_res_key, p_res_val in results.items():
-        ax.scatter(np.arange(len(p_res_val)),
-                   p_res_val,
-                   color=PlotLayout.get_plot_color(p_res_key),
-                   marker=PlotLayout.get_plot_marker(p_res_key),
+        # plot ground truth obs
+        ax.scatter(np.arange(len(ground_truth_fit_ratio)),
+                   ground_truth_fit_ratio,
+                   color=PlotLayout.get_plot_color("ground_truth"),
+                   marker=PlotLayout.get_plot_marker("ground_truth"),
                    s=60)
 
-    # finalise Layout
-    ax.set_title("expenditure {} watts\nrecovery time {} sec".format(p_exp, t_rec))
-    ax.set_xlabel("recovery bout intensity (watts)")
-    ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
-    ax.set_xticks([0, 1, 2])
-    ax.set_xlim((-0.5, 2.5))
-    ax.set_xticklabels(p_recs)
-    ax.grid(axis="y", linestyle=':', alpha=0.5)
+        # plot simulated agent data
+        for p_res_key, p_res_val in results.items():
+            ax.scatter(np.arange(len(p_res_val)),
+                       p_res_val,
+                       color=PlotLayout.get_plot_color(p_res_key),
+                       marker=PlotLayout.get_plot_marker(p_res_key),
+                       s=60)
 
-    # create legend
-    handles = PlotLayout.create_standardised_legend(agents=results.keys(),
-                                                    ground_truth=True,
-                                                    scatter=True)
-    ax.legend(handles=handles)
+        # finalise Layout
+        ax.set_title("expenditure {} watts\nrecovery time {} sec".format(p_exp, t_rec))
+        ax.set_xlabel("recovery bout intensity (watts)")
+        ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
+        ax.set_xticks([0, 1, 2])
+        ax.set_xlim((-0.5, 2.5))
+        ax.set_xticklabels(p_recs)
+        ax.grid(axis="y", linestyle=':', alpha=0.5)
 
-    # finish plot
-    plt.tight_layout()
-    plt.show()
-    plt.close(fig=fig)
+        # create legend
+        handles = PlotLayout.create_standardised_legend(agents=results.keys(),
+                                                        ground_truth=True,
+                                                        scatter=True)
+        ax.legend(handles=handles)
+
+        # finish plot
+        plt.tight_layout()
+        plt.show()
+        plt.close(fig=fig)
+
+    # assemble dict for model comparison
+    ret_results = {}
+    for i, p_rec in enumerate(p_recs):
+        name = "329 watts {} watts T30".format(p_rec)
+        ret_results[name] = {
+            PlotLayout.get_plot_label("p_exp"): p_exp,
+            PlotLayout.get_plot_label("p_rec"): p_rec,
+            PlotLayout.get_plot_label("t_rec"): 30,
+            PlotLayout.get_plot_label("ground_truth"): round(ground_truth_fit_ratio[i], 1)
+        }
+        for k, v in results.items():
+            ret_results[name][PlotLayout.get_plot_label(k)] = round(v[i], 1)
+    return ret_results
+
+
+if __name__ == "__main__":
+    # general settings
+    logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
+    simulate_chidnok(plot=True)

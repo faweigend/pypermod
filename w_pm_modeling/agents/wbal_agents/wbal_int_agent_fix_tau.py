@@ -7,15 +7,16 @@ class WbalIntAgentFixTau(WbalIntAgent):
     This agent version allows to set a fix tau different from the fitted tau/dcp relationship from Skiba 2012
     """
 
-    def __init__(self, w_p: float, cp: float, hz: int = 1):
+    def __init__(self, w_p: float, cp: float, tau: float = 100.0, hz: int = 1):
         """
         constructor with basic constants
         :param cp: CP
         :param w_p: W'
+        :param tau: the recovery time constant tau used by this agent
         :param hz: the time steps per second the agent operates in
         """
         super().__init__(w_p=w_p, cp=cp, hz=hz)
-        self._tau = 100
+        self._tau = tau
 
     @property
     def tau(self):

@@ -10,14 +10,16 @@ class WbalODEAgentFixTau(WbalODEAgentExponential):
     * depleted W' results in exhaustion
     """
 
-    def __init__(self, w_p: float, cp: float, hz: int = 1):
+    def __init__(self, w_p: float, cp: float, hz: int = 1, tau: float = 100.0):
         """
         constructor with basic constants
         :param cp: critical power in watts
         :param w_p: W' in Joules
+        :param tau: time constant that affects recovery speed
+        :param hz: computations per second (delta t)
         """
         super().__init__(w_p=w_p, cp=cp, hz=hz)
-        self._tau = 100
+        self._tau = tau
 
     @property
     def tau(self):
