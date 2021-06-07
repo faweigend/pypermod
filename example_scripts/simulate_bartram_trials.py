@@ -73,7 +73,7 @@ def simulate_bartram(plot: bool = False, hz: int = 1) -> dict:
         ax.set_title("expenditure P100\nrecovery time 60 sec")
         ax.set_xlabel("recovery intensity (" + r'$D_{CP}$' + ")")
         ax.set_xticks(np.arange(len(p_recs)))
-        ax.set_xticklabels([50, 100, 150, 200])
+        ax.set_xticklabels([0, 50, 100, 150, 200])
         ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
         ax.grid(axis="y", linestyle=':', alpha=0.5)
 
@@ -93,8 +93,7 @@ def simulate_bartram(plot: bool = False, hz: int = 1) -> dict:
         ret_results[name] = {
             PlotLayout.get_plot_label("p_exp"): p_exp,
             PlotLayout.get_plot_label("p_rec"): p_recs[i],
-            PlotLayout.get_plot_label("t_rec"): 60,
-            PlotLayout.get_plot_label(bart.get_name()): None
+            PlotLayout.get_plot_label("t_rec"): 60
         }
         for k, v in results.items():
             ret_results[name][PlotLayout.get_plot_label(k)] = v[i]

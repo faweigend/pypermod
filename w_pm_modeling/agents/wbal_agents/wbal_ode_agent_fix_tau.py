@@ -21,15 +21,13 @@ class WbalODEAgentFixTau(WbalODEAgentExponential):
         super().__init__(w_p=w_p, cp=cp, hz=hz)
         self._tau = tau
 
-    @property
-    def tau(self):
+    def get_tau(self):
         """
         getter for time constant tau
         """
         return self._tau
 
-    @tau.setter
-    def tau(self, new_tau):
+    def set_tau(self, new_tau):
         """
         setter for tau
         :param new_tau:
