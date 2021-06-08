@@ -120,12 +120,10 @@ if __name__ == "__main__":
     grtr = PlotLayout.get_plot_label("ground_truth")
     cols = [bart, skib, weig, hydr]
 
-    # ... and combine data for total RMSE
-    merged = pd.concat([bart_res, caen_res, chid_res, ferg_res], sort=False)
-
     texts = [("Extracted data from~\\cite{weigend_new_2021} and~\\cite{caen_reconstitution_2019} used for the " \
               + "defined recovery estimation protocol " \
-              + "together with model predictions and RMSE estimates.",
+              + "together with model predictions and RMSE estimates. Both " + weig + " and " + hydr + " were " \
+              + "fitted to these ground truth values and are therefore not compared.",
               "tab:weigend_comp",
               "From~\\cite{weigend_new_2021} and~\\cite{caen_reconstitution_2019}"),
              ("Extracted data from~\\cite{bartram_accuracy_2018} used for the " \
@@ -133,7 +131,7 @@ if __name__ == "__main__":
               + "together with model predictions and RMSE estimates. The " + bart + " predictions " \
               + "are the ground truth and therefore not compared.",
               "tab:bart_comp",
-              "From~\\cite{bartram_accuracy_2018}"),
+              "CP: 393   W': 23300"),
              ("Extracted data from~\\cite{caen_w_2021} used for the " \
               + "defined recovery estimation protocol " \
               + "together with model predictions and RMSE estimates.",
@@ -148,8 +146,20 @@ if __name__ == "__main__":
               + "defined recovery estimation protocol " \
               + "together with model predictions and RMSE estimates.",
               "tab:ferg_comp",
-              "From~\\cite{ferguson_effect_2010}")]
-    all_data = [weig_res, bart_res, caen_res, chid_res, ferg_res]
+              "From~\\cite{ferguson_effect_2010}"),
+             ("BART ERROR EST",
+              "BART ERROR EST",
+              "BART ERROR EST"),
+             ("WBAL ERROR EST",
+              "WBAL ERROR EST",
+              "WBAL ERROR EST")
+             ]
+
+    # ... and combine data for total RMSE
+    bart_error_est = pd.concat([caen_res, chid_res, ferg_res], sort=False)
+    wbal_error_est = pd.concat([bart_res, caen_res, chid_res, ferg_res], sort=False)
+
+    all_data = [weig_res, bart_res, caen_res, chid_res, ferg_res, bart_error_est, wbal_error_est]
     for i, x in enumerate(all_data):
         rmse_row = []
         row_cols = []
@@ -168,7 +178,7 @@ if __name__ == "__main__":
         to_latex(data_err, capt, labl, tite)
 
     # now the AICc computations
-    total_merged = pd.concat([weig_res, bart_res, caen_res, chid_res, ferg_res], sort=False)
+    total_merged = pd.concat([bart_res, caen_res, chid_res, ferg_res, weig_res], sort=False)
     for agent in [hydr, weig]:
         rss_n = ((total_merged[grtr] - total_merged[agent]) ** 2).mean()
         k = 8 if agent == hydr else 3

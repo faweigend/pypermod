@@ -104,14 +104,6 @@ def simulate_weigend(plot: bool = False, hz: int = 1) -> dict:
         plt.show()
         plt.close(fig=fig)
 
-    # remove hydraulic and tau-weigend agents
-    for k in list(results_p4_cp_33.keys()):
-        if "Hyd" in k or "Weigend" in k:
-            del results_p8_cp_66[k]
-            del results_p8_cp_33[k]
-            del results_p4_cp_66[k]
-            del results_p4_cp_33[k]
-
     # assemble results dict for big comparison
     results = {}
     names = ["P240 CP33", "P240 CP66", "P480 CP33", "P480 CP66"]
