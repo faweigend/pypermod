@@ -69,7 +69,7 @@ def simulate_ferguson(plot: bool = False, hz: int = 1) -> dict:
 
         # finish layout
         # ax.set_title("Ferguson et al. (2010)\n"r'$P6 \rightarrow 20W$')
-        ax.set_title("expenditure P360\nrecovery 20 watts")
+        ax.set_title("expenditure intensity: P360\nrecovery intensity: 20 watts")
         ax.set_xlabel("recovery bout duration (sec)")
         ax.set_xticks([0, 120, 360, 900])
         ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
@@ -99,4 +99,4 @@ if __name__ == "__main__":
     # general settings
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
-    simulate_ferguson(plot=True)
+    simulate_ferguson(plot=True, hz=10)

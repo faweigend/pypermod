@@ -14,4 +14,4 @@ class WbalODEAgentWeigend(WbalODEAgentExponential):
         """
         :return: tau estimation according to fitting created by Weigend et al. with measures derived from Caen et al.
         """
-        return 2559.6395321524374 * pow(dcp, -0.46856788359687684) + 41.08002216973527
+        return 2112.437700165279 * pow(dcp, - 0.3891929191338761) - 14.505967851299507

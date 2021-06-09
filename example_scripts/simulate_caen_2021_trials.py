@@ -69,7 +69,7 @@ def simulate_caen_2021(plot: bool = False, hz: int = 1) -> dict:
                     linestyle=PlotLayout.get_plot_linestyle(agent_n))
 
         # finalise layout
-        ax.set_title("expenditure P240\nrecovery 161 watts")
+        ax.set_title("expenditure intensity: P240\nrecovery intensity: 161 watts")
         ax.set_xlabel("recovery bout duration (sec)")
         ax.set_xticks([30, 60, 120, 180, 240, 300, 600, 900])
         ax.set_xticklabels(ax.get_xticks(), rotation=-45, ha='center')
@@ -97,7 +97,7 @@ def simulate_caen_2021(plot: bool = False, hz: int = 1) -> dict:
             PlotLayout.get_plot_label("ground_truth"): ground_truth_v[i]
         }
         for k, v in results.items():
-            ret_results[name][PlotLayout.get_plot_label(k)] = round(v[np.where(rec_times == t)[0][0]],1)
+            ret_results[name][PlotLayout.get_plot_label(k)] = round(v[np.where(rec_times == t)[0][0]], 1)
     return ret_results
 
 
@@ -105,4 +105,4 @@ if __name__ == "__main__":
     # general settings
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
-    simulate_caen_2021(plot=True)
+    simulate_caen_2021(plot=True, hz=10)

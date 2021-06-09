@@ -71,7 +71,7 @@ def to_latex(df, caption, label, study_descr):
     latex_str += "\\hline\n" \
                  + "\\hline\n" \
                  + "\\multicolumn{3}{r}{}&\n" \
-                 + "\\multicolumn{1}{c}{RMSE}\n"
+                 + "\\multicolumn{1}{c}{RMSE:}\n"
 
     # add values of available columns
     for c in columns:
@@ -120,46 +120,45 @@ if __name__ == "__main__":
     grtr = PlotLayout.get_plot_label("ground_truth")
     cols = [bart, skib, weig, hydr]
 
-    texts = [("Extracted data from~\\cite{weigend_new_2021} and~\\cite{caen_reconstitution_2019} used for the " \
-              + "defined recovery estimation protocol " \
-              + "together with model predictions and RMSE estimates. Both " + weig + " and " + hydr + " were " \
-              + "fitted to these ground truth values and are therefore not compared.",
-              "tab:weigend_comp",
-              "From~\\cite{weigend_new_2021} and~\\cite{caen_reconstitution_2019}"),
-             ("Extracted data from~\\cite{bartram_accuracy_2018} used for the " \
-              + "defined recovery estimation protocol " \
-              + "together with model predictions and RMSE estimates. The " + bart + " predictions " \
-              + "are the ground truth and therefore not compared.",
-              "tab:bart_comp",
-              "CP: 393   W': 23300"),
-             ("Extracted data from~\\cite{caen_w_2021} used for the " \
-              + "defined recovery estimation protocol " \
-              + "together with model predictions and RMSE estimates.",
-              "tab:caen_comp",
-              "From~\\cite{caen_w_2021}"),
-             ("Extracted data from~\\cite{chidnok_exercise_2012} used for the " \
-              + "defined recovery estimation protocol " \
-              + "together with model predictions and RMSE estimates.",
-              "tab:chid_comp",
-              "From~\\cite{chidnok_exercise_2012}"),
-             ("Extracted data from~\\cite{ferguson_effect_2010} used for the " \
-              + "defined recovery estimation protocol " \
-              + "together with model predictions and RMSE estimates.",
-              "tab:ferg_comp",
-              "From~\\cite{ferguson_effect_2010}"),
-             ("BART ERROR EST",
-              "BART ERROR EST",
-              "BART ERROR EST"),
-             ("WBAL ERROR EST",
-              "WBAL ERROR EST",
-              "WBAL ERROR EST")
-             ]
-
     # ... and combine data for total RMSE
     bart_error_est = pd.concat([caen_res, chid_res, ferg_res], sort=False)
     wbal_error_est = pd.concat([bart_res, caen_res, chid_res, ferg_res], sort=False)
 
-    all_data = [weig_res, bart_res, caen_res, chid_res, ferg_res, bart_error_est, wbal_error_est]
+    texts = {
+        "bart": ("Extracted data from~\\cite{bartram_accuracy_2018} (left part oft the table) " \
+                 + "together with model predictions using the defined recovery estimation protocol " \
+                 + "and RMSE estimates (right part oft the table). Predictions of " + bart + " are " \
+                 + "the ground truth and therefore not compared.",
+                 "tab:bart_comp",
+                 "\\gls{cp}: 393   \\gls{w'}: 23300"),
+        "caen": ("Extracted data from~\\cite{caen_w_2021} (left part oft the table) " \
+                 + "together with model predictions using the defined recovery estimation protocol " \
+                 + "and RMSE estimates (right part oft the table).",
+                 "tab:caen_comp",
+                 "\\gls{cp}: 269   \\gls{w'}: 19200"),
+        "chid": ("Extracted data from~\\cite{chidnok_exercise_2012} (left part oft the table) " \
+                 + "together with model predictions using the defined recovery estimation protocol " \
+                 + "and RMSE estimates (right part oft the table).",
+                 "tab:chid_comp",
+                 "\\gls{cp}: 241   \\gls{w'}: 21100"),
+        "ferg": ("Extracted data from~\\cite{ferguson_effect_2010} (left part oft the table) " \
+                 + "together with model predictions using the defined recovery estimation protocol " \
+                 + "and RMSE estimates (right part oft the table).",
+                 "tab:ferg_comp",
+                 "\\gls{cp}: 212   \\gls{w'}: 21600"),
+        "weig": ("Extracted data from~\\cite{weigend_new_2021} and~\\cite{caen_reconstitution_2019} " \
+                 + "(left part oft the table) " \
+                 + "together with model predictions using the defined recovery estimation protocol " \
+                 + "and RMSE estimates (right part oft the table). Both " + weig + " and " + hydr + " were " \
+                 + "fitted to these ground truth values and are therefore not compared.",
+                 "tab:weigend_comp",
+                 "\\gls{cp}: 248   \\gls{w'}: 18200")
+    }
+
+    # DON'T CHANGE THESE ORDERS
+    all_text = ["bart", "caen", "chid", "ferg", "weig"]
+    all_data = [bart_res, caen_res, chid_res, ferg_res, weig_res]
+    err_data = []
     for i, x in enumerate(all_data):
         rmse_row = []
         row_cols = []
@@ -170,12 +169,53 @@ if __name__ == "__main__":
                 row_cols.append(col)
                 rmse_row.append(((x[grtr] - x[col]) ** 2).mean() ** 0.5)
         new_row = pd.DataFrame([rmse_row], index=["RMSE"], columns=row_cols)
-        data_err = x.append(new_row, sort=False)
-        print(data_err.to_string())
-        capt = texts[i][0]
-        labl = texts[i][1]
-        tite = texts[i][2]
-        to_latex(data_err, capt, labl, tite)
+        x_err = x.append(new_row, sort=False)
+
+        # print the whole data frame
+        err_data.append(x_err)
+        # print(x_err.to_string())
+
+        capt = texts[all_text[i]][0]
+        labl = texts[all_text[i]][1]
+        tite = texts[all_text[i]][2]
+        to_latex(x_err, capt, labl, tite)
+
+        print("\n\n\n")
+
+    # Estimate mean RMSEs
+    bart_m_rmse = (err_data[all_text.index("caen")][bart][-1] +
+                   err_data[all_text.index("chid")][bart][-1] +
+                   err_data[all_text.index("ferg")][bart][-1]) / 3
+
+    bart_hyd_m_rmse = (err_data[all_text.index("caen")][hydr][-1] +
+                       err_data[all_text.index("chid")][hydr][-1] +
+                       err_data[all_text.index("ferg")][hydr][-1]) / 3
+
+    skib_m_rmse = (err_data[all_text.index("bart")][skib][-1] +
+                   err_data[all_text.index("caen")][skib][-1] +
+                   err_data[all_text.index("chid")][skib][-1] +
+                   err_data[all_text.index("ferg")][skib][-1]) / 4
+
+    weig_m_rmse = (err_data[all_text.index("bart")][weig][-1] +
+                   err_data[all_text.index("caen")][weig][-1] +
+                   err_data[all_text.index("chid")][weig][-1] +
+                   err_data[all_text.index("ferg")][weig][-1]) / 4
+
+    hydr_m_rmse = (err_data[all_text.index("bart")][hydr][-1] +
+                   err_data[all_text.index("caen")][hydr][-1] +
+                   err_data[all_text.index("chid")][hydr][-1] +
+                   err_data[all_text.index("ferg")][hydr][-1]) / 4
+
+    print("Mean RMSEs: \n"
+          " bart: {0:.2f}\n"
+          " bart_hyd: {4:.2f}\n"
+          " skib: {1:.2f}\n"
+          " weig: {2:.2f}\n"
+          " hydr: {3:.2f}".format(bart_m_rmse,
+                                  skib_m_rmse,
+                                  weig_m_rmse,
+                                  hydr_m_rmse,
+                                  bart_hyd_m_rmse))
 
     # now the AICc computations
     total_merged = pd.concat([bart_res, caen_res, chid_res, ferg_res, weig_res], sort=False)
@@ -184,4 +224,4 @@ if __name__ == "__main__":
         k = 8 if agent == hydr else 3
         n = len(total_merged.index)
         aic_c = n * math.log(rss_n) + 2 * k + ((2 * k * (k + 1)) / (n - k - 1))
-        print(agent, aic_c)
+        print("AIC for {0} is {1:.2f}".format(agent, aic_c))
