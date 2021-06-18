@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
-from w_pm_modeling.simulator.simulator_basis import SimulatorBasis
+from w_pm_modeling.fitter.tau_to_recovery_fitter import TauToRecoveryFitter
 from w_pm_modeling.performance_modeling_utility import PlotLayout
-
-from handler.simple_fitter.tau_to_recovery_fitter import TauToRecoveryFitter
+from w_pm_modeling.simulator.simulator_basis import SimulatorBasis
 
 if __name__ == "__main__":
 
@@ -81,7 +80,7 @@ if __name__ == "__main__":
         insert_ax.set_xlim((bal.index(0) - 1, bal.index(0) + 2))
         insert_ax.set_ylim((0, bal[bal.index(0) - 1]))
         insert_ax.set_xticks([bal.index(0), bal3.index(0)])
-        insert_ax.set_xticklabels([bal.index(0)+1, bal3.index(0)+1])
+        insert_ax.set_xticklabels([bal.index(0) + 1, bal3.index(0) + 1])
         insert_ax.set_title("detail view")
 
         plt.tight_layout()

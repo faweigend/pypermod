@@ -58,48 +58,49 @@ def simulate_caen_2019_trials(plot: bool = False):
     ground_truth_p8_v = [40.1, 44.8, 54.8]
     ground_truth_p8_e = [3.9, 3.0, 3.8]
 
-    # set up the figure
-    PlotLayout.set_rc_params()
-    fig = plt.figure(figsize=(10, 5))
-    ax1 = fig.add_subplot(1, 2, 1)
-    ax2 = fig.add_subplot(1, 2, 2, sharey=ax1)
+    if plot:
+        # set up the figure
+        PlotLayout.set_rc_params()
+        fig = plt.figure(figsize=(10, 5))
+        ax1 = fig.add_subplot(1, 2, 1)
+        ax2 = fig.add_subplot(1, 2, 2, sharey=ax1)
 
-    # plot ground truth obs
-    ax1.errorbar(ground_truth_t, ground_truth_p4_v, ground_truth_p4_e, linestyle='None', marker='o', capsize=3,
-                 color=PlotLayout.get_plot_color("ground_truth"))
-    ax2.errorbar(ground_truth_t, ground_truth_p8_v, ground_truth_p8_e, linestyle='None', marker='o', capsize=3,
-                 color=PlotLayout.get_plot_color("ground_truth"))
+        # plot ground truth obs
+        ax1.errorbar(ground_truth_t, ground_truth_p4_v, ground_truth_p4_e, linestyle='None', marker='o', capsize=3,
+                     color=PlotLayout.get_plot_color("ground_truth"))
+        ax2.errorbar(ground_truth_t, ground_truth_p8_v, ground_truth_p8_e, linestyle='None', marker='o', capsize=3,
+                     color=PlotLayout.get_plot_color("ground_truth"))
 
-    # plot simulated agent data
-    for p_res_key, p_res_val in results_p4_cp_33.items():
-        # combine CP33 and CP66 as it's done in Caen et al.
-        p4_vals = (np.array(p_res_val) + np.array(results_p4_cp_66[p_res_key])) / 2
-        p8_vals = (np.array(results_p8_cp_33[p_res_key]) + np.array(results_p8_cp_66[p_res_key])) / 2
-        # plot results
-        ax1.plot(rec_times, p4_vals, color=PlotLayout.get_plot_color(p_res_key))
-        ax2.plot(rec_times, p8_vals, color=PlotLayout.get_plot_color(p_res_key))
+        # plot simulated agent data
+        for p_res_key, p_res_val in results_p4_cp_33.items():
+            # combine CP33 and CP66 as it's done in Caen et al.
+            p4_vals = (np.array(p_res_val) + np.array(results_p4_cp_66[p_res_key])) / 2
+            p8_vals = (np.array(results_p8_cp_33[p_res_key]) + np.array(results_p8_cp_66[p_res_key])) / 2
+            # plot results
+            ax1.plot(rec_times, p4_vals, color=PlotLayout.get_plot_color(p_res_key))
+            ax2.plot(rec_times, p8_vals, color=PlotLayout.get_plot_color(p_res_key))
 
-    # finalise layout
-    fig.suptitle("Caen et al. (2019)")
-    ax1.set_title(r'P4')
-    ax2.set_title(r'P8')
-    # create legend
-    handles = PlotLayout.create_standardised_legend(agents=results_p8_cp_33.keys(),
-                                                    ground_truth=True,
-                                                    errorbar=True)
+        # finalise layout
+        fig.suptitle("Caen et al. (2019)")
+        ax1.set_title(r'P4')
+        ax2.set_title(r'P8')
+        # create legend
+        handles = PlotLayout.create_standardised_legend(agents=results_p8_cp_33.keys(),
+                                                        ground_truth=True,
+                                                        errorbar=True)
 
-    ax1.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
-    ax1.set_xlabel("recovery bout duration (sec)")
-    ax2.set_xlabel("recovery bout duration (sec)")
-    for ax in [ax1, ax2]:
-        ax.set_xticks([0, 120, 240, 360])
-    ax1.legend(handles=handles)
+        ax1.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
+        ax1.set_xlabel("recovery bout duration (sec)")
+        ax2.set_xlabel("recovery bout duration (sec)")
+        for ax in [ax1, ax2]:
+            ax.set_xticks([0, 120, 240, 360])
+        ax1.legend(handles=handles)
 
-    # finish plot
-    plt.tight_layout()
-    plt.subplots_adjust(top=0.90)
-    plt.show()
-    plt.close(fig=fig)
+        # finish plot
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.90)
+        plt.show()
+        plt.close(fig=fig)
 
 
 if __name__ == "__main__":

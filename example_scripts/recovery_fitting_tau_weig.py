@@ -3,9 +3,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 from sklearn.metrics import r2_score
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
-from w_pm_modeling.simulator.simulator_basis import SimulatorBasis
-
-from handler.simple_fitter.tau_to_recovery_fitter import TauToRecoveryFitter
+from w_pm_modeling.fitter.tau_to_recovery_fitter import TauToRecoveryFitter
 
 if __name__ == "__main__":
 

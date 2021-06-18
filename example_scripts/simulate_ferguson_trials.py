@@ -55,7 +55,7 @@ def simulate_ferguson(plot: bool = False, hz: int = 1) -> dict:
     # run the simulations
     sims = StudySimulator.standard_comparison(agents=agents, p_exp=p_exp, p_rec=p_rec, rec_times=rec_times)
     # display overview plot if required
-    if plot is True:
+    if plot:
         # set up the figure
         PlotLayout.set_rc_params()
         fig = plt.figure(figsize=(8, 5))

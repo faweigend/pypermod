@@ -59,7 +59,7 @@ def simulate_bartram(plot: bool = False, hz: int = 1) -> dict:
         ground_truth_v.append(gt_ratio)
 
     # create overview plot if required
-    if plot is True:
+    if plot:
         # plot setup
         PlotLayout.set_rc_params()
         fig, axes = plt.subplots(nrows=1, ncols=len(dcp_results),

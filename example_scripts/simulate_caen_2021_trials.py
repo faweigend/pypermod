@@ -58,7 +58,7 @@ def simulate_caen_2021(plot: bool = False, hz: int = 1) -> dict:
     ground_truth_v = [28.6, 34.8, 44.2, 50.5, 55.1, 56.8, 73.7, 71.3]  # mean values
     ground_truth_e = [8.2, 11.1, 9.7, 12.1, 13.3, 16.4, 19.3, 20.8]  # std errors
 
-    if plot is True:
+    if plot:
         # set up the figure
         PlotLayout.set_rc_params()
         fig = plt.figure(figsize=(8, 5))

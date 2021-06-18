@@ -65,7 +65,7 @@ def simulate_weigend(plot: bool = False, hz: int = 1) -> dict:
     ground_truth_p8_cp66 = [38.0, 37.5, 50.0]
 
     # plot overview if required
-    if plot is True:
+    if plot:
         # set up the figure
         PlotLayout.set_rc_params()
         fig = plt.figure(figsize=(10, 8))
