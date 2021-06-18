@@ -8,7 +8,7 @@ from w_pm_modeling.agents.wbal_agents.wbal_int_agent_skiba import WbalIntAgentSk
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
-from w_pm_modeling.simulate.simulator_basis import SimulatorBasis
+from w_pm_modeling.simulator.simulator_basis import SimulatorBasis
 
 
 class StudySimulator(SimulatorBasis):

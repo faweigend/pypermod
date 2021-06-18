@@ -7,7 +7,7 @@ from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgent
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from w_pm_modeling.performance_modeling_utility import PlotLayout
-from w_pm_modeling.simulate.study_simulator import StudySimulator
+from w_pm_modeling.simulator.study_simulator import StudySimulator
 
 
 def simulate_bartram(plot: bool = False, hz: int = 1) -> dict:
