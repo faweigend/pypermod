@@ -2,6 +2,10 @@ import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
+from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from w_pm_modeling.performance_modeling_utility import PlotLayout
 from w_pm_modeling.simulate.study_simulator import StudySimulator
 
@@ -25,8 +29,7 @@ def simulate_ferguson(plot: bool = False, hz: int = 1) -> dict:
 
     # fitted to Ferguson et al. (w_p = 21600 cp = 212) with recoveries from Caen et al.
     # general settings for three component hydraulic agent
-    ps = [
-        [19858.664401062637,
+    p = [19858.664401062637,
          381285.47724572546,
          211.56829509658024,
          84.1393682475386,
@@ -34,16 +37,23 @@ def simulate_ferguson(plot: bool = False, hz: int = 1) -> dict:
          0.7148516516658686,
          0.25013512969210605,
          0.2794394105229545]
-    ]
 
     # ground truth measures from the paper
     ground_truth_t = [120, 360, 900]
     ground_truth_v = [37, 65, 86]  # means
     ground_truth_e = [5, 6, 4]  # stds
 
+    agent_skiba_2015 = WbalODEAgentSkiba(w_p=w_p, cp=cp, hz=hz)
+    agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
+    agent_fit_caen = WbalODEAgentWeigend(w_p=w_p, cp=cp, hz=hz)
+    agent_hyd = ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1],
+                                  m_ae=p[2], m_ans=p[3], m_anf=p[4],
+                                  the=p[5], gam=p[6], phi=p[7])
+
+    agents = [agent_bartram, agent_skiba_2015, agent_fit_caen, agent_hyd]
+
     # run the simulations
-    sims = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=ps,
-                                                 p_exp=p_exp, p_rec=p_rec, rec_times=rec_times, hz=hz)
+    sims = StudySimulator.standard_comparison(agents=agents, p_exp=p_exp, p_rec=p_rec, rec_times=rec_times)
     # display overview plot if required
     if plot is True:
         # set up the figure

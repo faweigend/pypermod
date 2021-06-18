@@ -104,36 +104,19 @@ class StudySimulator(SimulatorBasis):
         return rmse, aic, bic
 
     @staticmethod
-    def standard_comparison(w_p: float, cp: float, hyd_agent_configs: list, p_exp: float,
-                            p_rec: float, rec_times: np.ndarray, hz: int):
+    def standard_comparison(agents, p_exp: float, p_rec: float, rec_times: np.ndarray):
         """
         This function employs the WB1 -> RB -> WB2 protocol proposed by Caen et al. to estimate recovery ratios.
         Recovery dynamics after a given intensity, at a given recovery intensity, and over a given time are estimated.
-        :param w_p: W' of subject
-        :param cp: CP of subject
-        :param hyd_agent_configs: configurations (or just one) of hydraulic agents fitted to the subject
+        :param agents: list of agents to compare
         :param p_exp: intensity that leads to exhaustion
         :param p_rec: recovery intensity
         :param rec_times: recovery times to estimate
-        :param hz: HZ setting for agents
         :return: simulation results in a dictionary
         """
 
         # add agents dict to results
         trial_results = {}
-
-        agent_skiba_2015 = WbalODEAgentSkiba(w_p=w_p, cp=cp, hz=hz)
-        agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
-        agent_skiba_2012 = WbalIntAgentSkiba(w_p=w_p, cp=cp, hz=hz)
-        agent_fit_caen = WbalODEAgentWeigend(w_p=w_p, cp=cp, hz=hz)
-
-        agents = [agent_bartram, agent_skiba_2015, agent_fit_caen]  # agent_skiba_2012]
-
-        # create the hydraulic agents
-        for p in hyd_agent_configs:
-            agents.append(
-                ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1], m_ae=p[2], m_ans=p[3], m_anf=p[4],
-                                  the=p[5], gam=p[6], phi=p[7]))
 
         # estimate recovery ratios with Caen protocol
         for agent in agents:

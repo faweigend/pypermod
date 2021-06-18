@@ -2,6 +2,10 @@ import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
+from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from w_pm_modeling.performance_modeling_utility import PlotLayout
 from w_pm_modeling.simulate.study_simulator import StudySimulator
 
@@ -26,8 +30,7 @@ def simulate_caen_2021(plot: bool = False, hz: int = 1) -> dict:
 
     # fitted to Caen et al. 2021 (w_p = 19200 cp = 269) with recoveries from Caen et al. (2019)
     # general settings for three component hydraulic agent
-    ps = [
-        [20677.1733445497,
+    p = [20677.1733445497,
          179472.5078726373,
          269.3909629386831,
          87.53155946812194,
@@ -35,15 +38,20 @@ def simulate_caen_2021(plot: bool = False, hz: int = 1) -> dict:
          0.8086915379675802,
          0.12369693383481795,
          0.17661428891272302]
-    ]
 
-    results = StudySimulator.standard_comparison(w_p=w_p,
-                                                 cp=cp,
-                                                 hyd_agent_configs=ps,
+    agent_skiba_2015 = WbalODEAgentSkiba(w_p=w_p, cp=cp, hz=hz)
+    agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
+    agent_fit_caen = WbalODEAgentWeigend(w_p=w_p, cp=cp, hz=hz)
+    agent_hyd = ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1],
+                                  m_ae=p[2], m_ans=p[3], m_anf=p[4],
+                                  the=p[5], gam=p[6], phi=p[7])
+
+    agents = [agent_bartram, agent_skiba_2015, agent_fit_caen, agent_hyd]
+
+    results = StudySimulator.standard_comparison(agents=agents,
                                                  p_exp=p_exp,
                                                  p_rec=p_rec,
-                                                 rec_times=rec_times,
-                                                 hz=hz)
+                                                 rec_times=rec_times)
 
     # the ground truth values from the paper
     ground_truth_t = [30, 60, 120, 180, 240, 300, 600, 900]  # time steps

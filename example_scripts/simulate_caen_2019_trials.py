@@ -2,6 +2,10 @@ import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
+from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from w_pm_modeling.performance_modeling_utility import PlotLayout
 from w_pm_modeling.simulate.study_simulator import StudySimulator
 
@@ -32,15 +36,20 @@ def simulate_caen_2019_trials(plot: bool = False):
         0.23674229355251739
     ]
 
+    agent_skiba_2015 = WbalODEAgentSkiba(w_p=w_p, cp=cp, hz=hz)
+    agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
+    agent_fit_caen = WbalODEAgentWeigend(w_p=w_p, cp=cp, hz=hz)
+    agent_hyd = ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1],
+                                  m_ae=p[2], m_ans=p[3], m_anf=p[4],
+                                  the=p[5], gam=p[6], phi=p[7])
+
+    agents = [agent_bartram, agent_skiba_2015, agent_fit_caen, agent_hyd]
+
     # run simulations for all four conditions
-    results_p4_cp_33 = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=[p], p_exp=p_4,
-                                                          p_rec=cp_33, rec_times=rec_times, hz=hz)
-    results_p4_cp_66 = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=[p], p_exp=p_4,
-                                                          p_rec=cp_66, rec_times=rec_times, hz=hz)
-    results_p8_cp_33 = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=[p], p_exp=p_8,
-                                                          p_rec=cp_33, rec_times=rec_times, hz=hz)
-    results_p8_cp_66 = StudySimulator.standard_comparison(w_p=w_p, cp=cp, hyd_agent_configs=[p], p_exp=p_8,
-                                                          p_rec=cp_66, rec_times=rec_times, hz=hz)
+    results_p4_cp_33 = StudySimulator.standard_comparison(agents=agents, p_exp=p_4, p_rec=cp_33, rec_times=rec_times)
+    results_p4_cp_66 = StudySimulator.standard_comparison(agents=agents, p_exp=p_4, p_rec=cp_66, rec_times=rec_times)
+    results_p8_cp_33 = StudySimulator.standard_comparison(agents=agents, p_exp=p_8, p_rec=cp_33, rec_times=rec_times)
+    results_p8_cp_66 = StudySimulator.standard_comparison(agents=agents, p_exp=p_8, p_rec=cp_66, rec_times=rec_times)
 
     # combined ground truth values with std error
     ground_truth_t = [120, 240, 360]

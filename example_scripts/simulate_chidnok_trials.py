@@ -1,10 +1,10 @@
 import logging
-from collections import defaultdict
 
 import matplotlib.pyplot as plt
 import numpy as np
 from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from w_pm_modeling.performance_modeling_utility import PlotLayout
@@ -32,6 +32,7 @@ def simulate_chidnok(plot: bool = False, hz: int = 1) -> dict:
     # assemble for simulation
     p_recs = [hig, med, low]
     t_rec = 30
+    rec_times = np.arange(0, 70, 2)
 
     # ground truth values from paper
     # cut ["sev", 323, 29]
@@ -52,60 +53,60 @@ def simulate_chidnok(plot: bool = False, hz: int = 1) -> dict:
          0.15441713985950212,
          0.24669788914354474]
 
-    agent_skiba_2015 = WbalODEAgentSkiba(w_p=w_p, cp=cp, hz=hz)
-    agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
-    agent_fit_caen = WbalODEAgentWeigend(w_p=w_p, cp=cp, hz=hz)
-    agent_hyd = ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1],
-                                  m_ae=p[2], m_ans=p[3], m_anf=p[4],
-                                  the=p[5], gam=p[6], phi=p[7])
+    # setup all used agents
+    bart = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
+    skib = WbalODEAgentSkiba(w_p=w_p, cp=cp, hz=hz)
+    weig = WbalODEAgentWeigend(w_p=w_p, cp=cp, hz=hz)
+    hyd = ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1], m_ae=p[2], m_ans=p[3], m_anf=p[4],
+                            the=p[5], gam=p[6], phi=p[7])
+    agents = [skib, weig, hyd, bart]
 
-    agents = [agent_bartram, agent_skiba_2015, agent_fit_caen, agent_hyd]
-
-    results = defaultdict(list)
+    dcp_results = []
+    ground_truth_v = []
     for i, p_rec in enumerate(p_recs):
-        for agent in agents:
-            ratio = StudySimulator.get_recovery_ratio_caen(agent, p_exp=p_exp, p_rec=p_rec, t_rec=t_rec)
-            results[agent.get_name()].append(ratio)
+        result = StudySimulator.standard_comparison(agents=agents, p_exp=p_exp, p_rec=p_rec, rec_times=rec_times)
+        dcp_results.append(result)
 
-    # plot overview if required
+        fix_tau = WbalODEAgentFixTau(w_p=w_p, cp=cp, hz=hz, tau=ground_truth_fitted[i])
+        gt_ratio = StudySimulator.get_recovery_ratio_caen(fix_tau, p_exp=p_exp, p_rec=p_rec, t_rec=t_rec)
+        ground_truth_v.append(gt_ratio)
+
+    # create overview plot if required
     if plot is True:
-        # initiate the plot
+        # plot setup
         PlotLayout.set_rc_params()
-        fig = plt.figure(figsize=(5, 5))
-        ax = fig.add_subplot()
+        fig, axes = plt.subplots(nrows=1, ncols=len(dcp_results),
+                                 sharex=True, sharey=True,
+                                 figsize=(10, 4))
 
-        # plot ground truth obs
-        ax.scatter(np.arange(len(ground_truth_fit_ratio)),
-                   ground_truth_fit_ratio,
-                   color=PlotLayout.get_plot_color("ground_truth"),
-                   marker=PlotLayout.get_plot_marker("ground_truth"),
-                   s=60)
+        for i, result in enumerate(dcp_results):
+            for p_res_key, p_res_val in result.items():
+                axes[i].plot(rec_times, p_res_val,
+                             color=PlotLayout.get_plot_color(p_res_key),
+                             linestyle=PlotLayout.get_plot_linestyle(p_res_key))
+            axes[i].scatter(t_rec, ground_truth_v[i], color=PlotLayout.get_plot_color("ground_truth"))
 
-        # plot simulated agent data
-        for p_res_key, p_res_val in results.items():
-            ax.scatter(np.arange(len(p_res_val)),
-                       p_res_val,
-                       color=PlotLayout.get_plot_color(p_res_key),
-                       marker=PlotLayout.get_plot_marker(p_res_key),
-                       s=60)
+        for i, ax in enumerate(axes):
+            ax.set_title("{} watts".format(p_recs[i]))
 
-        # finalise Layout
-        ax.set_title("expenditure {} watts\nrecovery time {} sec".format(p_exp, t_rec))
-        ax.set_xlabel("recovery bout intensity (watts)")
-        ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
-        ax.set_xticks([0, 1, 2])
-        ax.set_xlim((-0.5, 2.5))
-        ax.set_xticklabels(p_recs)
-        ax.grid(axis="y", linestyle=':', alpha=0.5)
+            ax.set_xticks([0, t_rec, rec_times[-1]])
+            ax.set_xticklabels([0, t_rec, rec_times[-1]])
+            ax.grid(axis="y", linestyle=':', alpha=0.5)
 
-        # create legend
-        handles = PlotLayout.create_standardised_legend(agents=results.keys(),
-                                                        ground_truth=True,
-                                                        scatter=True)
-        ax.legend(handles=handles)
+            if i == 1:
+                ax.set_xlabel("recovery time (sec)")
+            if i == 0:
+                ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
+                ax.set_yticks([25, 50, 75])
+                ax.set_yticklabels([25, 50, 75])
 
+        # Create the legend
+        handles = PlotLayout.create_standardised_legend(agents=dcp_results[0].keys(), ground_truth=True)
+        fig.legend(handles=handles, loc='upper center', ncol=5)
+        fig.suptitle("expenditure intensity: " + r'$P240$' + "\n recovery:", y=0.88, fontsize="medium")
         # finish plot
         plt.tight_layout()
+        plt.subplots_adjust(top=0.70, bottom=0.13)
         plt.show()
         plt.close(fig=fig)
 
@@ -119,8 +120,9 @@ def simulate_chidnok(plot: bool = False, hz: int = 1) -> dict:
             PlotLayout.get_plot_label("t_rec"): 30,
             PlotLayout.get_plot_label("ground_truth"): round(ground_truth_fit_ratio[i], 1)
         }
-        for k, v in results.items():
-            ret_results[name][PlotLayout.get_plot_label(k)] = round(v[i], 1)
+        for k, v in dcp_results[i].items():
+            ret_results[name][PlotLayout.get_plot_label(k)] = round(v[np.where(rec_times == t_rec)[0][0]], 1)
+
     return ret_results
 
 
