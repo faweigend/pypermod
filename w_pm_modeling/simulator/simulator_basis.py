@@ -1,6 +1,6 @@
 import logging
 
-from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
+from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_linear import CpODEAgentBasisLinear
 from w_pm_modeling.agents.wbal_agents.wbal_int_agent import WbalIntAgent
 

@@ -2,7 +2,7 @@ import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
-from w_pm_hydraulic.agents.three_comp_hyd_agent import ThreeCompHydAgent
+from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
 from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
