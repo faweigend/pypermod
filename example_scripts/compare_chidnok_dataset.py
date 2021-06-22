@@ -10,16 +10,18 @@ from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeige
 from pypermod.utility import PlotLayout
 from pypermod.simulator.study_simulator import StudySimulator
 
+from example_scripts.fitting_tau_chidnok import fit_taus_chidnok
 
-def simulate_chidnok(plot: bool = False, hz: int = 1) -> dict:
+
+def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
     """
-    Runs the whole comparison on observations by Caen et al.
+    Runs the whole comparison on observations by Chidnok et al.
     :param plot: whether the overview should be plotted or not
     :param hz: Simulation computations per second. 1/hz defines delta t for used agents
     :return: predicted and ground truth measurements in a dict
     """
 
-    # averaged values from paper
+    # averaged values from Chidnok et al. paper
     cp = 241
     w_p = 21100
 
@@ -34,13 +36,13 @@ def simulate_chidnok(plot: bool = False, hz: int = 1) -> dict:
     t_rec = 30
     rec_times = np.arange(0, 70, 2)
 
-    # ground truth values from paper
-    # cut ["sev", 323, 29]
-    # sev = 270
-    # ground_truth_v = [557, 759, 1224]
-    # ground_truth_e = [90, 243, 497]
-    ground_truth_fitted = [165.19, 124.81, 107.46]
-    ground_truth_fit_ratio = [16.67, 21.67, 24.58]
+    # fitting to ground truth values from paper
+    ground_truth_fitted = fit_taus_chidnok()
+    ground_truth_fit_ratio = []
+    for i, tau in enumerate(ground_truth_fitted):
+        agent = WbalODEAgentFixTau(w_p=w_p, cp=cp, hz=hz, tau=tau)
+        ratio = StudySimulator.get_recovery_ratio_caen(agent, p_exp=p_exp, p_rec=p_recs[i], t_rec=t_rec)
+        ground_truth_fit_ratio.append(ratio)
 
     # fitted to Chidnok et al. (w_p=21100, cp=241) with recovery from Caen et al.
     # general settings for three component hydraulic agent
@@ -130,4 +132,4 @@ if __name__ == "__main__":
     # general settings
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
-    simulate_chidnok(plot=True, hz=10)
+    compare_chidnok_dataset(plot=True, hz=10)

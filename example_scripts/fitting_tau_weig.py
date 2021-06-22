@@ -3,10 +3,11 @@ import logging
 import matplotlib.pyplot as plt
 import numpy as np
 from pypermod.simulator.simulator_basis import SimulatorBasis
+from pypermod.utility import PlotLayout
 from scipy.optimize import curve_fit
 from sklearn.metrics import r2_score
 from pypermod.agents.wbal_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
-from pypermod.fitter.tau_to_recovery_fitter import TauToRecoveryFitter
+from pypermod.fitter.tau_fitter import TauFitter
 
 
 def get_tau(act_rec, t_rec, p_exp, p_rec):
@@ -20,7 +21,7 @@ def get_tau(act_rec, t_rec, p_exp, p_rec):
     :param p_rec: recovery intensity for double-check
     :return: fitted tau
     """
-    tau = TauToRecoveryFitter.get_tau_for_act_rec(act_rec=act_rec, t_rec=t_rec)
+    tau = TauFitter.get_tau_for_act_rec(act_rec=act_rec, t_rec=t_rec)
     test_agent = WbalODEAgentFixTau(w_p=12800, cp=248, hz=10, tau=tau)
     caen_rec = SimulatorBasis.get_recovery_ratio_caen(test_agent, p_exp=p_exp, p_rec=p_rec, t_rec=t_rec)
     assert abs(act_rec - caen_rec) < 1.0
@@ -42,7 +43,7 @@ def f_tau_dcp_exp(dcp, a, b, c):
 
 def fit_tau_weig(plot: bool = False):
     """
-    uses procedure outlined in Weigend et al to determine exponential relationship of tau to DCP derived from measures
+    uses procedure outlined in Weigend et al. 2021 to determine exponential relationship of tau to DCP derived from measures
     by Caen et al. 2019 and Weigend et al. 2021
     :param plot: whether a plot of the used data points and exponential fitting should be displayed
     :return: a,b,c of tau=a*e^(dcp*b)+c relationship
@@ -103,7 +104,8 @@ def fit_tau_weig(plot: bool = False):
         r2 = r2_score(y_data, pred)
 
         # plot the observations
-        fig = plt.figure(figsize=(8, 5))
+        fig = plt.figure(figsize=(7, 4))
+        PlotLayout.set_rc_params()
         ax = fig.add_subplot(1, 1, 1)
         ax.scatter(dcp_cp33s, tau_cp33s, label="CP33 observations")
         ax.scatter(dcp_cp66s, tau_cp66s, label="CP66 observations")
@@ -119,6 +121,7 @@ def fit_tau_weig(plot: bool = False):
         ax.set_xlabel(r'$D_{CP}$')
         ax.set_ylabel(r'$\tau_{W\prime}$')
         ax.legend()
+        plt.tight_layout()
         plt.show()
 
     return popt[0], popt[1], popt[2]
@@ -129,7 +132,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-    a, b, c = fit_tau_weig(plot=True)
-    
+    x, y, z = fit_tau_weig(plot=True)
+
     # print fitted parameters
-    logging.info("fitted parameters for tau_weig: \n a = {} \n b = {} \n c = {} \n".format(a, b, c))
+    logging.info("fitted parameters for tau_weig: \n a = {} \n b = {} \n c = {} \n".format(x, y, z))

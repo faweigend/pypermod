@@ -10,7 +10,7 @@ from pypermod.utility import PlotLayout
 from pypermod.simulator.study_simulator import StudySimulator
 
 
-def simulate_bartram(plot: bool = False, hz: int = 1) -> dict:
+def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
     """
     Runs the whole comparison on observations by Bartram et al.
     :param plot: whether the overview should be plotted or not
@@ -119,4 +119,4 @@ def simulate_bartram(plot: bool = False, hz: int = 1) -> dict:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
-    simulate_bartram(plot=True, hz=10)
+    compare_bartram_dataset(plot=True, hz=10)

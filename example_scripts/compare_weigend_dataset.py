@@ -10,7 +10,7 @@ from pypermod.utility import PlotLayout
 from pypermod.simulator.study_simulator import StudySimulator
 
 
-def simulate_weigend(plot: bool = False, hz: int = 1) -> dict:
+def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
     """
     Runs the whole comparison on observations by Weigend et al. 2021
     derived from Caen et al. 2019.
@@ -136,4 +136,4 @@ def simulate_weigend(plot: bool = False, hz: int = 1) -> dict:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
-    simulate_weigend(plot=True)
+    compare_weigend_dataset(plot=True)

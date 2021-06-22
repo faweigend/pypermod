@@ -4,7 +4,8 @@
 
 # pypermod
 
-A comprehensive performance modeling package including various tools to predict energy dynamics of athletes.
+A comprehensive performance modeling package including various tools to predict energy dynamics of athletes. 
+Pypermod stands for __Python Performance Modeling__.
 
 ### Setup
 
