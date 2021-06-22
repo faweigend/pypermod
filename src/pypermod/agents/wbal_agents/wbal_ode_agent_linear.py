@@ -1,4 +1,4 @@
-from w_pm_modeling.agents.cp_agent_basis import CpAgentBasis
+from pypermod.agents.cp_agent_basis import CpAgentBasis
 
 
 class CpODEAgentBasisLinear(CpAgentBasis):

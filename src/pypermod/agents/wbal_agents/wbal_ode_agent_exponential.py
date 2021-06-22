@@ -1,7 +1,7 @@
 import math
 from abc import abstractmethod
 
-from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_linear import CpODEAgentBasisLinear
+from pypermod.agents.wbal_agents.wbal_ode_agent_linear import CpODEAgentBasisLinear
 
 
 class WbalODEAgentExponential(CpODEAgentBasisLinear):

@@ -1,10 +1,13 @@
-## Performance Modeling
+# pypermod
 
-![Alt Text](./httpdocs/skiba_sim.png)
+![](./httpdocs/caen_2021_comp.png)
+![](./httpdocs/wbal_sim.png)
 
 ### Setup
 
-One of the requirements is the `three_comp_hyd` project, which has to be installed locally. 
-Please get the source code from [here](https://github.com/faweigend/three_comp_hyd) and install via `pip` or `pip3`.
+If you simply want to use the package, you may want to install it via `pip3 install pypermod` without the need 
+for a manual download. 
 
-We recommend the use of a virtual environment. Simply install this project as a package by running `pip3 install -e <path_to_project_root>`
+If you downloaded the source files, e.g., from this [GitHub repository](https://github.com/faweigend/pypermod), 
+you can install the project with a similar procedure as a package by running `pip3 install -e <path_to_project_root>`.
+

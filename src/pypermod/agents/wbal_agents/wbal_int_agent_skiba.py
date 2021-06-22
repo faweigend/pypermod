@@ -1,6 +1,6 @@
 import math
 
-from w_pm_modeling.agents.wbal_agents.wbal_int_agent import WbalIntAgent
+from pypermod.agents.wbal_agents.wbal_int_agent import WbalIntAgent
 
 
 class WbalIntAgentSkiba(WbalIntAgent):

@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import matplotlib
 import numpy as np
-import w_pm_modeling.performance_modeling_config
+import pypermod.config
 from matplotlib.collections import LineCollection
 from matplotlib.container import ErrorbarContainer
 from matplotlib.lines import Line2D
@@ -228,7 +228,7 @@ class PlotLayout:
         :return: color label for given item
         """
         # use lookup according to grayscale setting
-        if w_pm_modeling.performance_modeling_config.black_and_white is True:
+        if pypermod.config.black_and_white is True:
             lookup = plot_grayscale
         else:
             lookup = plot_color_scheme
@@ -261,7 +261,7 @@ class PlotLayout:
         :return: linestyle for given item
         """
         # use lookup according to grayscale setting
-        if w_pm_modeling.performance_modeling_config.black_and_white is True:
+        if pypermod.config.black_and_white is True:
             lookup = plot_grayscale_linestyles
         else:
             lookup = plot_color_linestyles

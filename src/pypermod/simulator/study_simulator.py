@@ -3,12 +3,12 @@ import math
 
 import numpy as np
 from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
-from w_pm_modeling import performance_modeling_utility
-from w_pm_modeling.agents.wbal_agents.wbal_int_agent_skiba import WbalIntAgentSkiba
-from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
-from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
-from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
-from w_pm_modeling.simulator.simulator_basis import SimulatorBasis
+from pypermod import utility
+from pypermod.agents.wbal_agents.wbal_int_agent_skiba import WbalIntAgentSkiba
+from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
+from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
+from pypermod.simulator.simulator_basis import SimulatorBasis
 
 
 class StudySimulator(SimulatorBasis):
@@ -131,9 +131,9 @@ class StudySimulator(SimulatorBasis):
                 agent_data.append(ratio)
 
             # make use of insert function to not overwrite saved data
-            trial_results = performance_modeling_utility.insert_with_key_enumeration(agent=agent,
-                                                                                     agent_data=agent_data,
-                                                                                     results=trial_results)
+            trial_results = utility.insert_with_key_enumeration(agent=agent,
+                                                                agent_data=agent_data,
+                                                                results=trial_results)
             # update about progress
             logging.info("{} simulation done".format(agent.get_name()))
 
@@ -193,8 +193,8 @@ class StudySimulator(SimulatorBasis):
                     continue
 
             # make use of insert function to not overwrite saved data
-            trial_results = performance_modeling_utility.insert_with_key_enumeration(agent=agent,
-                                                                                     agent_data=agent_data,
-                                                                                     results=trial_results)
+            trial_results = utility.insert_with_key_enumeration(agent=agent,
+                                                                agent_data=agent_data,
+                                                                results=trial_results)
 
         return trial_results

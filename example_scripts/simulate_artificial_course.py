@@ -1,12 +1,11 @@
 import logging
 
 import matplotlib.pyplot as plt
-from performance_modeling.w_pm_modeling.agents.wbal_agents.wbal_int_agent_skiba import WbalIntAgentSkiba
-from performance_modeling.w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
-from performance_modeling.w_pm_modeling.simulator.simulator_basis import SimulatorBasis
-from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
-from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
-from w_pm_modeling.performance_modeling_utility import PlotLayout
+from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from pypermod.simulator.simulator_basis import SimulatorBasis
+from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
+from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
+from pypermod.utility import PlotLayout
 
 if __name__ == "__main__":
     # set logging level to highest level

@@ -3,7 +3,7 @@ import math
 from abc import abstractmethod
 
 import numpy as np
-from w_pm_modeling.agents.cp_agent_basis import CpAgentBasis
+from pypermod.agents.cp_agent_basis import CpAgentBasis
 
 
 class WbalIntAgent(CpAgentBasis):

@@ -7,7 +7,7 @@ from example_scripts.simulate_caen_2021_trials import simulate_caen_2021
 from example_scripts.simulate_chidnok_trials import simulate_chidnok
 from example_scripts.simulate_ferguson_trials import simulate_ferguson
 from example_scripts.simulate_weigend_trials import simulate_weigend
-from w_pm_modeling.performance_modeling_utility import PlotLayout
+from pypermod.utility import PlotLayout
 
 
 def to_latex(df, caption, label, study_descr):

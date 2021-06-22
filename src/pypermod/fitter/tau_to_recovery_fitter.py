@@ -3,9 +3,9 @@ import math
 import numpy as np
 from scipy.optimize import minimize
 from scipy.optimize import minimize_scalar
-from w_pm_modeling.agents.wbal_agents.wbal_int_agent_fix_tau import WbalIntAgentFixTau
-from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
-from w_pm_modeling.simulator.simulator_basis import SimulatorBasis
+from pypermod.agents.wbal_agents.wbal_int_agent_fix_tau import WbalIntAgentFixTau
+from pypermod.agents.wbal_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
+from pypermod.simulator.simulator_basis import SimulatorBasis
 
 
 class TauToRecoveryFitter:

@@ -3,11 +3,11 @@ import logging
 import matplotlib.pyplot as plt
 import numpy as np
 from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
-from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
-from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
-from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
-from w_pm_modeling.performance_modeling_utility import PlotLayout
-from w_pm_modeling.simulator.study_simulator import StudySimulator
+from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
+from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
+from pypermod.utility import PlotLayout
+from pypermod.simulator.study_simulator import StudySimulator
 
 
 def simulate_caen_2019_trials(plot: bool = False):

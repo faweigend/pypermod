@@ -1,4 +1,4 @@
-from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_exponential import WbalODEAgentExponential
+from pypermod.agents.wbal_agents.wbal_ode_agent_exponential import WbalODEAgentExponential
 
 
 class WbalODEAgentSkiba(WbalODEAgentExponential):

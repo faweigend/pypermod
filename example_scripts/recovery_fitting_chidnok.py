@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-from w_pm_modeling.agents.wbal_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
-from w_pm_modeling.fitter.tau_to_recovery_fitter import TauToRecoveryFitter
-from w_pm_modeling.performance_modeling_utility import PlotLayout
-from w_pm_modeling.simulator.simulator_basis import SimulatorBasis
+from pypermod.agents.wbal_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
+from pypermod.fitter.tau_to_recovery_fitter import TauToRecoveryFitter
+from pypermod.utility import PlotLayout
+from pypermod.simulator.simulator_basis import SimulatorBasis
 
 if __name__ == "__main__":
 
