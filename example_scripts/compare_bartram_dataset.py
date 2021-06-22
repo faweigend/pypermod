@@ -55,7 +55,7 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
         dcp_results.append(result)
 
         # add ground truth as bartram simulation
-        gt_ratio = StudySimulator.get_recovery_ratio_caen(bart, p_exp=p_exp, p_rec=p_rec, t_rec=t_rec)
+        gt_ratio = StudySimulator.get_recovery_ratio_wb1_wb2(bart, p_exp=p_exp, p_rec=p_rec, t_rec=t_rec)
         ground_truth_v.append(gt_ratio)
 
     # create overview plot if required

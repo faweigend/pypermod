@@ -23,7 +23,7 @@ def get_tau(act_rec, t_rec, p_exp, p_rec):
     """
     tau = TauFitter.get_tau_for_act_rec(act_rec=act_rec, t_rec=t_rec)
     test_agent = WbalODEAgentFixTau(w_p=12800, cp=248, hz=10, tau=tau)
-    caen_rec = SimulatorBasis.get_recovery_ratio_caen(test_agent, p_exp=p_exp, p_rec=p_rec, t_rec=t_rec)
+    caen_rec = SimulatorBasis.get_recovery_ratio_wb1_wb2(test_agent, p_exp=p_exp, p_rec=p_rec, t_rec=t_rec)
     assert abs(act_rec - caen_rec) < 1.0
     return tau
 
