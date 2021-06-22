@@ -1,7 +1,10 @@
-# pypermod
-
 ![](./httpdocs/caen_2021_comp.png)
 ![](./httpdocs/wbal_sim.png)
+
+
+# pypermod
+
+A comprehensive performance modeling package including various tools to predict energy dynamics of athletes.
 
 ### Setup
 
