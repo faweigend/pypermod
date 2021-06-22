@@ -9,11 +9,22 @@ from pypermod.simulator.simulator_basis import SimulatorBasis
 
 
 class TauToRecoveryFitter:
+    """
+    Provides functions to fit a Tau for W'bal models (ode or int) to given recovery ratios or
+    recovery estimation protocols
+    """
 
     @staticmethod
-    def exp_rec(tau: float, w_p: float, t_rec: float, rec: float):
-        ratio = ((w_p - (w_p * pow(math.e, -t_rec / tau))) / w_p) * 100.0
-        return abs(rec - ratio)
+    def exp_rec(tau: float, t_rec: float, act_rec: float):
+        """
+        Returns the absolute difference of an exponential recovery function with given Tau and the expected recovery.
+        :param tau: tau to be used for the exponential recovery as implemented by W'bal models
+        :param t_rec: recovery time
+        :param act_rec: actual (observed) recovery after given recovery time
+        :return: absolute difference between estimated recovery using tau and given act_rec
+        """
+        ratio = (1.0 - pow(math.e, -t_rec / tau)) * 100.0
+        return abs(act_rec - ratio)
 
     @staticmethod
     def skiba_int_tau_to_ode_tau(tau: float, cp: float, w_p: float):
@@ -143,11 +154,12 @@ class TauToRecoveryFitter:
         return fit_tau["x"]
 
     @staticmethod
-    def get_tau_for_rec(w_p: float, rec: float, t_rec: float):
+    def get_tau_for_act_rec(act_rec: float, t_rec: float):
         """
         fits a time constant tau to given recovery ratio with an iterative process
-        :param rec:
+        :param act_rec:
+        :param t_rec:
         :return: best found tau
         """
-        fit_tau = minimize(TauToRecoveryFitter.exp_rec, x0=np.array([100]), args=(w_p, t_rec, rec))
+        fit_tau = minimize(TauToRecoveryFitter.exp_rec, x0=np.array([200]), args=(t_rec, act_rec))
         return fit_tau.x[0]
