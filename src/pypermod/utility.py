@@ -2,39 +2,55 @@ from collections import defaultdict
 
 import matplotlib
 import numpy as np
-import w_pm_modeling.performance_modeling_config
+import pypermod.config
 from matplotlib.collections import LineCollection
 from matplotlib.container import ErrorbarContainer
 from matplotlib.lines import Line2D
 
 plot_labels = {
-    "CpAgentSkiba2012": "skiba2012",
-    "CpAgentSkiba2015": "skiba2015",
-    "CpAgentBartram": "bartram",
-    "ThreeCompHydAgent": "hydraulic",
-    "ground_truth": "observation",
-    "T_CpAgentSkiba2012": "skiba2012",
-    "T_CpAgentSkiba2015": "skiba2015",
-    "T_CpAgentBartram": "bartram",
+    "p_exp": r'$P_{exp}$',
+    "p_rec": r'$P_{rec}$',
+    "t_rec": r'$T_{rec}$',
+    "WbalODEAgentWeigend": r'$\mathcal{T}_{weig}$',
+    "WbalIntAgentSkiba": r'$W^\prime_{bal-int}$',
+    "WbalODEAgentSkiba": r'$\mathcal{T}_{skib}$',
+    "WbalODEAgentBartram": r'$\mathcal{T}_{bart}$',
+    "WbalODEAgentFixTau": "fixTau",
+    "ThreeCompHydAgent": r'$hydraulic_{weig}$',
+    "ground_truth": "ground truth",
+    "T_WbalIntAgentSkiba": "WbalIntAgentSkiba",
+    "T_WbalODEAgentSkiba": "skiba2015",
+    "T_WbalODEAgentBartram": "bartram",
     "T_ThreeCompHydAgent": "hydraulic",
-    "T_ground_truth": "observation",
+    "T_ground_truth": "ground truth",
     "intensity": "intensity"
+}
+
+plot_marker = {
+    "WbalODEAgentWeigend": "^",
+    "WbalIntAgentSkiba": "-",
+    "WbalODEAgentSkiba": "*",
+    "WbalODEAgentBartram": "+",
+    "WbalODEAgentFixTau": "o",
+    "ThreeCompHydAgent": "v",
+    "ground_truth": "X",
 }
 
 # used in verification plots
 plot_color_scheme = {
-    "skiba2012": "tab:orange",
+    "WbalODEAgentWeigend": "black",
     "skiba2015": "tab:red",
     "bartram": "tab:purple",
     "hydraulic": "tab:green",
-    "CpAgentSkiba2012": "tab:orange",
-    "CpAgentSkiba2015": "tab:red",
-    "CpAgentBartram": "tab:purple",
+    "WbalODEAgentFixTau": "tab:orange",
+    "WbalIntAgentSkiba": "tab:orange",
+    "WbalODEAgentSkiba": "tab:red",
+    "WbalODEAgentBartram": "tab:purple",
     "ThreeCompHydAgent": "tab:green",
     "ground_truth": "tab:blue",
-    "T_CpAgentSkiba2012": "tab:orange",
-    "T_CpAgentSkiba2015": "tab:red",
-    "T_CpAgentBartram": "tab:purple",
+    "T_WbalIntAgentSkiba": "tab:orange",
+    "T_WbalODEAgentSkiba": "tab:red",
+    "T_WbalODEAgentBartram": "tab:purple",
     "T_ThreeCompHydAgent": "tab:green",
     "T_ground_truth": "tab:blue",
     "intensity": "tab:blue"
@@ -43,18 +59,18 @@ plot_color_scheme = {
 # used in verification plots
 plot_grayscale = {
     "intensity": (0.6, 0.6, 0.6),
-    "skiba2012": (0, 0, 0),
+    "WbalIntAgentSkiba": (0, 0, 0),
     "skiba2015": (0.55, 0.55, 0.55),
     "bartram": (0.5, 0.5, 0.5),
     "hydraulic": (0.05, 0.05, 0.05),
-    "CpAgentSkiba2012": (0, 0, 0),
-    "CpAgentSkiba2015": (0.55, 0.55, 0.55),
-    "CpAgentBartram": (0.5, 0.5, 0.5),
+    "WbalODEAgentFixTau": (0.55, 0.55, 0.55),
+    "WbalODEAgentSkiba": (0.55, 0.55, 0.55),
+    "WbalODEAgentBartram": (0.5, 0.5, 0.5),
     "ThreeCompHydAgent": (0.05, 0.05, 0.05),
     "ground_truth": (0.6, 0.6, 0.6),
-    "T_CpAgentSkiba2012": (0, 0, 0),
-    "T_CpAgentSkiba2015": (0.55, 0.55, 0.55),
-    "T_CpAgentBartram": (0.5, 0.5, 0.5),
+    "T_WbalIntAgentSkiba": (0, 0, 0),
+    "T_WbalODEAgentSkiba": (0.55, 0.55, 0.55),
+    "T_WbalODEAgentBartram": (0.5, 0.5, 0.5),
     "T_ThreeCompHydAgent": (0.05, 0.05, 0.05),
     "T_ground_truth": (0.6, 0.6, 0.6)
 }
@@ -62,22 +78,41 @@ plot_grayscale = {
 plot_color_linestyles = defaultdict(lambda: "-")
 
 plot_grayscale_linestyles = {
-    "skiba2012": "-.",
+    "WbalIntAgentSkiba": "-.",
     "skiba2015": "-.",
     "bartram": "--",
     "hydraulic": ":",
-    "CpAgentSkiba2012": "-.",
-    "CpAgentSkiba2015": "-.",
-    "CpAgentBartram": "--",
+    "WbalODEAgentSkiba": "-.",
+    "WbalODEAgentBartram": "--",
     "ThreeCompHydAgent": ":",
     "ground_truth": "-",
-    "T_CpAgentSkiba2012": "-.",
-    "T_CpAgentSkiba2015": "-.",
-    "T_CpAgentBartram": "--",
+    "T_WbalIntAgentSkiba": "-.",
+    "T_WbalODEAgentSkiba": "-.",
+    "T_WbalODEAgentBartram": "--",
     "T_ThreeCompHydAgent": ":",
     "T_ground_truth": "-",
-    "intensity": "-"
+    "intensity": "-",
+    "WbalODEAgentFixTau": "-"
 }
+
+
+def insert_with_key_enumeration(agent, agent_data: list, results: dict):
+    """
+    Checks if agent with the same name has stored data already in the given dict and enumerates in that case
+    :param agent: agent that produced data
+    :param agent_data: simulated data
+    :param results: dict to store data into
+    :return: dict with inserted data/name pair
+    """
+    # add to results dict and don't double agent names
+    if agent.get_name() not in results:
+        results[agent.get_name()] = agent_data
+    else:
+        # add index to agent name if another agent of same type was simulated before
+        new_name = agent.get_name() + "_" + str(
+            sum([agent.get_name() in s for s in list(results.keys())]))
+        results[new_name] = agent_data
+    return results
 
 
 class PlotLayout:
@@ -94,14 +129,20 @@ class PlotLayout:
         matplotlib.rcParams['font.size'] = 12
         matplotlib.rcParams['pdf.fonttype'] = 42
         matplotlib.rcParams['ps.fonttype'] = 42
+        matplotlib.rcParams['axes.labelsize'] = 11
+        matplotlib.rcParams['axes.titlesize'] = 12
+        matplotlib.rcParams['xtick.labelsize'] = 12
+        matplotlib.rcParams['ytick.labelsize'] = 12
+        matplotlib.rcParams['legend.fontsize'] = 11
 
     @staticmethod
-    def create_standardised_legend(agents, ground_truth: bool = False, errorbar: bool = False):
+    def create_standardised_legend(agents, ground_truth: bool = False, errorbar: bool = False, scatter: bool = False):
         """
         Creates a legend in standardised format
         :param agents: list of agent names used for the lookup of color, linestyle, etc.
         :param ground_truth: whether a ground truth label should be added
         :param errorbar: whether the ground truth label should have errorbars for std
+        :param scatter: whether handles are for a scatter plot (uses markers)
         :return: a list of legend handles
         """
 
@@ -116,32 +157,64 @@ class PlotLayout:
             # skip hydraulic agents. They are summarised as one after the loop
             if "ThreeCompHyd" in p_res_key:
                 continue
+
+            # plot either line or marker
+            if scatter is True:
+                markerstyle = PlotLayout.get_plot_marker(p_res_key)
+                linestyle = None
+                linewidths = 0
+            else:
+                markerstyle = None
+                linewidths = 1.5
+                linestyle = PlotLayout.get_plot_linestyle(p_res_key)
+
+            # finally add the handle
             handles.append(Line2D([], [],
                                   color=PlotLayout.get_plot_color(p_res_key),
-                                  linestyle=PlotLayout.get_plot_linestyle(p_res_key),
+                                  linestyle=linestyle,
+                                  marker=markerstyle,
+                                  linewidth=linewidths,
                                   label=PlotLayout.get_plot_label(p_res_key)))
 
         # summarise hydraulic agents in one entry
-        hyd_label = PlotLayout.get_plot_label("ThreeCompHydAgent")
-        if hyd_num > 1:
-            hyd_label += " ({})".format(hyd_num)
-        handles.append(Line2D([], [],
-                              color=PlotLayout.get_plot_color("ThreeCompHydAgent"),
-                              linestyle=PlotLayout.get_plot_linestyle("ThreeCompHydAgent"),
-                              label=hyd_label))
+        if hyd_num > 0:
+            hyd_label = PlotLayout.get_plot_label("ThreeCompHydAgent")
+            if hyd_num > 1:
+                hyd_label += " ({})".format(hyd_num)
+            # plot either line or marker
+            if scatter is True:
+                markerstyle = PlotLayout.get_plot_marker("ThreeCompHydAgent")
+                linestyle = None
+                linewidths = 0
+            else:
+                markerstyle = None
+                linewidths = 1.5
+                linestyle = PlotLayout.get_plot_linestyle("ThreeCompHydAgent")
+            # finally add the handle
+            handles.append(Line2D([], [],
+                                  color=PlotLayout.get_plot_color("ThreeCompHydAgent"),
+                                  linestyle=linestyle,
+                                  marker=markerstyle,
+                                  linewidth=linewidths,
+                                  label=hyd_label))
 
         # plot the ground truth legend entry if required
         if ground_truth is True:
             if errorbar is True:
-                line = Line2D([], [], linestyle='None', marker='o',
+                line = Line2D([], [],
+                              linestyle='None',
+                              marker='o',
                               color=PlotLayout.get_plot_color("ground_truth"))
                 barline = LineCollection(np.empty((2, 2, 2)))
-                err = ErrorbarContainer((line, [line], [barline]), has_xerr=False, has_yerr=True,
+                err = ErrorbarContainer((line, [line], [barline]),
+                                        has_xerr=False,
+                                        has_yerr=True,
                                         label=PlotLayout.get_plot_label("ground_truth"))
                 handles.append(err)
             else:
                 handles.append(Line2D([], [],
-                                      linestyle='None', marker='o',
+                                      linestyle='None',
+                                      marker='o',
                                       color=PlotLayout.get_plot_color("ground_truth"),
                                       label=PlotLayout.get_plot_label("ground_truth")))
 
@@ -155,7 +228,7 @@ class PlotLayout:
         :return: color label for given item
         """
         # use lookup according to grayscale setting
-        if w_pm_modeling.performance_modeling_config.black_and_white is True:
+        if pypermod.config.black_and_white is True:
             lookup = plot_grayscale
         else:
             lookup = plot_color_scheme
@@ -172,6 +245,15 @@ class PlotLayout:
         return plot_labels[item_str]
 
     @staticmethod
+    def get_plot_marker(item_str: str):
+        """
+        Returns the assigned marker style for given item.
+        :param item_str: lookup item as string
+        :return: label for given item
+        """
+        return plot_marker[item_str]
+
+    @staticmethod
     def get_plot_linestyle(item_str: str):
         """
         Returns the assigned linestyle for given item. It considers different settings for black and white.
@@ -179,7 +261,7 @@ class PlotLayout:
         :return: linestyle for given item
         """
         # use lookup according to grayscale setting
-        if w_pm_modeling.performance_modeling_config.black_and_white is True:
+        if pypermod.config.black_and_white is True:
             lookup = plot_grayscale_linestyles
         else:
             lookup = plot_color_linestyles
