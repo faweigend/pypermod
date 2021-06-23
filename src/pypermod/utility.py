@@ -18,11 +18,6 @@ plot_labels = {
     "WbalODEAgentFixTau": "fixTau",
     "ThreeCompHydAgent": r'$hydraulic_{weig}$',
     "ground_truth": "ground truth",
-    "T_WbalIntAgentSkiba": "WbalIntAgentSkiba",
-    "T_WbalODEAgentSkiba": "skiba2015",
-    "T_WbalODEAgentBartram": "bartram",
-    "T_ThreeCompHydAgent": "hydraulic",
-    "T_ground_truth": "ground truth",
     "intensity": "intensity"
 }
 
@@ -39,20 +34,12 @@ plot_marker = {
 # used in verification plots
 plot_color_scheme = {
     "WbalODEAgentWeigend": "black",
-    "skiba2015": "tab:red",
-    "bartram": "tab:purple",
-    "hydraulic": "tab:green",
     "WbalODEAgentFixTau": "tab:orange",
     "WbalIntAgentSkiba": "tab:orange",
     "WbalODEAgentSkiba": "tab:red",
     "WbalODEAgentBartram": "tab:purple",
     "ThreeCompHydAgent": "tab:green",
     "ground_truth": "tab:blue",
-    "T_WbalIntAgentSkiba": "tab:orange",
-    "T_WbalODEAgentSkiba": "tab:red",
-    "T_WbalODEAgentBartram": "tab:purple",
-    "T_ThreeCompHydAgent": "tab:green",
-    "T_ground_truth": "tab:blue",
     "intensity": "tab:blue"
 }
 
@@ -60,37 +47,21 @@ plot_color_scheme = {
 plot_grayscale = {
     "intensity": (0.6, 0.6, 0.6),
     "WbalIntAgentSkiba": (0, 0, 0),
-    "skiba2015": (0.55, 0.55, 0.55),
-    "bartram": (0.5, 0.5, 0.5),
-    "hydraulic": (0.05, 0.05, 0.05),
     "WbalODEAgentFixTau": (0.55, 0.55, 0.55),
     "WbalODEAgentSkiba": (0.55, 0.55, 0.55),
     "WbalODEAgentBartram": (0.5, 0.5, 0.5),
     "ThreeCompHydAgent": (0.05, 0.05, 0.05),
     "ground_truth": (0.6, 0.6, 0.6),
-    "T_WbalIntAgentSkiba": (0, 0, 0),
-    "T_WbalODEAgentSkiba": (0.55, 0.55, 0.55),
-    "T_WbalODEAgentBartram": (0.5, 0.5, 0.5),
-    "T_ThreeCompHydAgent": (0.05, 0.05, 0.05),
-    "T_ground_truth": (0.6, 0.6, 0.6)
 }
 
 plot_color_linestyles = defaultdict(lambda: "-")
 
 plot_grayscale_linestyles = {
     "WbalIntAgentSkiba": "-.",
-    "skiba2015": "-.",
-    "bartram": "--",
-    "hydraulic": ":",
     "WbalODEAgentSkiba": "-.",
     "WbalODEAgentBartram": "--",
     "ThreeCompHydAgent": ":",
     "ground_truth": "-",
-    "T_WbalIntAgentSkiba": "-.",
-    "T_WbalODEAgentSkiba": "-.",
-    "T_WbalODEAgentBartram": "--",
-    "T_ThreeCompHydAgent": ":",
-    "T_ground_truth": "-",
     "intensity": "-",
     "WbalODEAgentFixTau": "-"
 }

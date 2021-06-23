@@ -1,6 +1,4 @@
-![](./httpdocs/caen_2021_comp.png)
-![](./httpdocs/wbal_sim.png)
-
+![](./httpdocs/small_pypermod_title.png)
 
 # pypermod
 
