@@ -82,7 +82,7 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
         ax.set_title("expenditure intensity: P360\nrecovery intensity: 20 watts")
         ax.set_xlabel("recovery bout duration (sec)")
         ax.set_xticks([0, 120, 360, 900])
-        ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
+        ax.set_ylabel("WB2 to WB1 recovery ratio (%)")
 
         plt.subplots_adjust(right=0.96)
         plt.show()

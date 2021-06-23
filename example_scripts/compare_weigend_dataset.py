@@ -99,8 +99,8 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
         handles = PlotLayout.create_standardised_legend(agents=results_p8_cp_33.keys(),
                                                         ground_truth=True)
 
-        ax1.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
-        ax3.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
+        ax1.set_ylabel("WB2 to WB1 recovery ratio (%)")
+        ax3.set_ylabel("WB2 to WB1 recovery ratio (%)")
         ax3.set_xlabel("recovery bout duration (sec)")
         ax4.set_xlabel("recovery bout duration (sec)")
         for ax in [ax1, ax2, ax3, ax4]:

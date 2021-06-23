@@ -83,7 +83,7 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
             if i == 2:
                 ax.set_xlabel("recovery time (sec)")
             if i == 0:
-                ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
+                ax.set_ylabel("WB2 to WB1 recovery ratio (%)")
                 ax.set_yticks([25, 50, 75])
                 ax.set_yticklabels([25, 50, 75])
 

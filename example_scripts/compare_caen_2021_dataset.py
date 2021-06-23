@@ -80,7 +80,7 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
         ax.set_xlabel("recovery bout duration (sec)")
         ax.set_xticks([30, 60, 120, 180, 240, 300, 600, 900])
         ax.set_xticklabels(ax.get_xticks(), rotation=-45, ha='center')
-        ax.set_ylabel(r'$W\prime_{bal}$' + " recovery ratio (%)")
+        ax.set_ylabel("WB2 to WB1 recovery ratio (%)")
 
         # get legend
         handles = PlotLayout.create_standardised_legend(agents=results.keys(),
