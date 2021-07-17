@@ -53,7 +53,7 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
     agents = [agent_bartram, agent_skiba_2015, agent_fit_caen, agent_hyd]
 
     # run the simulations
-    sims = StudySimulator.standard_comparison(agents=agents, p_exp=p_exp, p_rec=p_rec, rec_times=rec_times)
+    sims = StudySimulator.standard_comparison(agents=agents, p_work=p_exp, p_rec=p_rec, rec_times=rec_times)
     # display overview plot if required
     if plot:
         # set up the figure
@@ -93,7 +93,7 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
     for i, t in enumerate(ground_truth_t):
         name = "P240 20 watts T{}".format(t)
         ret_results[name] = {
-            PlotLayout.get_plot_label("p_exp"): p_exp,
+            PlotLayout.get_plot_label("p_work"): p_exp,
             PlotLayout.get_plot_label("p_rec"): p_rec,
             PlotLayout.get_plot_label("t_rec"): t,
             PlotLayout.get_plot_label("ground_truth"): ground_truth_v[i]

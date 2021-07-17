@@ -41,7 +41,7 @@ def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
     ground_truth_fit_ratio = []
     for i, tau in enumerate(ground_truth_fitted):
         agent = WbalODEAgentFixTau(w_p=w_p, cp=cp, hz=hz, tau=tau)
-        ratio = StudySimulator.get_recovery_ratio_wb1_wb2(agent, p_exp=p_exp, p_rec=p_recs[i], t_rec=t_rec)
+        ratio = StudySimulator.get_recovery_ratio_wb1_wb2(agent, p_work=p_exp, p_rec=p_recs[i], t_rec=t_rec)
         ground_truth_fit_ratio.append(ratio)
 
     # fitted to Chidnok et al. (w_p=21100, cp=241) with recovery from Caen et al.
@@ -66,11 +66,11 @@ def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
     dcp_results = []
     ground_truth_v = []
     for i, p_rec in enumerate(p_recs):
-        result = StudySimulator.standard_comparison(agents=agents, p_exp=p_exp, p_rec=p_rec, rec_times=rec_times)
+        result = StudySimulator.standard_comparison(agents=agents, p_work=p_exp, p_rec=p_rec, rec_times=rec_times)
         dcp_results.append(result)
 
         fix_tau = WbalODEAgentFixTau(w_p=w_p, cp=cp, hz=hz, tau=ground_truth_fitted[i])
-        gt_ratio = StudySimulator.get_recovery_ratio_wb1_wb2(fix_tau, p_exp=p_exp, p_rec=p_rec, t_rec=t_rec)
+        gt_ratio = StudySimulator.get_recovery_ratio_wb1_wb2(fix_tau, p_work=p_exp, p_rec=p_rec, t_rec=t_rec)
         ground_truth_v.append(gt_ratio)
 
     # create overview plot if required
@@ -117,7 +117,7 @@ def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
     for i, p_rec in enumerate(p_recs):
         name = "329 watts {} watts T30".format(p_rec)
         ret_results[name] = {
-            PlotLayout.get_plot_label("p_exp"): p_exp,
+            PlotLayout.get_plot_label("p_work"): p_exp,
             PlotLayout.get_plot_label("p_rec"): p_rec,
             PlotLayout.get_plot_label("t_rec"): 30,
             PlotLayout.get_plot_label("ground_truth"): round(ground_truth_fit_ratio[i], 1)

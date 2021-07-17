@@ -41,7 +41,7 @@ class TauFitter:
     def f_chidnok_ode(tau: float, agent: WbalODEAgentFixTau, p_exp: float, p_rec: float, act_tte: int):
         """
         function to be minimized. Estimates predicted time to exhaustion of a W'bal-ode agent with given tau with the
-        protocol prescribed by Chidnok et al. (60 sec p_exp into 30 sec p_rec until exhaustion).
+        protocol prescribed by Chidnok et al. (60 sec p_work into 30 sec p_rec until exhaustion).
         :param tau: tau for W'bal-ode agent
         :param agent: agent with w' and cp and hz setting
         :param p_exp: intensity for work bouts
@@ -87,7 +87,7 @@ class TauFitter:
     def f_chidnok_int(tau: float, agent: WbalIntAgentFixTau, p_exp: float, p_rec: float, act_tte: int):
         """
         function to be minimized. Estimates predicted time to exhaustion of a W'bal-int agent with given tau with the
-        protocol prescribed by Chidnok et al. (60 sec p_exp into 30 sec p_rec until exhaustion).
+        protocol prescribed by Chidnok et al. (60 sec p_work into 30 sec p_rec until exhaustion).
         :param tau: tau for W'bal-ode agent
         :param agent: agent with w' and cp and hz setting
         :param p_exp: intensity for work bouts

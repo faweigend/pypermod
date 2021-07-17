@@ -52,10 +52,10 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
     agents = [agent_bartram, agent_skiba_2015, agent_fit_caen, agent_hyd]
 
     # run simulations for all four conditions
-    results_p4_cp_33 = StudySimulator.standard_comparison(agents=agents, p_exp=p240, p_rec=cp_33, rec_times=rec_times)
-    results_p4_cp_66 = StudySimulator.standard_comparison(agents=agents, p_exp=p240, p_rec=cp_66, rec_times=rec_times)
-    results_p8_cp_33 = StudySimulator.standard_comparison(agents=agents, p_exp=p480, p_rec=cp_33, rec_times=rec_times)
-    results_p8_cp_66 = StudySimulator.standard_comparison(agents=agents, p_exp=p480, p_rec=cp_66, rec_times=rec_times)
+    results_p4_cp_33 = StudySimulator.standard_comparison(agents=agents, p_work=p240, p_rec=cp_33, rec_times=rec_times)
+    results_p4_cp_66 = StudySimulator.standard_comparison(agents=agents, p_work=p240, p_rec=cp_66, rec_times=rec_times)
+    results_p8_cp_33 = StudySimulator.standard_comparison(agents=agents, p_work=p480, p_rec=cp_33, rec_times=rec_times)
+    results_p8_cp_66 = StudySimulator.standard_comparison(agents=agents, p_work=p480, p_rec=cp_66, rec_times=rec_times)
 
     # separated ground truth values derived by Weigend et al. from Caen et al.
     ground_truth_t = [120, 240, 360]
@@ -122,7 +122,7 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
         for j, t in enumerate(ground_truth_t):
             results[names[i] + " T{}".format(t)] = {
                 PlotLayout.get_plot_label("ground_truth"): gt[j],
-                PlotLayout.get_plot_label("p_exp"): p240 if "P240" in names[i] else p480,
+                PlotLayout.get_plot_label("p_work"): p240 if "P240" in names[i] else p480,
                 PlotLayout.get_plot_label("p_rec"): cp_33 if "CP33" in names[i] else cp_66,
                 PlotLayout.get_plot_label("t_rec"): t
             }
