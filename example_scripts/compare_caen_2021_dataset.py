@@ -76,7 +76,7 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
                     linestyle=PlotLayout.get_plot_linestyle(agent_n))
 
         # finalise layout
-        ax.set_title("$P_{work} = P240$\n $P_{rec} = 161 watts$")
+        ax.set_title("$P_{work} = P240$ \n         $P_{rec}$  = 161 watts")
         ax.set_xlabel("$T_{rec}$ (sec)")
         ax.set_xticks([30, 60, 120, 180, 240, 300, 600, 900])
         ax.set_xticklabels(ax.get_xticks(), rotation=-45, ha='center')
@@ -98,6 +98,8 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
     for i, t in enumerate(ground_truth_t):
         name = "P240 CP60 T{}".format(t)
         ret_results[name] = {
+            PlotLayout.get_plot_label("cp"): cp,
+            PlotLayout.get_plot_label("w'"): w_p,
             PlotLayout.get_plot_label("p_work"): p_exp,
             PlotLayout.get_plot_label("p_rec"): p_rec,
             PlotLayout.get_plot_label("t_rec"): t,

@@ -96,16 +96,16 @@ def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
             ax.grid(axis="y", linestyle=':', alpha=0.5)
 
             if i == 1:
-                ax.set_xlabel("recovery time (sec)")
+                ax.set_xlabel("$T_{rec}$ (sec)")
             if i == 0:
-                ax.set_ylabel("WB2 to WB1 recovery ratio (%)")
+                ax.set_ylabel("recovery ratio (%)")
                 ax.set_yticks([25, 50, 75])
                 ax.set_yticklabels([25, 50, 75])
 
         # Create the legend
         handles = PlotLayout.create_standardised_legend(agents=dcp_results[0].keys(), ground_truth=True)
         fig.legend(handles=handles, loc='upper center', ncol=5)
-        fig.suptitle("expenditure intensity: " + r'$P240$' + "\n recovery:", y=0.88, fontsize="medium")
+        fig.suptitle("          $P_{work} = P240$ \n $P_{rec}$  =", y=0.88, fontsize="medium")
         # finish plot
         plt.tight_layout()
         plt.subplots_adjust(top=0.70, bottom=0.13)
@@ -117,6 +117,8 @@ def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
     for i, p_rec in enumerate(p_recs):
         name = "329 watts {} watts T30".format(p_rec)
         ret_results[name] = {
+            PlotLayout.get_plot_label("cp"): cp,
+            PlotLayout.get_plot_label("w'"): w_p,
             PlotLayout.get_plot_label("p_work"): p_exp,
             PlotLayout.get_plot_label("p_rec"): p_rec,
             PlotLayout.get_plot_label("t_rec"): 30,

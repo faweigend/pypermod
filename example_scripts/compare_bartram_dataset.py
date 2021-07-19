@@ -90,7 +90,7 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
         # Create the legend
         handles = PlotLayout.create_standardised_legend(agents=dcp_results[0].keys(), ground_truth=True)
         fig.legend(handles=handles, loc='upper center', ncol=5)
-        fig.suptitle("$P_{work} = P100$ \n $P_{rec} = $", y=0.88, fontsize="medium")
+        fig.suptitle("          $P_{work} = P100$ \n $P_{rec}$  = ", y=0.88, fontsize="medium")
         # finish plot
         plt.tight_layout()
         plt.subplots_adjust(top=0.70, bottom=0.13)
@@ -103,6 +103,8 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
     for i, name in enumerate(names):
         comp_name = "P100 {} T60".format(name)
         ret_results[comp_name] = {
+            PlotLayout.get_plot_label("cp"): cp,
+            PlotLayout.get_plot_label("w'"): w_p,
             PlotLayout.get_plot_label("p_work"): p_work,
             PlotLayout.get_plot_label("p_rec"): p_recs[i],
             PlotLayout.get_plot_label("t_rec"): 60,

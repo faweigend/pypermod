@@ -78,11 +78,10 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
         ax.legend(handles=handles)
 
         # finish layout
-        # ax.set_title("Ferguson et al. (2010)\n"r'$P6 \rightarrow 20W$')
-        ax.set_title("expenditure intensity: P360\nrecovery intensity: 20 watts")
-        ax.set_xlabel("recovery bout duration (sec)")
+        ax.set_title("$P_{exp} = P360$ \n      $P_{rec}   = $20 watts")
+        ax.set_xlabel("$T_{rec}$ (sec)")
         ax.set_xticks([0, 120, 360, 900])
-        ax.set_ylabel("WB2 to WB1 recovery ratio (%)")
+        ax.set_ylabel("recovery ratio (%)")
 
         plt.subplots_adjust(right=0.96)
         plt.show()
@@ -93,6 +92,8 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
     for i, t in enumerate(ground_truth_t):
         name = "P240 20 watts T{}".format(t)
         ret_results[name] = {
+            PlotLayout.get_plot_label("cp"): cp,
+            PlotLayout.get_plot_label("w'"): w_p,
             PlotLayout.get_plot_label("p_work"): p_exp,
             PlotLayout.get_plot_label("p_rec"): p_rec,
             PlotLayout.get_plot_label("t_rec"): t,
