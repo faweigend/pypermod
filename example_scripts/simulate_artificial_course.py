@@ -36,7 +36,7 @@ if __name__ == "__main__":
              [300] * inter + \
              [200] * inter
 
-    agents = [agent_ode, agent_bar, agent_wei]
+    agents = [agent_ode, agent_bar]
 
     # Simulator takes agents and runs them through a simulation course
     sim = SimulatorBasis()
@@ -61,12 +61,13 @@ if __name__ == "__main__":
     ax.axhline(y=cp, linestyle="--", color='red', label="critical power (CP)")
 
     # label plot
-    ax.set_ylabel("exercise intensity")
-    ax2.set_ylabel(r'$W^\prime_{bal}$' + " balance")
+    ax.set_ylabel("power output (watts)")
+    ax2.set_ylabel(r'$W^\prime$' + " balance (joules)")
     ax.set_xlabel("time (min)")
 
     ax.set_yticks([agent_ode.cp])
     ax.set_yticklabels(["CP"])
+    ax.tick_params(axis='y', colors='red')
 
     ax2.set_yticks([0, agent_ode.w_p])
     ax2.set_yticklabels([0, r'$W^\prime$'])
@@ -76,7 +77,6 @@ if __name__ == "__main__":
     ax.set_xticklabels(int(x / 60) for x in ax.get_xticks())
 
     # legends
-    ax.legend()
     ax2.legend()
 
     # formant plot

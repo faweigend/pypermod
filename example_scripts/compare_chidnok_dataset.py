@@ -32,7 +32,7 @@ def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
     low = 20
 
     # assemble for simulation
-    p_recs = [hig, med, low]
+    p_recs = [low, med, hig]
     t_rec = 30
     rec_times = np.arange(0, 70, 2)
 
