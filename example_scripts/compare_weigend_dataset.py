@@ -52,10 +52,10 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
     agents = [agent_bartram, agent_skiba_2015, agent_fit_caen, agent_hyd]
 
     # run simulations for all four conditions
-    results_p4_cp_33 = StudySimulator.standard_comparison(agents=agents, p_exp=p240, p_rec=cp_33, rec_times=rec_times)
-    results_p4_cp_66 = StudySimulator.standard_comparison(agents=agents, p_exp=p240, p_rec=cp_66, rec_times=rec_times)
-    results_p8_cp_33 = StudySimulator.standard_comparison(agents=agents, p_exp=p480, p_rec=cp_33, rec_times=rec_times)
-    results_p8_cp_66 = StudySimulator.standard_comparison(agents=agents, p_exp=p480, p_rec=cp_66, rec_times=rec_times)
+    results_p4_cp_33 = StudySimulator.standard_comparison(agents=agents, p_work=p240, p_rec=cp_33, rec_times=rec_times)
+    results_p4_cp_66 = StudySimulator.standard_comparison(agents=agents, p_work=p240, p_rec=cp_66, rec_times=rec_times)
+    results_p8_cp_33 = StudySimulator.standard_comparison(agents=agents, p_work=p480, p_rec=cp_33, rec_times=rec_times)
+    results_p8_cp_66 = StudySimulator.standard_comparison(agents=agents, p_work=p480, p_rec=cp_66, rec_times=rec_times)
 
     # separated ground truth values derived by Weigend et al. from Caen et al.
     ground_truth_t = [120, 240, 360]
@@ -90,19 +90,19 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
             ax4.plot(rec_times, results_p8_cp_66[p_res_key], color=PlotLayout.get_plot_color(p_res_key))
 
         # finalise layout
-        ax1.set_title("exercise intensity: P240\nrecovery: 33% of CP")
-        ax2.set_title("exercise intensity: P240\nrecovery: 66% of CP")
-        ax3.set_title("exercise intensity: P480\nrecovery: 33% of CP")
-        ax4.set_title("exercise intensity: P480\nrecovery: 66% of CP")
+        ax1.set_title("$P_{work}$ = P240\n         $P_{rec}$  = 33% of CP")
+        ax2.set_title("$P_{work}$ = P240\n         $P_{rec}$  = 66% of CP")
+        ax3.set_title("$P_{work}$ = P480\n         $P_{rec}$  = 33% of CP")
+        ax4.set_title("$P_{work}$ = P480\n         $P_{rec}$  = 66% of CP")
 
         # create legend
         handles = PlotLayout.create_standardised_legend(agents=results_p8_cp_33.keys(),
                                                         ground_truth=True)
 
-        ax1.set_ylabel("WB2 to WB1 recovery ratio (%)")
-        ax3.set_ylabel("WB2 to WB1 recovery ratio (%)")
-        ax3.set_xlabel("recovery bout duration (sec)")
-        ax4.set_xlabel("recovery bout duration (sec)")
+        ax1.set_ylabel("recovery ratio (%)")
+        ax3.set_ylabel("recovery ratio (%)")
+        ax3.set_xlabel("$T_{rec}$ (sec)")
+        ax4.set_xlabel("$T_{rec}$ (sec)")
         for ax in [ax1, ax2, ax3, ax4]:
             ax.set_xticks([0, 120, 240, 360])
         ax1.legend(handles=handles)
@@ -121,8 +121,10 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
     for i, gt in enumerate(gts):
         for j, t in enumerate(ground_truth_t):
             results[names[i] + " T{}".format(t)] = {
+                PlotLayout.get_plot_label("cp"): cp,
+                PlotLayout.get_plot_label("w'"): w_p,
                 PlotLayout.get_plot_label("ground_truth"): gt[j],
-                PlotLayout.get_plot_label("p_exp"): p240 if "P240" in names[i] else p480,
+                PlotLayout.get_plot_label("p_work"): p240 if "P240" in names[i] else p480,
                 PlotLayout.get_plot_label("p_rec"): cp_33 if "CP33" in names[i] else cp_66,
                 PlotLayout.get_plot_label("t_rec"): t
             }

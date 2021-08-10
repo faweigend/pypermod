@@ -24,7 +24,7 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
 
     # intensities and time frames tested by Bartram et al
     p_recs = [cp, cp - 50, cp - 100, cp - 150, cp - 200]
-    p_exp = cp + (0.3 * w_p) / 30
+    p_work = cp + (0.3 * w_p) / 30
     t_rec = 60
     rec_times = np.arange(0, 130, 10)
 
@@ -51,11 +51,11 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
     dcp_results = []
     ground_truth_v = []
     for p_rec in p_recs:
-        result = StudySimulator.standard_comparison(agents=agents, p_exp=p_exp, p_rec=p_rec, rec_times=rec_times)
+        result = StudySimulator.standard_comparison(agents=agents, p_work=p_work, p_rec=p_rec, rec_times=rec_times)
         dcp_results.append(result)
 
         # add ground truth as bartram simulation
-        gt_ratio = StudySimulator.get_recovery_ratio_wb1_wb2(bart, p_exp=p_exp, p_rec=p_rec, t_rec=t_rec)
+        gt_ratio = StudySimulator.get_recovery_ratio_wb1_wb2(bart, p_work=p_work, p_rec=p_rec, t_rec=t_rec)
         ground_truth_v.append(gt_ratio)
 
     # create overview plot if required
@@ -81,16 +81,16 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
             ax.grid(axis="y", linestyle=':', alpha=0.5)
 
             if i == 2:
-                ax.set_xlabel("recovery time (sec)")
+                ax.set_xlabel("$T_{rec}$ (sec)")
             if i == 0:
-                ax.set_ylabel("WB2 to WB1 recovery ratio (%)")
+                ax.set_ylabel("recovery ratio (%)")
                 ax.set_yticks([25, 50, 75])
                 ax.set_yticklabels([25, 50, 75])
 
         # Create the legend
         handles = PlotLayout.create_standardised_legend(agents=dcp_results[0].keys(), ground_truth=True)
         fig.legend(handles=handles, loc='upper center', ncol=5)
-        fig.suptitle("expenditure intensity: " + r'$P100$' + "\n recovery:", y=0.88, fontsize="medium")
+        fig.suptitle("          $P_{work} = P100$ \n $P_{rec}$  = ", y=0.88, fontsize="medium")
         # finish plot
         plt.tight_layout()
         plt.subplots_adjust(top=0.70, bottom=0.13)
@@ -103,7 +103,9 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
     for i, name in enumerate(names):
         comp_name = "P100 {} T60".format(name)
         ret_results[comp_name] = {
-            PlotLayout.get_plot_label("p_exp"): p_exp,
+            PlotLayout.get_plot_label("cp"): cp,
+            PlotLayout.get_plot_label("w'"): w_p,
+            PlotLayout.get_plot_label("p_work"): p_work,
             PlotLayout.get_plot_label("p_rec"): p_recs[i],
             PlotLayout.get_plot_label("t_rec"): 60,
             PlotLayout.get_plot_label("ground_truth"): ground_truth_v[i]

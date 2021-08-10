@@ -11,12 +11,12 @@ class StudySimulator(SimulatorBasis):
     """
 
     @staticmethod
-    def standard_comparison(agents, p_exp: float, p_rec: float, rec_times: np.ndarray):
+    def standard_comparison(agents, p_work: float, p_rec: float, rec_times: np.ndarray):
         """
         This function employs the WB1 -> RB -> WB2 protocol proposed by Caen et al. to estimate recovery ratios.
         Recovery dynamics after a given intensity, at a given recovery intensity, and over a given time are estimated.
         :param agents: list of agents to compare
-        :param p_exp: intensity that leads to exhaustion
+        :param p_work: intensity that leads to exhaustion
         :param p_rec: recovery intensity
         :param rec_times: recovery times to estimate
         :return: simulation results in a dictionary
@@ -32,7 +32,7 @@ class StudySimulator(SimulatorBasis):
             # get recovery ratio for every time frame to be considered
             for t_rec in rec_times:
                 ratio = SimulatorBasis.get_recovery_ratio_wb1_wb2(agent,
-                                                                  p_exp=p_exp,
+                                                                  p_work=p_work,
                                                                   p_rec=p_rec,
                                                                   t_rec=t_rec)
                 agent_data.append(ratio)

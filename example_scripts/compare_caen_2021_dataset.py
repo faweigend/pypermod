@@ -48,7 +48,7 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
     agents = [agent_bartram, agent_skiba_2015, agent_fit_caen, agent_hyd]
 
     results = StudySimulator.standard_comparison(agents=agents,
-                                                 p_exp=p_exp,
+                                                 p_work=p_exp,
                                                  p_rec=p_rec,
                                                  rec_times=rec_times)
 
@@ -76,11 +76,11 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
                     linestyle=PlotLayout.get_plot_linestyle(agent_n))
 
         # finalise layout
-        ax.set_title("expenditure intensity: P240\nrecovery intensity: 161 watts")
-        ax.set_xlabel("recovery bout duration (sec)")
+        ax.set_title("$P_{work} = P240$ \n         $P_{rec}$  = 161 watts")
+        ax.set_xlabel("$T_{rec}$ (sec)")
         ax.set_xticks([30, 60, 120, 180, 240, 300, 600, 900])
         ax.set_xticklabels(ax.get_xticks(), rotation=-45, ha='center')
-        ax.set_ylabel("WB2 to WB1 recovery ratio (%)")
+        ax.set_ylabel("recovery ratio (%)")
 
         # get legend
         handles = PlotLayout.create_standardised_legend(agents=results.keys(),
@@ -98,7 +98,9 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
     for i, t in enumerate(ground_truth_t):
         name = "P240 CP60 T{}".format(t)
         ret_results[name] = {
-            PlotLayout.get_plot_label("p_exp"): p_exp,
+            PlotLayout.get_plot_label("cp"): cp,
+            PlotLayout.get_plot_label("w'"): w_p,
+            PlotLayout.get_plot_label("p_work"): p_exp,
             PlotLayout.get_plot_label("p_rec"): p_rec,
             PlotLayout.get_plot_label("t_rec"): t,
             PlotLayout.get_plot_label("ground_truth"): ground_truth_v[i]

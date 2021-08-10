@@ -57,12 +57,12 @@ class SimulatorBasis:
         raise UserWarning("No procedure implemented for agent type {}".format(agent))
 
     @staticmethod
-    def get_recovery_ratio_wb1_wb2(agent, p_exp, p_rec, t_rec):
+    def get_recovery_ratio_wb1_wb2(agent, p_work, p_rec, t_rec):
         """
         Returns recovery ratio of given agent according to WB1 -> RB -> WB2 protocol.
         Recovery ratio estimations for given exp, rec intensity and time
         :param agent:
-        :param p_exp: work bout intensity
+        :param p_work: work bout intensity
         :param p_rec: recovery bout intensity
         :param t_rec: recovery bout duration
         :return: ratio in percent
@@ -75,10 +75,10 @@ class SimulatorBasis:
         if isinstance(agent, WbalIntAgent):
             dcp = agent.cp - p_rec
             # simulate Caen trials with defined DPC
-            c_exp_bal = agent.get_expenditure_dynamics(p_exp=p_exp, dcp=dcp)
+            c_exp_bal = agent.get_expenditure_dynamics(p_exp=p_work, dcp=dcp)
 
             # setup course according to found TTE
-            caen_course = [p_exp] * len(c_exp_bal) + [p_rec] * t_rec + [p_exp] * len(c_exp_bal)
+            caen_course = [p_work] * len(c_exp_bal) + [p_rec] * t_rec + [p_work] * len(c_exp_bal)
             # get W'bal history
             caen_bal = SimulatorBasis.simulate_course(agent, caen_course)
 
@@ -95,7 +95,7 @@ class SimulatorBasis:
 
         elif isinstance(agent, CpODEAgentBasisLinear) or isinstance(agent, ThreeCompHydAgent):
             # WB1 Exhaust...
-            agent.set_power(p_exp)
+            agent.set_power(p_work)
             steps = 0
             while not agent.is_exhausted() and steps < SimulatorBasis.step_limit:
                 agent.perform_one_step()
@@ -112,7 +112,7 @@ class SimulatorBasis:
             rec_t = agent.get_time()
 
             # WB2 Exhaust...
-            agent.set_power(p_exp)
+            agent.set_power(p_work)
             steps = 0
             while not agent.is_exhausted() and steps < SimulatorBasis.step_limit:
                 agent.perform_one_step()
