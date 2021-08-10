@@ -2,6 +2,8 @@
 
 # pypermod
 
+[![PyPI](https://img.shields.io/pypi/v/pypermod.svg?style=for-the-badge)](https://pypi.python.org/pypi/pypermod)
+
 This python package provides various tools to predict energy expenditure and recovery dynamics of an athlete. 
 The name `pypermod` stands for __Python Performance Modeling__.
 
