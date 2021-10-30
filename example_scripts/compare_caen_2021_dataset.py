@@ -29,14 +29,16 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
 
     # fitted to Caen et al. 2021 (w_p = 19200 cp = 269) with recoveries from Caen et al. (2019)
     # general settings for three component hydraulic agent
-    p = [20677.1733445497,
-         179472.5078726373,
-         269.3909629386831,
-         87.53155946812194,
-         8.867173757279756,
-         0.8086915379675802,
-         0.12369693383481795,
-         0.17661428891272302]
+    p = [
+        17631.060154686846,
+        46246.12685807986,
+        267.2841865716247,
+        117.58879540373458,
+        20.086989783398884,
+        0.6761473340497611,
+        0.010446724632575614,
+        0.28907732540761866
+    ]
 
     agent_skiba_2015 = WbalODEAgentSkiba(w_p=w_p, cp=cp, hz=hz)
     agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)

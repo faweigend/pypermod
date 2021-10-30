@@ -30,14 +30,16 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
 
     # three component hydraulic agent configuration fitted to
     # W' and CP group averages reported by Bartram et al.
-    p = [28295.84803812729,
-         115866.92894681037,
-         393.69013448575697,
-         125.81789182612417,
-         10.42071828931923,
-         0.8323218320947604,
-         0.034587477091268214,
-         0.13458173082205677]
+    p = [
+        23111.907625379536,
+        65845.27856132743,
+        391.57216549178816,
+        148.88277278309968,
+        24.148071239095923,
+        0.7300850921939723,
+        0.010572800716668246,
+        0.24210496214582158
+    ]
 
     # setup all used agents
     bart = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
