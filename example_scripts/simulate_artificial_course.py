@@ -23,7 +23,7 @@ if __name__ == "__main__":
     agent_ode = WbalODEAgentSkiba(w_p, cp, hz=hz)
     agent_wei = WbalODEAgentWeigend(w_p, cp, hz=hz)
     agent_bar = WbalODEAgentBartram(w_p, cp, hz=hz)
-    agent_int = WbalIntAgentSkiba(w_p, cp)
+
     inter = 180
     # the power demands over the artificial course
     course = [100] * inter + \
@@ -36,7 +36,7 @@ if __name__ == "__main__":
              [300] * inter + \
              [200] * inter
 
-    agents = [agent_ode] #, agent_bar, agent_wei, agent_int]
+    agents = [agent_ode, agent_bar, agent_wei]
 
     # Simulator takes agents and runs them through a simulation course
     sim = SimulatorBasis()
