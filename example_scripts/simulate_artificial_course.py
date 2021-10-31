@@ -1,6 +1,7 @@
 import logging
 
 import matplotlib.pyplot as plt
+from pypermod.agents.wbal_agents.wbal_int_agent_skiba import WbalIntAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from pypermod.simulator.simulator_basis import SimulatorBasis
 from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
@@ -57,7 +58,6 @@ if __name__ == "__main__":
 
     # format axis
     ax.set_ylim([0, cp * 2.5])
-    ax.axhline(y=cp, linestyle="--", color='red', label="critical power (CP)")
 
     # label plot
     ax.set_ylabel("power output (watts)")
@@ -67,6 +67,7 @@ if __name__ == "__main__":
     ax.set_yticks([agent_ode.cp])
     ax.set_yticklabels(["CP"])
     ax.tick_params(axis='y', colors='red')
+    ax.axhline(y=cp, linestyle="--", color='red', label="critical power (CP)")
 
     ax2.set_yticks([0, agent_ode.w_p])
     ax2.set_yticklabels([0, r'$W^\prime$'])

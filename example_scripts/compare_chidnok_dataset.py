@@ -46,14 +46,16 @@ def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
 
     # fitted to Chidnok et al. (w_p=21100, cp=241) with recovery from Caen et al.
     # general settings for three component hydraulic agent
-    p = [20047.50153689523,
-         115140.99890071881,
-         240.68973456248304,
-         95.20145903978242,
-         10.205583305433073,
-         0.7283879087791809,
-         0.15441713985950212,
-         0.24669788914354474]
+    p = [
+        18919.762073227383,
+        48051.773725079634,
+        239.55392427569362,
+        115.0462376883594,
+        19.47734052698647,
+        0.6470383748194338,
+        0.048256367960376,
+        0.30867198281089636
+    ]
 
     # setup all used agents
     bart = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)

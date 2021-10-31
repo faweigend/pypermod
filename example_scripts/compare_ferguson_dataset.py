@@ -29,14 +29,16 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
 
     # fitted to Ferguson et al. (w_p = 21600 cp = 212) with recoveries from Caen et al.
     # general settings for three component hydraulic agent
-    p = [19858.664401062637,
-         381285.47724572546,
-         211.56829509658024,
-         84.1393682475386,
-         9.876294372943931,
-         0.7148516516658686,
-         0.25013512969210605,
-         0.2794394105229545]
+    p = [
+        18730.04887669842,
+        81030.54914024667,
+        211.5583717747421,
+        94.30913367766424,
+        18.75659352000352,
+        0.6343242626696716,
+        0.204894046277973,
+        0.3363619580983015
+    ]
 
     # ground truth measures from the paper
     ground_truth_t = [120, 360, 900]
