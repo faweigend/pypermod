@@ -1,7 +1,6 @@
 import logging
 
 import matplotlib.pyplot as plt
-from pypermod.agents.wbal_agents.wbal_int_agent_skiba import WbalIntAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from pypermod.simulator.simulator_basis import SimulatorBasis
 from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
@@ -38,9 +37,6 @@ if __name__ == "__main__":
 
     agents = [agent_ode, agent_bar, agent_wei]
 
-    # Simulator takes agents and runs them through a simulation course
-    sim = SimulatorBasis()
-
     # set up plot
     fig = plt.figure(figsize=(8, 5))
     ax2 = fig.add_subplot(2, 1, 1)
@@ -48,7 +44,7 @@ if __name__ == "__main__":
 
     # use simulator for every agent and plot result
     for agent in agents:
-        balances = sim.simulate_course(agent, course_data=course)
+        balances = SimulatorBasis.simulate_course(agent, course_data=course)
         ax2.plot(balances,
                  color=PlotLayout.get_plot_color(agent.get_name()),
                  label=PlotLayout.get_plot_label(agent.get_name()))
