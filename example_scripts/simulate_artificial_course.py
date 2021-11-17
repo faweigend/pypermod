@@ -1,6 +1,8 @@
 import logging
 
+import matplotlib
 import matplotlib.pyplot as plt
+from pypermod.agents.wbal_agents.wbal_int_agent_skiba import WbalIntAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from pypermod.simulator.simulator_basis import SimulatorBasis
 from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
@@ -11,6 +13,7 @@ if __name__ == "__main__":
     # set logging level to highest level
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
+    matplotlib.rcParams['font.size'] = 12
 
     hz = 1
 
@@ -21,6 +24,7 @@ if __name__ == "__main__":
     # the agent to perform simulations
     agent_ode = WbalODEAgentSkiba(w_p, cp, hz=hz)
     agent_wei = WbalODEAgentWeigend(w_p, cp, hz=hz)
+    agent_int = WbalIntAgentSkiba(w_p, cp)
     agent_bar = WbalODEAgentBartram(w_p, cp, hz=hz)
 
     inter = 180
@@ -35,7 +39,7 @@ if __name__ == "__main__":
              [300] * inter + \
              [200] * inter
 
-    agents = [agent_ode, agent_bar, agent_wei]
+    agents = [agent_ode]  # , agent_bar, agent_int]
 
     # set up plot
     fig = plt.figure(figsize=(8, 5))
