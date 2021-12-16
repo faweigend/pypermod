@@ -45,7 +45,7 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
     bart = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
     skib = WbalODEAgentSkiba(w_p=w_p, cp=cp, hz=hz)
     weig = WbalODEAgentWeigend(w_p=w_p, cp=cp, hz=hz)
-    hyd = ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1], m_ae=p[2], m_ans=p[3], m_anf=p[4],
+    hyd = ThreeCompHydAgent(hz=hz, lf=p[0], ls=p[1], m_u=p[2], m_ls=p[3], m_lf=p[4],
                             the=p[5], gam=p[6], phi=p[7])
     agents = [skib, weig, hyd, bart]
 
