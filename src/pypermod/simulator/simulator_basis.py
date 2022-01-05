@@ -14,11 +14,11 @@ class SimulatorBasis:
     step_limit = 5000
 
     @staticmethod
-    def simulate_tte(agent, p_exp):
+    def simulate_tte(agent, p_work):
         """
         estimates time to exhaustion for given agent at given intensity
         :param agent:
-        :param p_exp:
+        :param p_work:
         :return:
         """
 
@@ -26,31 +26,31 @@ class SimulatorBasis:
 
         # ... integral agents
         if isinstance(agent, WbalIntAgent):
-            w_bal_hist = agent.get_expenditure_dynamics(p_exp)
+            w_bal_hist = agent.get_expenditure_dynamics(p_work)
             return w_bal_hist
 
         # ... differential agent
         elif isinstance(agent, CpODEAgentBasisLinear):
-            agent.set_power(p_exp)
+            agent.set_power(p_work)
             step = 0
             w_bal_hist = []
-            while agent.is_exhausted() is False and step < SimulatorBasis.step_limit:
+            while not agent.is_exhausted() and step < SimulatorBasis.step_limit:
                 agent.perform_one_step()
                 w_bal_hist.append(agent.get_w_p_balance())
                 step += 1
-            if agent.is_exhausted() is False:
+            if not agent.is_exhausted():
                 raise UserWarning("Exhaustion not reached")
             return w_bal_hist
         # ... hydraulic agent
         elif isinstance(agent, ThreeCompHydAgent):
-            agent.set_power(p_exp)
+            agent.set_power(p_work)
             step = 0
             w_bal_hist = []
-            while agent.is_exhausted() is False and step < SimulatorBasis.step_limit:
+            while not agent.is_exhausted() and step < SimulatorBasis.step_limit:
                 agent.perform_one_step()
                 w_bal_hist.append(agent.get_w_p_ratio())
                 step += 1
-            if agent.is_exhausted() is False:
+            if not agent.is_exhausted():
                 raise UserWarning("Exhaustion not reached")
             return w_bal_hist
         # unknown type warning
