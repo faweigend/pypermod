@@ -7,7 +7,7 @@ from pypermod.agents.wbal_agents.wbal_int_agent import WbalIntAgent
 
 class SimulatorBasis:
     """
-    Contains convenience functions to run simulations with performance modelling agents. Exemplary simulations are
+    Contains convenience functions to run simulations with performance modelling agents. Example simulations are
     time-to-exhaustion (TTE) or recovery estimations according with the WB1 -> RB -> WB2 protocol
     """
     # the maximal number of steps for a single simulation run

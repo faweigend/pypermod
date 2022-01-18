@@ -8,6 +8,7 @@ from matplotlib.container import ErrorbarContainer
 from matplotlib.lines import Line2D
 
 plot_labels = {
+    "hyd_h": "$AnF$ fill-level",
     "cp": "CP",
     "w'": "$W^\prime$",
     "p_work": "$P_{work}$",
@@ -35,6 +36,7 @@ plot_marker = {
 
 # used in verification plots
 plot_color_scheme = {
+    "hyd_h": "tab:olive",
     "WbalODEAgentWeigend": "black",
     "WbalODEAgentFixTau": "tab:orange",
     "WbalIntAgentSkiba": "tab:orange",
