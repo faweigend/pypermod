@@ -103,6 +103,17 @@ class CpODEAgentBasisLinear(CpAgentBasis):
         """
         return self._w_bal
 
+    def set_w_p_balance(self, w_bal: float):
+        """
+        sets internal wbal parameter and ensures it's in-between 0 and W'
+        """
+        if w_bal < 0 or w_bal > self.w_p:
+            raise UserWarning(
+                "W'balance ({}) has an illegal value. "
+                "It must be between 0 and W' ({})".format(w_bal, self.w_p)
+            )
+        self._w_bal = w_bal
+
     def _estimate_possible_power_output(self) -> float:
         """
         Update internal capacity estimations by one step.

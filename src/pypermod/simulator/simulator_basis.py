@@ -14,12 +14,12 @@ class SimulatorBasis:
     step_limit = 5000
 
     @staticmethod
-    def simulate_tte(agent, p_work):
+    def simulate_tte(agent, p_work: float):
         """
         estimates time to exhaustion for given agent at given intensity
-        :param agent:
-        :param p_work:
-        :return:
+        :param agent: the agent tasked with simulating the TTE
+        :param p_work: exercise intensity of the TTE in Watts
+        :return: a history of W' balance values. One for each time step of the simulation
         """
 
         agent.reset()
