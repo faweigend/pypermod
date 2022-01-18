@@ -11,7 +11,7 @@ More details on the purpose of this package can be found in our manuscript __A h
 You can find the preprint on [arXiv](https://arxiv.org/abs/2108.04510). 
 
 You may also want to check our detailed video presentation at [STARS](https://www.clearinghouseforsport.gov.au/digital-media/conferences/2020/stars/modelling-energy-expenditure-and-recovery-investigation-and-validation-of-a-three-component-hydraulic-model).
-
+Or the more recent presentation as the [SFU Sports Analytics Seminar](https://www.youtube.com/watch?v=OGiv_frvM6g)
 If you make use of this project, we would be grateful if you star the repository and/or cite our paper.
 ```
 @misc{weigend2021hydraulic,
