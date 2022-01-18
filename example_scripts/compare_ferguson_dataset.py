@@ -48,8 +48,8 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
     agent_skiba_2015 = WbalODEAgentSkiba(w_p=w_p, cp=cp, hz=hz)
     agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
     agent_fit_caen = WbalODEAgentWeigend(w_p=w_p, cp=cp, hz=hz)
-    agent_hyd = ThreeCompHydAgent(hz=hz, a_anf=p[0], a_ans=p[1],
-                                  m_ae=p[2], m_ans=p[3], m_anf=p[4],
+    agent_hyd = ThreeCompHydAgent(hz=hz, lf=p[0], ls=p[1],
+                                  m_u=p[2], m_ls=p[3], m_lf=p[4],
                                   the=p[5], gam=p[6], phi=p[7])
 
     agents = [agent_bartram, agent_skiba_2015, agent_fit_caen, agent_hyd]
