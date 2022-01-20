@@ -41,6 +41,7 @@ class SimulatorBasis:
             if not agent.is_exhausted():
                 raise UserWarning("Exhaustion not reached")
             return w_bal_hist
+
         # ... hydraulic agent
         elif isinstance(agent, ThreeCompHydAgent):
             agent.set_power(p_work)
@@ -53,6 +54,7 @@ class SimulatorBasis:
             if not agent.is_exhausted():
                 raise UserWarning("Exhaustion not reached")
             return w_bal_hist
+
         # unknown type warning
         raise UserWarning("No procedure implemented for agent type {}".format(agent))
 
@@ -86,7 +88,7 @@ class SimulatorBasis:
             found_i = 0
             for i in range(len(c_exp_bal) + t_rec, len(caen_bal)):
                 if caen_bal[i] <= 0:
-                    found_i = i - (len(c_exp_bal) + t_rec) + 1  # plus 1 because the time step 0 is reached is included
+                    found_i = i - (len(c_exp_bal) + t_rec) + 1  # plus 1 because the time step 0 is included
                     break
 
             # Time of WB2 divided by time of WB1 is the ratio of recovery
