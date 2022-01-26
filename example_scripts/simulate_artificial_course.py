@@ -2,6 +2,7 @@ import logging
 
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 from pypermod.agents.wbal_agents.wbal_int_agent_skiba import WbalIntAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from pypermod.simulator.simulator_basis import SimulatorBasis
@@ -38,8 +39,10 @@ if __name__ == "__main__":
              [50] * inter + \
              [300] * inter + \
              [200] * inter
+    # we start with second 1 because simulations omit time step 0
+    times = np.arange(1, len(course) + 1)
 
-    agents = [agent_ode]  # , agent_bar, agent_int]
+    agents = [agent_ode, agent_wei, agent_bar]
 
     # set up plot
     fig = plt.figure(figsize=(8, 5))
@@ -49,12 +52,13 @@ if __name__ == "__main__":
     # use simulator for every agent and plot result
     for agent in agents:
         balances = SimulatorBasis.simulate_course(agent, course_data=course)
-        ax2.plot(balances,
+        ax2.plot(times,
+                 balances,
                  color=PlotLayout.get_plot_color(agent.get_name()),
                  label=PlotLayout.get_plot_label(agent.get_name()))
 
     # plot power demands
-    ax.plot(course, color='black', label="intensity")
+    ax.plot(times, course, color='black', label="intensity")
 
     # format axis
     ax.set_ylim([0, cp * 2.5])
@@ -73,8 +77,8 @@ if __name__ == "__main__":
     ax2.set_yticklabels([0, r'$W^\prime$'])
 
     # format x ticks to minutes
-    ax.set_xticks(range(0, len(course) + 5, 180))
-    ax.set_xticklabels(int(x / 60) for x in ax.get_xticks())
+    # ax.set_xticks(range(0, len(course) + 5, 180))
+    # ax.set_xticklabels(int(x / 60) for x in ax.get_xticks())
 
     # legends
     ax2.legend()

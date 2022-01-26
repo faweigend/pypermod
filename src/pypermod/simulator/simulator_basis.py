@@ -14,12 +14,14 @@ class SimulatorBasis:
     step_limit = 5000
 
     @staticmethod
-    def simulate_tte(agent, p_work):
+    def get_tte_dynamics(agent, p_work: float):
         """
-        estimates time to exhaustion for given agent at given intensity
-        :param agent:
-        :param p_work:
-        :return:
+        Estimates the amount of accumulated used energy for each time step during a TTE trial.
+        For work-balance agents it returns a history of how much W'balance is left at each time step.
+        For hydraulic agents it returns a history of a remaining liquid appriximation at each time step.
+        :param agent: the agent tasked with simulating the TTE
+        :param p_work: exercise intensity of the TTE in Watts
+        :return: a history of remaining energy values. One for each time step of the simulation. Pos 0 is time step 1.
         """
 
         agent.reset()
@@ -41,6 +43,7 @@ class SimulatorBasis:
             if not agent.is_exhausted():
                 raise UserWarning("Exhaustion not reached")
             return w_bal_hist
+
         # ... hydraulic agent
         elif isinstance(agent, ThreeCompHydAgent):
             agent.set_power(p_work)
@@ -53,6 +56,7 @@ class SimulatorBasis:
             if not agent.is_exhausted():
                 raise UserWarning("Exhaustion not reached")
             return w_bal_hist
+
         # unknown type warning
         raise UserWarning("No procedure implemented for agent type {}".format(agent))
 
@@ -74,23 +78,26 @@ class SimulatorBasis:
         # The handling agent types
         if isinstance(agent, WbalIntAgent):
             dcp = agent.cp - p_rec
+
             # simulate Caen trials with defined DPC
-            c_exp_bal = agent.get_expenditure_dynamics(p_exp=p_work, dcp=dcp)
+            c_exp_tte = len(agent.get_expenditure_dynamics(p_exp=p_work, dcp=dcp))
 
             # setup course according to found TTE
-            caen_course = [p_work] * len(c_exp_bal) + [p_rec] * t_rec + [p_work] * len(c_exp_bal)
+            caen_course = [p_work] * c_exp_tte + \
+                          [p_rec] * t_rec + \
+                          [p_work] * c_exp_tte
             # get W'bal history
             caen_bal = SimulatorBasis.simulate_course(agent, caen_course)
 
             # look for the time of exhaustion in the second exercise bout
             found_i = 0
-            for i in range(len(c_exp_bal) + t_rec, len(caen_bal)):
+            for i in range(c_exp_tte + t_rec, len(caen_bal)):
                 if caen_bal[i] <= 0:
-                    found_i = i - (len(c_exp_bal) + t_rec) + 1  # plus 1 because the time step 0 is reached is included
+                    found_i = i - (c_exp_tte + t_rec)
                     break
 
             # Time of WB2 divided by time of WB1 is the ratio of recovery
-            ratio = (found_i / len(c_exp_bal)) * 100.0
+            ratio = (found_i / c_exp_tte) * 100.0
             return ratio
 
         elif isinstance(agent, CpODEAgentBasisLinear) or isinstance(agent, ThreeCompHydAgent):
@@ -126,10 +133,10 @@ class SimulatorBasis:
     @staticmethod
     def simulate_course(agent, course_data):
         """
-        lets given agent run the given course
-        :param agent:
+        Makes the given agent predict remaining energy for every time step of the given course data.
+        :param agent: agent to use for predictions
         :param course_data: Expected as a list of intensities in Watts
-        :return:
+        :return: a history of remaining energy values. One for each time step of the simulation. Pos 0 is time step 1.
         """
 
         agent.reset()
