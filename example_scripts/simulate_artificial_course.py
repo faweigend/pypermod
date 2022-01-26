@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     inter = 180
     # the power demands over the artificial course
-    course = [300] * inter + \
+    course = [100] * inter + \
              [250] * inter + \
              [100] * inter + \
              [250] * inter + \
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     # we start with second 1 because simulations omit time step 0
     times = np.arange(1, len(course) + 1)
 
-    agents = [agent_ode, agent_int]
+    agents = [agent_ode, agent_wei, agent_bar]
 
     # set up plot
     fig = plt.figure(figsize=(8, 5))
