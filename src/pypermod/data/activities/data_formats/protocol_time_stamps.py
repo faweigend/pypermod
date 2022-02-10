@@ -1,14 +1,12 @@
 import logging
 
-import pandas as pd
 from datetime import datetime
 
-from pypermod.data.activities.data_types.power_measured import PowerMeasured
-from pypermod.data.activities.data_types.time_series import TimeSeries
+from pypermod.data.activities.data_formats.time_series import TimeSeries
 from sportsparsing.activities.protocol_types import ProtocolTypes
 
 
-class ProtocolTest(TimeSeries):
+class ProtocolTimeStamps(TimeSeries):
     """
     Protocol tests are a time series with a warmup and recovery time stamp
     """

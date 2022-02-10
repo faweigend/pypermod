@@ -8,7 +8,7 @@ import pandas as pd
 import config
 import utility
 
-from sportsparsing.activities.protocol_types import ProtocolTypes
+from pypermod.data.activities.protocol_types import ProtocolTypes
 
 
 class Activity:
@@ -135,14 +135,6 @@ class Activity:
         self._metadata.update({"activity": self.typename,
                                "protocol": self._protocol_type.value,
                                "datetime": str(self._datetime)})
-
-        if self.__data is not None:
-            # add averages and means of available columns
-            for col in self.__data.columns:
-                if col in ['sec']:
-                    continue
-                self._metadata.update({"{}_avr".format(col): float(self.__data[col].mean()),
-                                       "{}_max".format(col): float(self.__data[col].max())})
 
     def free_memory(self):
         """

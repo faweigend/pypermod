@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+from datetime import datetime
+
 import matplotlib
 import numpy as np
 import pypermod.config
@@ -78,6 +80,7 @@ def string_to_date(dt_id: str):
     :return: converted datetime object
     """
     return datetime.strptime(dt_id, "%Y-%m-%d_%H:%M:%S:%f")
+
 
 def date_to_string(dt: datetime):
     """

@@ -1,31 +1,20 @@
-from datetime import datetime
-
 import pandas as pd
-from pypermod.data.activities.data_types.power_measured import PowerMeasured
 from pypermod.data.activities.data_types.protocol_test import ProtocolTest
 from pypermod.data.activities.data_types.bbb_measured import BbbMeasured
 
 
-class SRMBbBTest(ProtocolTest, PowerMeasured, BbbMeasured):
+class SRMBbbTest(ProtocolTest, BbbMeasured):
     """
-    A performance bike test on the SRM device
+    A performance bike test on the SRM cycle ergometer
     coupled with breath-by-breath data collection with the Cosmed.
     """
-
-    def __init__(self, date_time: datetime):
-        """
-        Constructor
-        :param date_time:
-        """
-        # parent's constructor
-        super().__init__(date_time=date_time)
 
     def set_data(self, data: pd.DataFrame):
         """
         Adds actual exercise data to the activity object
         :param data: the data to add
         """
-        needed_cols = ['speed', 'cadence', 'altitude']
+        needed_cols = ['power', 'speed', 'cadence', 'altitude']
         # check if mandatory columns exist
         if any(i not in data.columns for i in needed_cols):
             raise UserWarning("Given dataframe with {} does not "
@@ -43,6 +32,34 @@ class SRMBbBTest(ProtocolTest, PowerMeasured, BbbMeasured):
         :return: selection of bbb data that's within the time frame defined by warmup and recovery
         """
         return self.filter_exercise_data(self.bbb_time_data, self.bbb_data)
+
+    def update_meta_data(self):
+        """
+        Update meta data with power measured specific info
+        """
+        super().update_meta_data()
+
+        if self.is_data_loaded():
+            # because of the condition in set_data a column 'power' must exist
+            col = 'power'
+            self._metadata.update({
+                "{}_avr".format(col): float(self.data[col].mean()),
+                "{}_max".format(col): float(self.data[col].max())
+            })
+
+    @property
+    def max_power(self):
+        """
+        :return: getter for max power output during this activity
+        """
+        return self.meta["max_power"]
+
+    @property
+    def power_data(self):
+        """
+        :return: power values
+        """
+        return self.data['power']
 
     @property
     def speed_data(self):
