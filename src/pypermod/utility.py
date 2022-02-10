@@ -71,6 +71,23 @@ plot_grayscale_linestyles = {
 }
 
 
+def string_to_date(dt_id: str):
+    """
+    transforms given date time string to an actual dt object
+    :param dt_id: date time id
+    :return: converted datetime object
+    """
+    return datetime.strptime(dt_id, "%Y-%m-%d_%H:%M:%S:%f")
+
+def date_to_string(dt: datetime):
+    """
+    transforms given date time to an ID
+    :param dt: date time object to create id from
+    :return: id
+    """
+    return "{}-{}-{}_{}:{}:{}:{}".format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
+
+
 def insert_with_key_enumeration(agent, agent_data: list, results: dict):
     """
     Checks if agent with the same name has stored data already in the given dict and enumerates in that case
