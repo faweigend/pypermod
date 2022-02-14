@@ -3,7 +3,7 @@ import logging
 import os
 import shutil
 
-from pypermod import utility, config
+from pypermod import utility
 
 from pypermod.data.activities.activity import Activity
 from pypermod.data.activities.activity_types import ActivityTypes
@@ -19,17 +19,17 @@ class Athlete:
     - Activities are test data assigned to an athlete under an ActivityType and ProtocolType.
     """
 
-    def __init__(self, id_num: str):
+    def __init__(self, path: os.path):
         """
         constructor
-        :param id_num: identification string of the athlete
+        :param path: location where athlete data is stored. Athlete ID is the folder name
         """
-        self.__id = id_num
+        self.__id = os.path.basename(path)
+        self.__dir_path = path
         # storage for all activities of type ActivityTypes
         self.__activities = dict()
         self.__meta_data = dict()
         self.__cp_fittings = dict()
-        self.__dir_path = os.path.join(config.paths["data_storage"], self.__id)
 
     @property
     def dir_path(self):
@@ -42,6 +42,28 @@ class Athlete:
         :return: athlete id
         """
         return self.__id
+
+    def set_save_dir(self, new_path: os.path, clear_old: bool = True):
+        """
+        Changes the athlete id to the new base directory and saves
+        all athlete data under the new path.
+        :param new_path: new athlete save location as a string
+        :param clear_old: whether old location should be deleted
+        """
+
+        if clear_old is True:
+            shutil.rmtree(self.__dir_path)
+
+        self.__id = os.path.basename(new_path)
+        self.__dir_path = new_path
+
+        # update athlete ID for all stored activities
+        for act in self.iterate_activities_all():
+            act.assign_athlete(self.__id)
+            act.save()
+            logging.info("Re assigned {} activity under ID {}".format(act.typename, self.__id))
+
+        self.save()
 
     def remove_activity(self, act: Activity):
         """
@@ -133,7 +155,8 @@ class Athlete:
             self.__activities[activity.typename][activity.protocol].append(activity)
 
         # assign self to newly stored activity
-        activity.assign_athlete(self.__id)
+        activity_path = os.path.join(self.dir_path, activity.typename, activity.id)
+        activity.set_dir_path(activity_path)
         activity.save()
         logging.info("Added and saved {} activity under {} protocol and ID {}".format(activity.typename,
                                                                                       activity.protocol,
@@ -176,6 +199,8 @@ class Athlete:
         """
         Saves athlete data to meta.json
         """
+        if not os.path.exists(self.__dir_path):
+            os.makedirs(self.__dir_path)
         # produce json output
         json_dict = {"id": self.__id}
         # write number of activities categorised by type and protocol
@@ -203,14 +228,14 @@ class Athlete:
         """
         # write meta info to json
         with open(os.path.join(self.__dir_path, 'meta.json'), 'rb') as fp:
-            meta = json.load(fp)
+            json_dict = json.load(fp)
             # verify the meta json
-            if meta["id"] != self.__id:
-                logging.warning(
+            if json_dict["id"] != self.__id:
+                raise UserWarning(
                     "athlete ID {} and meta.json ID {} do "
-                    "not match. Wrong file?".format(self.__id, meta["id"]))
+                    "not match. Wrong file?".format(self.__id, json_dict["id"]))
 
-            self.__meta_data = meta["meta_data"]
+            self.__meta_data = json_dict["meta_data"]
 
             # create training activity objects
             self.__activities = dict()
@@ -218,15 +243,15 @@ class Athlete:
             # check all Activity Types
             for at in ActivityTypes:
                 atn = at.value.__name__
-                if atn in meta:
+                if atn in json_dict:
 
                     # check all Protocol Types
                     for pt in ProtocolTypes:
                         ptn = pt.value
-                        if ptn in meta[atn]:
+                        if ptn in json_dict[atn]:
 
                             # create all stored activities
-                            for dt in meta[atn][ptn]:
+                            for dt in json_dict[atn][ptn]:
                                 a_inst = at.value(date_time=utility.string_to_date(dt))
                                 a_inst.assign_athlete(self.__id)
                                 a_inst.load()

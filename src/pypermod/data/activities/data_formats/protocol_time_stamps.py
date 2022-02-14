@@ -91,6 +91,10 @@ class ProtocolTimeStamps(TimeSeries):
         :param warmup: Defines when warmup ends
         :param exercise_end_time: Defines when exercise ends and recovery starts
         """
+
+        if self.data is None:
+            raise UserWarning("please add data to activity before setting timestamps")
+
         # use activity base class method to set the protocol
         self.set_protocol(prot_type)
 

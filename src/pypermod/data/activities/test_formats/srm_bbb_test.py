@@ -1,9 +1,9 @@
 import pandas as pd
-from pypermod.data.activities.data_types.protocol_test import ProtocolTest
-from pypermod.data.activities.data_types.bbb_measured import BbbMeasured
+from pypermod.data.activities.data_formats.protocol_time_stamps import ProtocolTimeStamps
+from pypermod.data.activities.data_formats.bbb_measured import BbbMeasured
 
 
-class SRMBbbTest(ProtocolTest, BbbMeasured):
+class SRMBbbTest(ProtocolTimeStamps, BbbMeasured):
     """
     A performance bike test on the SRM cycle ergometer
     coupled with breath-by-breath data collection with the Cosmed.
@@ -41,10 +41,8 @@ class SRMBbbTest(ProtocolTest, BbbMeasured):
 
         if self.is_data_loaded():
             # because of the condition in set_data a column 'power' must exist
-            col = 'power'
             self._metadata.update({
-                "{}_avr".format(col): float(self.data[col].mean()),
-                "{}_max".format(col): float(self.data[col].max())
+                "resistance": self.altitude_data.max()
             })
 
     @property

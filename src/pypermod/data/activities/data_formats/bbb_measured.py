@@ -1,9 +1,10 @@
 import datetime
+import logging
 import os
 
 import pandas as pd
 
-from sportsparsing.activities.data_types.time_series import TimeSeries
+from pypermod.data.activities.data_formats.time_series import TimeSeries
 
 
 class BbbMeasured(TimeSeries):
@@ -42,11 +43,9 @@ class BbbMeasured(TimeSeries):
             self._metadata["bbb_offset"] = self._bbb_offset
 
             # add averages and means of available bbb columns
-            for col in self._bbb_data.columns:
-                if col in ['sec']:
-                    continue
-                self._metadata.update({"{}_avr".format(col): self._bbb_data[col].mean(),
-                                       "{}_max".format(col): self._bbb_data[col].max()})
+            col = "vo2"
+            self._metadata.update({"{}_avr".format(col): self._bbb_data[col].mean(),
+                                   "{}_max".format(col): self._bbb_data[col].max()})
 
             # store or update total activity duration since bbb data has an effect on total time
             if "duration" in self._metadata:
@@ -77,7 +76,10 @@ class BbbMeasured(TimeSeries):
         stores meta and data to local files
         """
         super().save()
-        self._bbb_data.to_pickle("{}-bbb".format(self._file_path))
+        if self._bbb_data is None:
+            logging.warning("bbb save called with no data bbb data available")
+        else:
+            self._bbb_data.to_csv("{}-bbb.csv".format(self._dir_path))
 
     def get_bbb_offset(self):
         """
@@ -87,6 +89,7 @@ class BbbMeasured(TimeSeries):
             try:
                 self._bbb_offset = self._metadata["bbb_offset"]
             except KeyError:
+                logging.warning("asked for bbb offset with no offset available")
                 return None
         return self._bbb_offset
 
@@ -128,13 +131,13 @@ class BbbMeasured(TimeSeries):
         loads bbb data from file
         :return:
         """
-        fname = "{}-bbb".format(self._file_path)
+        fname = "{}-bbb.csv".format(self._dir_path)
         if not os.path.isfile(fname):
             return False
         # set offset from stored metadata
         self._bbb_offset = self.meta["bbb_offset"]
         # read data from pickle file
-        self._bbb_data = pd.read_pickle(fname)
+        self._bbb_data = pd.read_csv(fname)
         return True
 
     def has_bbb_data(self):

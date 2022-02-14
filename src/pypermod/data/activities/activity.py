@@ -5,7 +5,7 @@ import os
 
 import pandas as pd
 
-import config
+from pypermod import config
 import utility
 
 from pypermod.data.activities.protocol_types import ProtocolTypes
@@ -35,9 +35,9 @@ class Activity:
         # name combines datetime and type
         self._id = "{}A{}".format(self.typename, self._dt_string)
 
-        # filepaths can be set if an athlete is assigned
-        self._obj_dir = None
-        self._file_path = None
+        # the location where activity data is saved to
+        # this is usally set when an athlete gets this activity assigned
+        self._dir_path = None
 
     @property
     def id(self):
@@ -91,9 +91,9 @@ class Activity:
     @property
     def directory(self):
         """
-        :return: Path to directory were contents are stored
+        :return: Path to directory were content is stored
         """
-        return self._obj_dir
+        return self._dir_path
 
     def set_protocol(self, prot_type: ProtocolTypes):
         """
@@ -108,16 +108,13 @@ class Activity:
         """
         :return: simple flag if data is in memory
         """
-        return self.__data is None
+        return self.__data is not None
 
-    def assign_athlete(self, athlete_id: str):
+    def set_dir_path(self, file_path):
         """
-        Assigns athlete to activity. This allows to create it's full filepath
-        :param athlete_id:
         :return:
         """
-        self._obj_dir = os.path.join(config.paths["data_storage"], athlete_id, self.typename)
-        self._file_path = os.path.join(self._obj_dir, self._id)
+        self._dir_path = file_path
 
     def update_meta_data(self):
         """
@@ -147,21 +144,26 @@ class Activity:
         """
         stores meta and data to local files
         """
-        if self._file_path is None:
-            raise UserWarning("Activity {} has to be assigned to an athlete to be saved".format(self._id))
+        if self._dir_path is None:
+            raise UserWarning(
+                "Activity {} has no location path to save to. Not assigned to an athlete?".format(self._id))
 
         # check if data is available
         if self.__data is None:
-            logging.warning("saving empty activity {}".format(self._dt_string))
+            logging.warning("trying to save empty activity {}".format(self._dt_string))
+
+        # add .csv
+        f_file_path = self._dir_path + "{}.csv".format(self.id)
 
         # create directories if not existent yet
-        if not os.path.exists(os.path.dirname(self._file_path)):
-            os.makedirs(os.path.dirname(self._file_path))
+        if not os.path.exists(os.path.dirname(f_file_path)):
+            os.makedirs(os.path.dirname(f_file_path))
 
         # store data
         if self.__data is not None:
-            self.__data.to_pickle(self._file_path)
+            self.__data.to_csv(f_file_path)
 
+        # init saving meta as .json
         self._save_meta()
 
     def _save_meta(self):
@@ -171,7 +173,7 @@ class Activity:
         """
         # write meta info to json
         try:
-            with open("{}.json".format(self._file_path), 'w') as fp:
+            with open("{}.json".format(self._dir_path), 'w') as fp:
                 json.dump(self._metadata, fp, indent=4)
         except TypeError as e:
             print(self._metadata)
@@ -188,12 +190,12 @@ class Activity:
         """
         loads only meta data from file
         """
-        if self._file_path is None:
+        if self._dir_path is None:
             raise UserWarning(
                 "Activity {} has to be assigned to an athlete to determine full file path".format(self._id))
 
         # load meta
-        with open("{}.json".format(self._file_path), 'rb') as fp:
+        with open("{}.json".format(self._dir_path), 'rb') as fp:
             self._metadata = json.load(fp)
             # assign internal vars according to stored metadata strings
             self._protocol_type = ProtocolTypes.type_from_value(self._metadata["protocol"])
@@ -202,8 +204,8 @@ class Activity:
         """
         loads only data from file
         """
-        if self._file_path is None:
+        if self._dir_path is None:
             logging.warning(
                 "Activity {} has to be assigned to an athlete to determine full file path".format(self._id))
         else:
-            self.__data = pd.read_pickle(self._file_path)
+            self.__data = pd.read_csv(self._dir_path + ".csv")

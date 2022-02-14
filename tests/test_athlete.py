@@ -4,7 +4,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
-from pypermod.data.activities.exercise_modes.srm_bbb_test import SRMBbbTest
+from pypermod.data.activities.test_formats.srm_bbb_test import SRMBbbTest
 from pypermod.data.activities.activity import Activity
 from pypermod.data.activities.activity_types import ActivityTypes
 from pypermod.data.activities.protocol_types import ProtocolTypes
@@ -169,7 +169,7 @@ if __name__ == "__main__":
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
     # create an athlete of own type
-    athlete = Athlete("test-athlete")
+    athlete = Athlete("test_athlete")
     athlete.clear_all_data()
 
     # load created athlete
