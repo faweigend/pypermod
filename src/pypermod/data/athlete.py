@@ -288,6 +288,36 @@ class Athlete:
             # return created fitting
             return cpm_fits
 
+    def set_hydraulic_fitting_of_type(self, config: list, a_type: ActivityTypes):
+        """
+        Checks if a hydraulic fitting is stored in metadata and returns it if yes.
+        """
+        if self.__meta_data is not None:
+            if "threecomphyd" in self.__meta_data:
+                self.__meta_data["threecomphyd"][str(a_type)] = config
+            else:
+                self.__meta_data["threecomphyd"] = {str(a_type): config}
+            self.save()
+        else:
+            raise UserWarning("trying to set hydraulic fitting for a model without meta data")
+
+    def get_hydraulic_fitting_of_type(self, a_type: ActivityTypes):
+        """
+        Checks if a hydraulic fitting is stored in metadata and returns it if yes.
+        """
+        if self.__meta_data is not None:
+            if "threecomphyd" in self.__meta_data:
+                if str(a_type) in self.__meta_data["threecomphyd"]:
+                    return self.__meta_data["threecomphyd"][str(a_type)]
+                else:
+                    logging.warning("no hydraulic model configuration for type {} assigned".format(a_type))
+                    return None
+            else:
+                logging.warning("no hydraulic model configuration assigned")
+                return None
+        else:
+            raise UserWarning("trying to get hydraulic fitting of a model without meta data")
+
     def save(self):
         """
         Saves athlete data to meta.json
@@ -306,7 +336,7 @@ class Athlete:
         # add meta data to json
         json_dict["meta_data"] = self.__meta_data
 
-        # store sp fittings as dictionaries
+        # store cp fittings as dictionaries
         json_dict["cp_fittings"] = {}
         for cpn, cpv in self.__cp_fittings.items():
             json_dict["cp_fittings"][cpn] = {"ttes": cpv["ttes"],
