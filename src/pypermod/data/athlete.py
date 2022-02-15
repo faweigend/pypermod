@@ -3,17 +3,20 @@ import logging
 import os
 import shutil
 
+import numpy as np
 from pypermod import utility
 
 from pypermod.data.activities.activity import Activity
 from pypermod.data.activities.activity_types import ActivityTypes
 from pypermod.data.activities.protocol_types import ProtocolTypes
+from pypermod.data.structure.simple_constant_effort_measures import SimpleConstantEffortMeasures
+from pypermod.fitter.cp_to_tte_fitter import CPMFits
 
 
 class Athlete:
     """
     An athlete stores all information needed for performance of an
-    athlete. Following these design principles:
+    athlete. We follow these design principles:
     - Metadata of an athlete are their summarised properties.
     - An athlete performs activities.
     - Activities are test data assigned to an athlete under an ActivityType and ProtocolType.
@@ -26,10 +29,15 @@ class Athlete:
         """
         self.__id = os.path.basename(path)
         self.__dir_path = path
-        # storage for all activities of type ActivityTypes
+
+        # internal data is structured in dicts
         self.__activities = dict()
         self.__meta_data = dict()
         self.__cp_fittings = dict()
+
+        # load data if some exists
+        if os.path.exists(os.path.join(self.__dir_path, 'meta.json')):
+            self.load()
 
     @property
     def dir_path(self):
@@ -155,8 +163,8 @@ class Athlete:
             self.__activities[activity.typename][activity.protocol].append(activity)
 
         # assign self to newly stored activity
-        activity_path = os.path.join(self.dir_path, activity.typename, activity.id)
-        activity.set_dir_path(activity_path)
+        activity_dir_path = os.path.join(self.dir_path, activity.typename)
+        activity.set_dir_path(activity_dir_path)
         activity.save()
         logging.info("Added and saved {} activity under {} protocol and ID {}".format(activity.typename,
                                                                                       activity.protocol,
@@ -195,12 +203,98 @@ class Athlete:
         # reset metadata to empty state
         self.save()
 
+    def get_best_cp_params_of_type(self, a_type: ActivityTypes):
+        """
+        Returns CP, W' and error measures that are best fit to available data
+        :param a_type:
+        :return:
+        """
+
+        fitting = self.get_cp_fitting_of_type(a_type=a_type)
+
+        if fitting.has_best():
+            return fitting.get_best()
+        else:
+            best = fitting.get_best()
+            # save new best estimates to meta
+            self.save()
+            return best
+
+    def get_cp_fitting_of_type(self, a_type: ActivityTypes):
+        """
+        Checks for TTEs of given type and returns the fitting object
+        :param a_type:
+        :return:
+        """
+
+        # store TTE time and power data for a CP fitting
+        times, powers, ids = [], [], []
+        for i, test in enumerate(self.iterate_activities_of_type_and_protocol(a_type, ProtocolTypes.TTE)):
+            exercise_times = test.get_exercise_srm_data()["sec"]
+            exercise_time_s = exercise_times.iloc[-1] - exercise_times.iloc[0]
+            exercise_power = np.max(test.get_exercise_srm_data()["altitude"])
+            times.append(exercise_time_s)
+            powers.append(exercise_power)
+            ids.append(test.id)
+
+        # check if a fitting is already saved and can be returned
+        if a_type.value.__name__ in self.__cp_fittings:
+            if "ttes" in self.__cp_fittings[a_type.value.__name__]:
+                # only load existing fitting if id list is still similar
+                if self.__cp_fittings[a_type.value.__name__]["ttes"] == ids:
+                    cpmf = self.__cp_fittings[a_type.value.__name__]["fitting"]
+                    logging.info("TTE ids are the same. Athlete {} loaded {} "
+                                 "CP fitting from meta data".format(self.__id,
+                                                                    a_type.value.__name__))
+                    return cpmf
+                else:
+                    logging.info("athlete {} stored list of TTEs of type {} changed. "
+                                 "New CP fitting is estimated".format(self.__id,
+                                                                      a_type.value.__name__))
+
+        # if not enough TTEs are available, return nothing
+        if len(times) < 4:
+            logging.warning("athlete {} not enough ({}) "
+                            "TTEs of type {} to estimate CP fitting".format(self.__id,
+                                                                            len(times),
+                                                                            a_type.value.__name__))
+            return None
+
+        # create fitting, store in meta, and return object
+        else:
+            # conduct a CP fitting if enough data is available
+            es = SimpleConstantEffortMeasures(times=times,
+                                              measures=powers)
+
+            # do a full cp fitting with the fitter object
+            cpm_fits = CPMFits()
+            cpm_fits.create_from_ttes(es=es)
+
+            # store in meta data
+            if a_type.value.__name__ not in self.__cp_fittings:
+                self.__cp_fittings[a_type.value.__name__] = {
+                    "ttes": ids,
+                    "fitting": cpm_fits
+                }
+            else:
+                self.__cp_fittings[a_type.value.__name__].update({
+                    "ttes": ids,
+                    "fitting": cpm_fits
+                })
+
+            logging.info("athlete {} created CP fitting for {}".format(self.__id, a_type.value.__name__))
+            # save created fitting
+            self.save()
+            # return created fitting
+            return cpm_fits
+
     def save(self):
         """
         Saves athlete data to meta.json
         """
         if not os.path.exists(self.__dir_path):
             os.makedirs(self.__dir_path)
+
         # produce json output
         json_dict = {"id": self.__id}
         # write number of activities categorised by type and protocol
@@ -253,6 +347,8 @@ class Athlete:
                             # create all stored activities
                             for dt in json_dict[atn][ptn]:
                                 a_inst = at.value(date_time=utility.string_to_date(dt))
-                                a_inst.assign_athlete(self.__id)
+                                # assign self to load stored activity
+                                activity_path = os.path.join(self.dir_path, a_inst.typename)
+                                a_inst.set_dir_path(activity_path)
                                 a_inst.load()
                                 self.add_and_save_activity(a_inst)

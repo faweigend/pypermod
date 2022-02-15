@@ -5,7 +5,6 @@ import os
 
 import pandas as pd
 
-from pypermod import config
 import utility
 
 from pypermod.data.activities.protocol_types import ProtocolTypes
@@ -110,11 +109,11 @@ class Activity:
         """
         return self.__data is not None
 
-    def set_dir_path(self, file_path):
+    def set_dir_path(self, dir_path):
         """
         :return:
         """
-        self._dir_path = file_path
+        self._dir_path = dir_path
 
     def update_meta_data(self):
         """
@@ -152,8 +151,8 @@ class Activity:
         if self.__data is None:
             logging.warning("trying to save empty activity {}".format(self._dt_string))
 
-        # add .csv
-        f_file_path = self._dir_path + "{}.csv".format(self.id)
+        # full file path with added .csv
+        f_file_path = os.path.join(self._dir_path, "{}.csv".format(self.id))
 
         # create directories if not existent yet
         if not os.path.exists(os.path.dirname(f_file_path)):
@@ -173,7 +172,7 @@ class Activity:
         """
         # write meta info to json
         try:
-            with open("{}.json".format(self._dir_path), 'w') as fp:
+            with open(os.path.join(self._dir_path, "{}.json".format(self.id)), 'w') as fp:
                 json.dump(self._metadata, fp, indent=4)
         except TypeError as e:
             print(self._metadata)
@@ -195,7 +194,7 @@ class Activity:
                 "Activity {} has to be assigned to an athlete to determine full file path".format(self._id))
 
         # load meta
-        with open("{}.json".format(self._dir_path), 'rb') as fp:
+        with open(os.path.join(self._dir_path, "{}.json".format(self.id)), 'rb') as fp:
             self._metadata = json.load(fp)
             # assign internal vars according to stored metadata strings
             self._protocol_type = ProtocolTypes.type_from_value(self._metadata["protocol"])
@@ -208,4 +207,5 @@ class Activity:
             logging.warning(
                 "Activity {} has to be assigned to an athlete to determine full file path".format(self._id))
         else:
-            self.__data = pd.read_csv(self._dir_path + ".csv")
+            self.__data = pd.read_csv(os.path.join(self._dir_path,
+                                                   "{}.csv".format(self.id)))

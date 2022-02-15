@@ -1,4 +1,7 @@
 import logging
+import os
+import shutil
+import time
 from datetime import datetime
 
 import numpy as np
@@ -9,9 +12,12 @@ from pypermod.data.activities.activity import Activity
 from pypermod.data.activities.activity_types import ActivityTypes
 from pypermod.data.activities.protocol_types import ProtocolTypes
 from pypermod.data.athlete import Athlete
+from pypermod.fitter.cp_to_tte_fitter import CPMFits
+
+import config
 
 
-def add_four_ttes_to_athlete(athlete: Athlete):
+def add_four_undefined_activities_to_athlete(athlete: Athlete):
     """
     adds four made-up TTE tests to given athlete
     """
@@ -86,14 +92,12 @@ def add_four_ttes_to_athlete(athlete: Athlete):
 
 
 def add_srm_test_ttes_to_athlete(athlete, combs):
-    # create dt object without microseconds
-    dt = datetime.utcnow()
-    dt = dt.replace(microsecond=0)
-
     for i, comb in enumerate(combs):
         # create srm test according to power duration combination
-        dt = dt.replace(minute=5 + i)
+        dt = datetime.utcnow()
+        dt = dt.replace(microsecond=0)
         new_tte = SRMBbbTest(date_time=dt)
+        time.sleep(1)
         new_tte.set_data(pd.DataFrame({
             'sec': np.arange(0, comb[1]),
             'speed': np.full_like(np.ones(comb[1]), 14),
@@ -101,13 +105,26 @@ def add_srm_test_ttes_to_athlete(athlete, combs):
             'power': np.full_like(np.ones(comb[1]), comb[0]),
             'altitude': np.full_like(np.ones(comb[1]), comb[0])}
         ))
-        new_tte.set_protocol(ProtocolTypes.TTE)
+        new_tte.set_bbb_data(
+            pd.DataFrame({
+                'sec': np.arange(0, comb[1], step=3),
+                've': np.arange(0, comb[1], step=3),
+                'vo2': np.arange(0, comb[1], step=3),
+                'hr': np.arange(0, comb[1], step=3),
+                'vco2': np.arange(0, comb[1], step=3),
+                'fat': np.arange(0, comb[1], step=3),
+                'cho': np.arange(0, comb[1], step=3),
+                'rer': np.arange(0, comb[1], step=3)
+            }), 0)
+        new_tte.set_protocol_with_timestamps(
+            ProtocolTypes.TTE,
+            warmup=0,
+            exercise_end_time=comb[1] - 1)
         # save to athlete
         athlete.add_and_save_activity(new_tte)
 
 
 def test_save_load_activity(athlete):
-
     acts = []
     for act in athlete.iterate_activities_of_type_and_protocol(ActivityTypes.UNDEFINED,
                                                                ProtocolTypes.UNDEFINED):
@@ -160,8 +177,6 @@ def test_save_load_activity(athlete):
         clean_acts.append(act.id)
     assert len(clean_acts) == 0
 
-    logging.info("PASSED activity save and load tests")
-
 
 if __name__ == "__main__":
     # set logging level to highest level
@@ -169,26 +184,94 @@ if __name__ == "__main__":
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
     # create an athlete of own type
-    athlete = Athlete("test_athlete")
+    athlete = Athlete(os.path.join(
+        config.paths["data_storage"],
+        "test_athlete")
+    )
     athlete.clear_all_data()
 
-    # load created athlete
-    add_four_ttes_to_athlete(athlete=athlete)
+    # test general activity functions
+    add_four_undefined_activities_to_athlete(athlete=athlete)
 
     # basic tests for save and load with protocol type and activity type
     test_save_load_activity(athlete)
+    logging.info("PASSED activity save and load tests")
 
-    # add TTE tests for
+    # Now create specific SRM_BBB_TESTS
     combs = [(90, 600), (120, 300), (180, 150), (240, 75)]
     add_srm_test_ttes_to_athlete(athlete, combs)
+    athlete.save()
+
+    # load a fitting
+    cpm1 = athlete.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
+    assert type(cpm1) is CPMFits
+
+    # double check W' and CP values
+    assert cpm1.get_best()["w_p"] == 15096.0
+    assert cpm1.get_best()["cp"] == 66.0
+    logging.info("PASSED first SRM BBB TTE fitting")
 
     # clear one TTE and see if fitting is updated
     tte_ids = athlete.list_activity_ids(ActivityTypes.SRM_BBB_TEST, ProtocolTypes.TTE)
     athlete.remove_activity_by_id(tte_ids[0])
 
+    # no fitting possible because only three tests remain
+    cpm2 = athlete.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
+    assert cpm2 != cpm1
+    assert cpm2 is None
+    logging.info("PASSED changed TTEs test")
+
     # add new ttes
     combs2 = [(100, 500), (190, 130)]
     add_srm_test_ttes_to_athlete(athlete, combs2)
-    athlete.clear_all_data()
+    tte_list = athlete.list_activity_ids(ActivityTypes.SRM_BBB_TEST,
+                                         ProtocolTypes.TTE)
+    assert len(tte_list) == 5
 
-    logging.info("PASSED")
+    cpm3 = athlete.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
+
+    assert cpm2 != cpm1 != cpm3
+
+    # double check W' and CP values
+    assert cpm3.get_best()["w_p"] == 14475.303501945524
+    assert cpm3.get_best()["cp"] == 71.73346303501945
+
+    # nothing changed -> should be loaded
+    cpm4 = athlete.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
+    assert cpm4 == cpm3
+
+    logging.info("PASSED changed TTEs test 2")
+
+    athlete.get_best_cp_params_of_type(ActivityTypes.SRM_BBB_TEST)
+    athlete.save()
+    athlete.load()
+    tte_list = athlete.list_activity_ids(ActivityTypes.SRM_BBB_TEST,
+                                         ProtocolTypes.TTE)
+    assert len(tte_list) == 5
+
+    logging.info("PASSED save/load test")
+
+    # check if a new object indeed loads the same data
+    athlete2 = Athlete(os.path.join(
+        config.paths["data_storage"],
+        athlete.id)
+    )
+    cpm5 = athlete2.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
+    tte_list = athlete2.list_activity_ids(ActivityTypes.SRM_BBB_TEST,
+                                          ProtocolTypes.TTE)
+    assert len(tte_list) == 5
+
+    assert cpm5.get_best()["w_p"] == 14475.303501945524, "{} vs {}".format(cpm5.get_best()["w_p"], 14475.303501945524)
+    assert cpm5.get_best()["cp"] == 71.73346303501945
+
+    # check get best parameters function
+    assert athlete2.get_best_cp_params_of_type(ActivityTypes.SRM_BBB_TEST)['w_p'] == cpm5.get_best()["w_p"]
+
+    logging.info("PASSED 2 athletes 1 ID tests")
+
+    # clean up
+    athlete.clear_all_data()
+    shutil.rmtree(os.path.join(
+        config.paths["data_storage"],
+        "test_athlete")
+    )

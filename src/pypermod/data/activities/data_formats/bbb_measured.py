@@ -37,15 +37,15 @@ class BbbMeasured(TimeSeries):
         """
         super().update_meta_data()
 
-        if self.has_bbb_data() and self._metadata is not None:
+        if self.__is_bbb_data_loaded() and self._metadata is not None:
 
             # set the offset
             self._metadata["bbb_offset"] = self._bbb_offset
 
             # add averages and means of available bbb columns
             col = "vo2"
-            self._metadata.update({"{}_avr".format(col): self._bbb_data[col].mean(),
-                                   "{}_max".format(col): self._bbb_data[col].max()})
+            self._metadata.update({"{}_avr".format(col): float(self._bbb_data[col].mean()),
+                                   "{}_max".format(col): float(self._bbb_data[col].max())})
 
             # store or update total activity duration since bbb data has an effect on total time
             if "duration" in self._metadata:
@@ -79,7 +79,8 @@ class BbbMeasured(TimeSeries):
         if self._bbb_data is None:
             logging.warning("bbb save called with no data bbb data available")
         else:
-            self._bbb_data.to_csv("{}-bbb.csv".format(self._dir_path))
+            self._bbb_data.to_csv(os.path.join(self._dir_path,
+                                               "{}-bbb.csv".format(self.id)))
 
     def get_bbb_offset(self):
         """
@@ -115,8 +116,8 @@ class BbbMeasured(TimeSeries):
         Adds bbb data to load list
         :return:
         """
-        self.__load_bbb_data()
         super().load()
+        self.__load_bbb_data()
 
     def _load_meta(self):
         """
@@ -126,12 +127,19 @@ class BbbMeasured(TimeSeries):
         if "bbb_offset" in self._metadata:
             self._bbb_offset = self._metadata["bbb_offset"]
 
+    def __is_bbb_data_loaded(self):
+        """
+        simple check
+        """
+        return self._bbb_data is not None
+
     def __load_bbb_data(self):
         """
         loads bbb data from file
         :return:
         """
-        fname = "{}-bbb.csv".format(self._dir_path)
+        fname = os.path.join(self._dir_path,
+                             "{}-bbb.csv".format(self.id))
         if not os.path.isfile(fname):
             return False
         # set offset from stored metadata

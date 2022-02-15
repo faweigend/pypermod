@@ -84,7 +84,7 @@ class ProtocolTimeStamps(TimeSeries):
                 return self.time_data.iloc[-1]
         return self._recovery
 
-    def set_protocol_with_timestamps(self, prot_type: ProtocolTypes, warmup, exercise_end_time):
+    def set_protocol_with_timestamps(self, prot_type: ProtocolTypes, warmup: float, exercise_end_time: float):
         """
         Sets timestamps according to protocol and measurement starts
         :param prot_type: defines the protocol type of the test
