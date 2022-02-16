@@ -6,10 +6,10 @@ import shutil
 import numpy as np
 from pypermod import utility
 
-from pypermod.data.activities.activity import Activity
-from pypermod.data.activities.activity_types import ActivityTypes
-from pypermod.data.activities.protocol_types import ProtocolTypes
-from pypermod.data.structure.simple_constant_effort_measures import SimpleConstantEffortMeasures
+from pypermod.data_structure.activities.activity import Activity
+from pypermod.data_structure.activities.activity_types import ActivityTypes
+from pypermod.data_structure.activities.protocol_types import ProtocolTypes
+from pypermod.data_structure.helper.simple_constant_effort_measures import SimpleConstantEffortMeasures
 from pypermod.fitter.cp_to_tte_fitter import CPMFits
 
 
@@ -38,6 +38,8 @@ class Athlete:
         # load data if some exists
         if os.path.exists(os.path.join(self.__dir_path, 'meta.json')):
             self.load()
+        else:
+            logging.info("created empty athlete {}".format(self.__dir_path))
 
     @property
     def dir_path(self):
@@ -203,7 +205,7 @@ class Athlete:
         # reset metadata to empty state
         self.save()
 
-    def get_cp_fitting_of_type(self, a_type: ActivityTypes):
+    def get_cp_fitting_of_type(self, a_type: ActivityTypes) -> CPMFits:
         """
         Checks for TTEs of given type and returns the fitting object
         :param a_type: ActivityType to check for
@@ -242,7 +244,7 @@ class Athlete:
                             "TTEs of type {} to estimate CP fitting".format(self.__id,
                                                                             len(times),
                                                                             typename))
-            return None
+            return CPMFits()
 
         # create fitting, store in meta, and return object
         else:
@@ -371,3 +373,4 @@ class Athlete:
                                 a_inst.set_dir_path(activity_path)
                                 a_inst.load()
                                 self.add_and_save_activity(a_inst)
+        logging.info("loaded athlete {}".format(self.__dir_path))

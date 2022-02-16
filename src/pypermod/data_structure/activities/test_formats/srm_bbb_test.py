@@ -1,6 +1,6 @@
 import pandas as pd
-from pypermod.data.activities.data_formats.protocol_time_stamps import ProtocolTimeStamps
-from pypermod.data.activities.data_formats.bbb_measured import BbbMeasured
+from pypermod.data_structure.activities.data_formats.protocol_time_stamps import ProtocolTimeStamps
+from pypermod.data_structure.activities.data_formats.bbb_measured import BbbMeasured
 
 
 class SRMBbbTest(ProtocolTimeStamps, BbbMeasured):

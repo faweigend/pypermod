@@ -6,7 +6,7 @@ import os
 import pandas as pd
 
 from pypermod import utility
-from pypermod.data.activities.protocol_types import ProtocolTypes
+from pypermod.data_structure.activities.protocol_types import ProtocolTypes
 
 
 class Activity:

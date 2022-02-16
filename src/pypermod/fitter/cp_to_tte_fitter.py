@@ -2,7 +2,7 @@ import logging
 from enum import Enum
 
 import numpy as np
-from pypermod.data.structure.simple_constant_effort_measures import SimpleConstantEffortMeasures
+from pypermod.data_structure.helper.simple_constant_effort_measures import SimpleConstantEffortMeasures
 from scipy.optimize import curve_fit
 from sklearn.metrics import r2_score
 from scipy import stats

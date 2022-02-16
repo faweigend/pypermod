@@ -4,7 +4,7 @@ import os
 
 import pandas as pd
 
-from pypermod.data.activities.data_formats.time_series import TimeSeries
+from pypermod.data_structure.activities.data_formats.time_series import TimeSeries
 
 
 class BbbMeasured(TimeSeries):

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from pypermod.data.activities.activity import Activity
+from pypermod.data_structure.activities.activity import Activity
 
 
 class TimeSeries(Activity):

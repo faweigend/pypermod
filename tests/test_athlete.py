@@ -7,11 +7,11 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
-from pypermod.data.activities.test_formats.srm_bbb_test import SRMBbbTest
-from pypermod.data.activities.activity import Activity
-from pypermod.data.activities.activity_types import ActivityTypes
-from pypermod.data.activities.protocol_types import ProtocolTypes
-from pypermod.data.athlete import Athlete
+from pypermod.data_structure.activities.test_formats.srm_bbb_test import SRMBbbTest
+from pypermod.data_structure.activities.activity import Activity
+from pypermod.data_structure.activities.activity_types import ActivityTypes
+from pypermod.data_structure.activities.protocol_types import ProtocolTypes
+from pypermod.data_structure.athlete import Athlete
 from pypermod.fitter.cp_to_tte_fitter import CPMFits, CPMTypes
 
 import config

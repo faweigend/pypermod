@@ -1,7 +1,7 @@
 from enum import Enum
 
-from pypermod.data.activities.activity import Activity
-from pypermod.data.activities.test_formats.srm_bbb_test import SRMBbbTest
+from pypermod.data_structure.activities.activity import Activity
+from pypermod.data_structure.activities.test_formats.srm_bbb_test import SRMBbbTest
 
 
 class ActivityTypes(Enum):
