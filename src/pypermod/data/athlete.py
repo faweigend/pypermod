@@ -203,29 +203,13 @@ class Athlete:
         # reset metadata to empty state
         self.save()
 
-    def get_best_cp_params_of_type(self, a_type: ActivityTypes):
-        """
-        Returns CP, W' and error measures that are best fit to available data
-        :param a_type:
-        :return:
-        """
-
-        fitting = self.get_cp_fitting_of_type(a_type=a_type)
-
-        if fitting.has_best():
-            return fitting.get_best()
-        else:
-            best = fitting.get_best()
-            # save new best estimates to meta
-            self.save()
-            return best
-
     def get_cp_fitting_of_type(self, a_type: ActivityTypes):
         """
         Checks for TTEs of given type and returns the fitting object
-        :param a_type:
+        :param a_type: ActivityType to check for
         :return:
         """
+        typename = a_type.name
 
         # store TTE time and power data for a CP fitting
         times, powers, ids = [], [], []
@@ -238,26 +222,26 @@ class Athlete:
             ids.append(test.id)
 
         # check if a fitting is already saved and can be returned
-        if a_type.value.__name__ in self.__cp_fittings:
-            if "ttes" in self.__cp_fittings[a_type.value.__name__]:
+        if typename in self.__cp_fittings:
+            if "ttes" in self.__cp_fittings[typename]:
                 # only load existing fitting if id list is still similar
-                if self.__cp_fittings[a_type.value.__name__]["ttes"] == ids:
-                    cpmf = self.__cp_fittings[a_type.value.__name__]["fitting"]
+                if self.__cp_fittings[typename]["ttes"] == ids:
+                    cpmf = self.__cp_fittings[typename]["fitting"]
                     logging.info("TTE ids are the same. Athlete {} loaded {} "
                                  "CP fitting from meta data".format(self.__id,
-                                                                    a_type.value.__name__))
+                                                                    typename))
                     return cpmf
                 else:
                     logging.info("athlete {} stored list of TTEs of type {} changed. "
                                  "New CP fitting is estimated".format(self.__id,
-                                                                      a_type.value.__name__))
+                                                                      typename))
 
         # if not enough TTEs are available, return nothing
         if len(times) < 4:
             logging.warning("athlete {} not enough ({}) "
                             "TTEs of type {} to estimate CP fitting".format(self.__id,
                                                                             len(times),
-                                                                            a_type.value.__name__))
+                                                                            typename))
             return None
 
         # create fitting, store in meta, and return object
@@ -271,18 +255,18 @@ class Athlete:
             cpm_fits.create_from_ttes(es=es)
 
             # store in meta data
-            if a_type.value.__name__ not in self.__cp_fittings:
-                self.__cp_fittings[a_type.value.__name__] = {
+            if typename not in self.__cp_fittings:
+                self.__cp_fittings[typename] = {
                     "ttes": ids,
                     "fitting": cpm_fits
                 }
             else:
-                self.__cp_fittings[a_type.value.__name__].update({
+                self.__cp_fittings[typename].update({
                     "ttes": ids,
                     "fitting": cpm_fits
                 })
 
-            logging.info("athlete {} created CP fitting for {}".format(self.__id, a_type.value.__name__))
+            logging.info("athlete {} created CP fitting for {}".format(self.__id, typename))
             # save created fitting
             self.save()
             # return created fitting
@@ -290,13 +274,17 @@ class Athlete:
 
     def set_hydraulic_fitting_of_type(self, config: list, a_type: ActivityTypes):
         """
-        Checks if a hydraulic fitting is stored in metadata and returns it if yes.
+        Stores a given hydraulic model fitting into metadata under given activity type.
+        The activity type is the mode of exercise tests the hydraulic model was fitted to
+        :param config: the hydraulic model configuration
+        :param a_type: the activity type to store it under
         """
+        typename = a_type.name
         if self.__meta_data is not None:
-            if "threecomphyd" in self.__meta_data:
-                self.__meta_data["threecomphyd"][str(a_type)] = config
+            if "threecomphyd_fitting" in self.__meta_data:
+                self.__meta_data["threecomphyd_fitting"][typename] = config
             else:
-                self.__meta_data["threecomphyd"] = {str(a_type): config}
+                self.__meta_data["threecomphyd_fitting"] = {typename: config}
             self.save()
         else:
             raise UserWarning("trying to set hydraulic fitting for a model without meta data")
@@ -305,10 +293,11 @@ class Athlete:
         """
         Checks if a hydraulic fitting is stored in metadata and returns it if yes.
         """
+        typename = a_type.name
         if self.__meta_data is not None:
-            if "threecomphyd" in self.__meta_data:
-                if str(a_type) in self.__meta_data["threecomphyd"]:
-                    return self.__meta_data["threecomphyd"][str(a_type)]
+            if "threecomphyd_fitting" in self.__meta_data:
+                if typename in self.__meta_data["threecomphyd_fitting"]:
+                    return self.__meta_data["threecomphyd_fitting"][typename]
                 else:
                     logging.warning("no hydraulic model configuration for type {} assigned".format(a_type))
                     return None

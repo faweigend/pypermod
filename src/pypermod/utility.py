@@ -88,7 +88,9 @@ def date_to_string(dt: datetime):
     :param dt: date time object to create id from
     :return: id
     """
-    return "{}-{}-{}_{}:{}:{}:{}".format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
+    return "{:04d}-{:02d}-{:02d}_" \
+           "{:02d}:{:02d}:{:02d}:{}".format(dt.year, dt.month, dt.day,
+                                            dt.hour, dt.minute, dt.second, dt.microsecond)
 
 
 def insert_with_key_enumeration(agent, agent_data: list, results: dict):

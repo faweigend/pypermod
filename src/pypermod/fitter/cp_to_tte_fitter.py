@@ -22,8 +22,7 @@ class CPMFits:
 
     def __init__(self):
         """simple setup of the internal storage"""
-        self.__param_dict = {"best": {},
-                             "tte_intensities": {}}
+        self.__param_dict = {"tte_intensities": {}}
 
     def set_p2whipp(self, w_p, cp, err, r2):
         """setter for Whipp et. al. (1982) estimation results"""
@@ -46,16 +45,6 @@ class CPMFits:
         self.__param_dict.update(
             {CPMTypes.P3PMAX.value: {"w_p": w_p, "cp": cp, "p_max": p_max, "error": err.tolist(), "r2": r2}})
 
-    def estimate_intensity_for_tte(self, tte: float):
-        """
-        :param tte:
-        :return: intensity that leads to exhaustion after tte seconds
-        """
-        best_params = self.get_best()
-        w_p = best_params["w_p"]
-        cp = best_params["cp"]
-        return (w_p / tte) + cp
-
     def has_ttes(self):
         """
         simple check whether tte intensities and times were stored with the fitting
@@ -63,49 +52,9 @@ class CPMFits:
         """
         return bool(self.__param_dict["tte_intensities"])
 
-    def has_best(self):
-        """
-        simple check whether best parameters were found
-        :return: boolean
-        """
-        return bool(self.__param_dict["best"])
-
-    def get_best(self):
-        """
-        Compares only two models at this stage: Whipp and Monod
-        :return: best fit
-        """
-        if not self.has_best():
-            # the models considered for comparison
-            # get best fit of (W=CPt + W') and (P=W'(1/t) + CP) models
-            compare = [CPMTypes.P2WHIPP,
-                       CPMTypes.P2MONOD]
-
-            # the model with the best r2 is considered to be the best
-            best_params = {"w_p": 0, "cp": 0, "error": 0, "r2": 0}
-            for comp in compare:
-                # check if fittings are available
-                if comp.value not in self.__param_dict:
-                    raise ValueError("{} not in fittings. "
-                                     "{} must be estimated to find best values".format(comp.value, compare))
-                # compare errors
-                if self.__param_dict[comp.value]["r2"] > best_params["r2"]:
-                    best_params = self.__param_dict[comp.value]
-            # store best params
-            self.__param_dict["best"] = best_params
-            return best_params
-        else:
-            return self.__param_dict["best"]
-
     def get_params(self, cpm_type: CPMTypes):
         """returns desired set of stored estimation results"""
-        l_dict = self.__param_dict[cpm_type.value]
-        if cpm_type == CPMTypes.P3PMAX or cpm_type == CPMTypes.P3FIXPMAX:
-            return l_dict["w_p"], l_dict["cp"], l_dict["p_max"], l_dict["error"], l_dict["r2"]
-        elif cpm_type == CPMTypes.P3K:
-            return l_dict["w_p"], l_dict["cp"], l_dict["k"], l_dict["error"], l_dict["r2"]
-        else:
-            return l_dict["w_p"], l_dict["cp"], l_dict["error"], l_dict["r2"]
+        return self.__param_dict[cpm_type.value]
 
     def create_from_ttes(self, es: SimpleConstantEffortMeasures):
         """
@@ -140,8 +89,8 @@ class CPMFits:
             if cpm_type.value in param_dict:
                 self.__param_dict[cpm_type.value] = param_dict[cpm_type.value]
 
-        # keep track of extra values
-        extra_values = ["tte_intensities", "best"]
+        # keep track of extra values (used to be more)
+        extra_values = ["tte_intensities"]
         for extra_value in extra_values:
             if extra_value in param_dict:
                 self.__param_dict[extra_value] = param_dict[extra_value]

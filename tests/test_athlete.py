@@ -12,7 +12,7 @@ from pypermod.data.activities.activity import Activity
 from pypermod.data.activities.activity_types import ActivityTypes
 from pypermod.data.activities.protocol_types import ProtocolTypes
 from pypermod.data.athlete import Athlete
-from pypermod.fitter.cp_to_tte_fitter import CPMFits
+from pypermod.fitter.cp_to_tte_fitter import CPMFits, CPMTypes
 
 import config
 
@@ -95,9 +95,7 @@ def add_srm_test_ttes_to_athlete(athlete, combs):
     for i, comb in enumerate(combs):
         # create srm test according to power duration combination
         dt = datetime.utcnow()
-        dt = dt.replace(microsecond=0)
         new_tte = SRMBbbTest(date_time=dt)
-        time.sleep(1)
         new_tte.set_data(pd.DataFrame({
             'sec': np.arange(0, comb[1]),
             'speed': np.full_like(np.ones(comb[1]), 14),
@@ -183,6 +181,9 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
+    if os.path.exists(os.path.join(config.paths["data_storage"], "test_athlete")):
+        shutil.rmtree(os.path.join(config.paths["data_storage"], "test_athlete"))
+
     # create an athlete of own type
     athlete = Athlete(os.path.join(
         config.paths["data_storage"],
@@ -207,8 +208,8 @@ if __name__ == "__main__":
     assert type(cpm1) is CPMFits
 
     # double check W' and CP values
-    assert cpm1.get_best()["w_p"] == 15096.0
-    assert cpm1.get_best()["cp"] == 66.0
+    assert cpm1.get_params(CPMTypes.P2MONOD)["w_p"] == 15096.0
+    assert cpm1.get_params(CPMTypes.P2MONOD)["cp"] == 66.0
     logging.info("PASSED first SRM BBB TTE fitting")
 
     # clear one TTE and see if fitting is updated
@@ -233,8 +234,8 @@ if __name__ == "__main__":
     assert cpm2 != cpm1 != cpm3
 
     # double check W' and CP values
-    assert cpm3.get_best()["w_p"] == 14475.303501945524
-    assert cpm3.get_best()["cp"] == 71.73346303501945
+    assert cpm3.get_params(CPMTypes.P2MONOD)["w_p"] == 14475.303501945524
+    assert cpm3.get_params(CPMTypes.P2MONOD)["cp"] == 71.73346303501945
 
     # nothing changed -> should be loaded
     cpm4 = athlete.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
@@ -242,7 +243,6 @@ if __name__ == "__main__":
 
     logging.info("PASSED changed TTEs test 2")
 
-    athlete.get_best_cp_params_of_type(ActivityTypes.SRM_BBB_TEST)
     athlete.save()
     athlete.load()
     tte_list = athlete.list_activity_ids(ActivityTypes.SRM_BBB_TEST,
@@ -261,17 +261,26 @@ if __name__ == "__main__":
                                           ProtocolTypes.TTE)
     assert len(tte_list) == 5
 
-    assert cpm5.get_best()["w_p"] == 14475.303501945524, "{} vs {}".format(cpm5.get_best()["w_p"], 14475.303501945524)
-    assert cpm5.get_best()["cp"] == 71.73346303501945
-
-    # check get best parameters function
-    assert athlete2.get_best_cp_params_of_type(ActivityTypes.SRM_BBB_TEST)['w_p'] == cpm5.get_best()["w_p"]
+    assert cpm5.get_params(CPMTypes.P2MONOD)["w_p"] == 14475.303501945524
+    assert cpm5.get_params(CPMTypes.P2MONOD)["cp"] == 71.73346303501945
 
     logging.info("PASSED 2 athletes 1 ID tests")
 
+    hyd_conf = [12627.151127290388, 38502.21530457119,
+                216.63752756838872, 77.153935498425,
+                11.586559865141686, 0.7718471321983202,
+                0.011210584001550252, 0.21310297838308895]
+
+    athlete.set_hydraulic_fitting_of_type(hyd_conf, ActivityTypes.SRM_BBB_TEST)
+    test_conf = athlete.get_hydraulic_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
+
+    assert test_conf == hyd_conf
+
+    logging.info("PASSED hyd conf setting tests")
+
     # clean up
     athlete.clear_all_data()
-    shutil.rmtree(os.path.join(
-        config.paths["data_storage"],
-        "test_athlete")
-    )
+    # shutil.rmtree(os.path.join(
+    #     config.paths["data_storage"],
+    #     "test_athlete")
+    # )
