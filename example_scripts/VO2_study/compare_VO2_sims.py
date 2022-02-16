@@ -5,12 +5,11 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pypermod.data_structure.athlete import Athlete
-from pypermod.processing.time_series_processing import time_dependant_rolling_average_center
-
 from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from threecomphyd.simulator.three_comp_hyd_simulator import ThreeCompHydSimulator
 
+from pypermod.data_structure.athlete import Athlete
+from pypermod.processing.time_series_processing import time_dependant_rolling_average_center
 from pypermod.data_structure.activities.activity_types import ActivityTypes
 from pypermod.data_structure.activities.protocol_types import ProtocolTypes
 from pypermod import config
@@ -26,7 +25,7 @@ subjects = ['0', '1', '2', '3', '4']
 
 # average window for VO2 measurements.
 # The value at the center is the average of all values 15 sec to the left and to the right
-vo2_average_window = 31
+vo2_averaging_radius = 15
 
 # measurements per second
 hz = 1
@@ -63,7 +62,7 @@ for subject in subjects:
         # average breathing data
         avg_vo2 = time_dependant_rolling_average_center(seconds=bbb_t,
                                                         values=bbb_vo2,
-                                                        time_radius=vo2_average_window)
+                                                        time_radius=vo2_averaging_radius)
 
         # simulate hydraulic
         h, g, anf, ans, p_ae, p_an, m_flow, _ = ThreeCompHydSimulator.simulate_course_detail(agent=hyd_agent,

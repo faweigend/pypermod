@@ -168,9 +168,9 @@ class Athlete:
         activity_dir_path = os.path.join(self.dir_path, activity.typename)
         activity.set_dir_path(activity_dir_path)
         activity.save()
-        logging.info("Added and saved {} activity under {} protocol and ID {}".format(activity.typename,
-                                                                                      activity.protocol,
-                                                                                      activity.id))
+        # logging.info("Added and saved {} activity under {} protocol and ID {}".format(activity.typename,
+        #                                                                               activity.protocol,
+        #                                                                               activity.id))
 
     def get_activity_by_type_and_id(self, a_id: str, a_type: ActivityTypes, p_type: ProtocolTypes):
         """

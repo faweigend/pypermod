@@ -56,6 +56,14 @@ class CPMFits:
         """returns desired set of stored estimation results"""
         return self.__param_dict[cpm_type.value]
 
+    def get_ttes(self) -> SimpleConstantEffortMeasures:
+        """
+        :return: used TTEs as a simple constant effort measures object
+        """
+        dict_tte = self.__param_dict["tte_intensities"]
+        return SimpleConstantEffortMeasures(times=list(dict_tte.keys()),
+                                            measures=list(dict_tte.values()))
+
     def create_from_ttes(self, es: SimpleConstantEffortMeasures):
         """
         creates new fittings
