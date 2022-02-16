@@ -79,8 +79,10 @@ class BbbMeasured(TimeSeries):
         if self._bbb_data is None:
             logging.warning("bbb save called with no data bbb data available")
         else:
-            self._bbb_data.to_csv(os.path.join(self._dir_path,
-                                               "{}-bbb.csv".format(self.id)))
+            self._bbb_data.to_csv(
+                os.path.join(self._dir_path, "{}-bbb.csv".format(self.id)),
+                index=False
+            )
 
     def get_bbb_offset(self):
         """

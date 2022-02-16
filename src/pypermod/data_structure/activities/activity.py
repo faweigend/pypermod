@@ -159,7 +159,7 @@ class Activity:
 
         # store data
         if self.__data is not None:
-            self.__data.to_csv(f_file_path)
+            self.__data.to_csv(f_file_path, index=False)
 
         # init saving meta as .json
         self._save_meta()
@@ -206,5 +206,6 @@ class Activity:
             logging.warning(
                 "Activity {} has to be assigned to an athlete to determine full file path".format(self._id))
         else:
-            self.__data = pd.read_csv(os.path.join(self._dir_path,
-                                                   "{}.csv".format(self.id)))
+            self.__data = pd.read_csv(
+                os.path.join(self._dir_path, "{}.csv".format(self.id))
+            )

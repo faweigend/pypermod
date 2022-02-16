@@ -39,7 +39,7 @@ class Athlete:
         if os.path.exists(os.path.join(self.__dir_path, 'meta.json')):
             self.load()
         else:
-            logging.info("created empty athlete {}".format(self.__dir_path))
+            logging.info("No data available - created empty athlete object {}".format(self.__dir_path))
 
     @property
     def dir_path(self):
