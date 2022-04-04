@@ -8,6 +8,7 @@ import numpy as np
 from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from threecomphyd.simulator.three_comp_hyd_simulator import ThreeCompHydSimulator
 
+from pypermod.utility import PlotLayout as Pl
 from pypermod.data_structure.athlete import Athlete
 from pypermod.processing.time_series_processing import time_dependant_rolling_average_center
 from pypermod.data_structure.activities.activity_types import ActivityTypes
@@ -96,16 +97,19 @@ for subject in subjects:
         t = np.arange(len(srm_pow))
 
         # set up plot
-        fig = plt.figure()
+        fig = plt.figure(figsize=(7.5, 2.8))
         ax = fig.add_subplot(1, 1, 1)
         ax2 = ax.twinx()
-        ax.set_title("athlete {} - intensity {}".format(subject, int(res)))
 
-        ax.scatter(bbb_t, avg_bbb_vo2_norm, color='tab:blue', label="averaged VO2", s=10)
-        ax.plot(t, p_ae_norm, color='tab:cyan', label="flow from Ae")
+        Pl.set_rc_params()
+        # ax.set_title("athlete {} - resistance {}".format(subject, int(res)))
+
+        ax.scatter(bbb_t, avg_bbb_vo2_norm, color=Pl.get_plot_color("vo2"), label="averaged $\dotV_{\mathrm{O}_2}$",
+                   s=5)
+        ax.plot(t, p_ae_norm, color=Pl.get_plot_color("hyd_ae"), label="flow from $Ae$")
 
         # plot liquid flows
-        ax2.plot(t, srm_pow, color='tab:gray', label="power output", alpha=0.5)
+        ax2.plot(t, srm_pow, color=Pl.get_plot_color("intensity"), label="power output", alpha=0.5)
 
         # label plot
         ax.set_xlabel("time (s)")

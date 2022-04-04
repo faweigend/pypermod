@@ -355,6 +355,8 @@ class Athlete:
             # create training activity objects
             self.__activities = dict()
 
+            a_count = 0
+
             # check all Activity Types
             for at in ActivityTypes:
                 atn = at.value.__name__
@@ -373,4 +375,6 @@ class Athlete:
                                 a_inst.set_dir_path(activity_path)
                                 a_inst.load()
                                 self.add_and_save_activity(a_inst)
-        logging.info("loaded athlete {}".format(self.__dir_path))
+                                a_count += 1
+
+        logging.info("loaded athlete {} with {} activities".format(os.path.abspath(self.__dir_path), a_count))

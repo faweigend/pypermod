@@ -39,6 +39,8 @@ plot_marker = {
 # used in verification plots
 plot_color_scheme = {
     "hyd_h": "tab:olive",
+    "hyd_ae": "tab:cyan",
+    "vo2": "tab:blue",
     "WbalODEAgentWeigend": "black",
     "WbalODEAgentFixTau": "tab:orange",
     "WbalIntAgentSkiba": "tab:orange",
@@ -46,18 +48,20 @@ plot_color_scheme = {
     "WbalODEAgentBartram": "tab:purple",
     "ThreeCompHydAgent": "tab:green",
     "ground_truth": "tab:blue",
-    "intensity": "tab:blue"
+    "intensity": "tab:grey"
 }
 
 # used in verification plots
 plot_grayscale = {
-    "intensity": (0.6, 0.6, 0.6),
+    "hyd_ae": (0.2, 0.2, 0.2),
+    "vo2": (0, 0, 0),
     "WbalIntAgentSkiba": (0, 0, 0),
     "WbalODEAgentFixTau": (0.55, 0.55, 0.55),
     "WbalODEAgentSkiba": (0.55, 0.55, 0.55),
     "WbalODEAgentBartram": (0.5, 0.5, 0.5),
     "ThreeCompHydAgent": (0.05, 0.05, 0.05),
     "ground_truth": (0.6, 0.6, 0.6),
+    "intensity": (0.4, 0.4, 0.4)
 }
 
 plot_color_linestyles = defaultdict(lambda: "-")
