@@ -2,6 +2,7 @@ import logging
 import os
 
 import numpy as np
+import pandas as pd
 
 from pypermod.data_structure.athlete import Athlete
 from pypermod.fitter.cp_to_tte_fitter import CPMTypes
@@ -14,6 +15,9 @@ if __name__ == "__main__":
     # set logging level to highest level
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
+
+# prints results tables in LATEX format if True
+latex_printout = False
 
 # average window for VO2 measurements.
 # The value at the center is the average of all values 15 sec to the left and to the right
@@ -65,51 +69,57 @@ for subj in subjects:
                  round(cp_params["w_p"]),
                  hyd_conf])
 
-print()
-print("Peak and CP table")
-print()
+print("\n Peak and CP table \n")
 
-# first part of the table
-for i, row in enumerate(data):
-    print("{} & {} & {} & {} & {} \\\\".format(
-        i, row[0], row[1], row[2], row[3]))
+if not latex_printout:
+    print(pd.DataFrame(data, columns=["VO2_peak", "P_peak", "CP", "W'", "x"]).iloc[:, :4])
+else:
+    # first part of the table
+    for i, row in enumerate(data):
+        print("{} & {} & {} & {} & {} \\\\".format(
+            i, row[0], row[1], row[2], row[3]))
 
-print("\\hline \n\\hline")
+    print("\\hline \n\\hline")
 
-# avg and std part of the table
-np_data = np.array([x[:4] for x in data])
-p_str = "avg $\\pm$ std "
-for val in range(np_data.shape[1]):
-    p_str += "& ${} \\pm {}$".format(
-        np.round(np.average(np_data[:, val]), 2),
-        np.round(np.std(np_data[:, val]), 2)
-    )
-p_str += "\\\\"
-print(p_str)
+    # avg and std part of the table
+    np_data = np.array([x[:4] for x in data])
+    p_str = "avg $\\pm$ std "
+    for val in range(np_data.shape[1]):
+        p_str += "& ${} \\pm {}$".format(
+            np.round(np.average(np_data[:, val]), 2),
+            np.round(np.std(np_data[:, val]), 2)
+        )
+    p_str += "\\\\"
+    print(p_str)
 
-print()
-print("hyd fitting table")
-print()
+print("\n hyd fitting table \n")
 
-# hyd fitting table
-for i, row in enumerate(data):
-    if row[4] is None:
-        row[4] = [0, 0, 0, 0, 0, 0, 0, 0]
+if not latex_printout:
+    with pd.option_context('display.max_rows', None,
+                           'display.max_columns', None,
+                           'display.precision', 2,
+                           ):
+        print(pd.DataFrame([x[4] for x in data], columns=["LF", "LS", "M_U", "M_LS", "M_LF", "theta", "gamma", "phi"]))
+else:
+    # hyd fitting table
+    for i, row in enumerate(data):
+        if row[4] is None:
+            row[4] = [0, 0, 0, 0, 0, 0, 0, 0]
 
-    hyd_conf = [round(x, 2) for x in row[4]]
-    print("{} & {} & {} & {} & {} & {} & {} & {} & {} \\\\".format(
-        i, hyd_conf[0], hyd_conf[1], hyd_conf[2], hyd_conf[3],
-        hyd_conf[4], hyd_conf[5], hyd_conf[6], hyd_conf[7]))
+        hyd_conf = [round(x, 2) for x in row[4]]
+        print("{} & {} & {} & {} & {} & {} & {} & {} & {} \\\\".format(
+            i, hyd_conf[0], hyd_conf[1], hyd_conf[2], hyd_conf[3],
+            hyd_conf[4], hyd_conf[5], hyd_conf[6], hyd_conf[7]))
 
-print("\\hline \n\\hline")
+    print("\\hline \n\\hline")
 
-# avg and std part of the table
-np_data = np.array([x[4] for x in data])
-p_str = "avg $\\pm$ std "
-for val in range(np_data.shape[1]):
-    p_str += "& ${} \\pm {}$".format(
-        np.round(np.average(np_data[:, val]), 2),
-        np.round(np.std(np_data[:, val]), 2)
-    )
-p_str += "\\\\"
-print(p_str)
+    # avg and std part of the table
+    np_data = np.array([x[4] for x in data])
+    p_str = "avg $\\pm$ std "
+    for val in range(np_data.shape[1]):
+        p_str += "& ${} \\pm {}$".format(
+            np.round(np.average(np_data[:, val]), 2),
+            np.round(np.std(np_data[:, val]), 2)
+        )
+    p_str += "\\\\"
+    print(p_str)

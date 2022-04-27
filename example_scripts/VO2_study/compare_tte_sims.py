@@ -20,6 +20,9 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
+    # prints results tables in LATEX format if True
+    latex_printout = False
+
     subjects = [0, 1, 2, 3, 4]
     hz = 1  # observations are in seconds
 
@@ -79,56 +82,60 @@ if __name__ == "__main__":
         # plt.show()
         plt.close(fig)
 
-    ### LATEX prints
     ann_results = results.sort_values(by=['athlete', 'resistance (Watts)'])
 
-    # the TTEs detail table
-    print("\\begin{table}[] "
-          "\\begin{adjustwidth}{-0.75in}{-0.75in}\\centering "
-          "\\begin{tabular}{ c c " + " ".join(["S[table-format=3.2]"] * (len(ann_results.columns) - 2)) + "}")
-    # multicolumns
-    print("\\toprule")
-    latex_str = "\\multicolumn{2}{c}{test setup} & " \
-                "\\multicolumn{" + str(len(ann_results.columns) - 2) + "}{c}{times-to-exhaustion (seconds)}\\\\"
-    print(latex_str)
-    print("\\cmidrule(r){1-2} \\cmidrule(l){3-" + str(len(ann_results.columns)) + "}")
-    # column names
-    latex_str = " & ".join(["\\multicolumn{1}{c}{" + str(x) + "}" for x in ann_results.columns]) + "\\\\"
-    print(latex_str)
-    print("\\midrule")
-    # content
-    for _, row in ann_results.iterrows():
-        latex_str = ""
-        for _, item in row.iteritems():
-            latex_str += "{} & ".format(item)
-        latex_str = latex_str[:-2] + "\\\\"
+    print("\n \n OVERVIEW TABLE \n \n")
+    if not latex_printout:
+        print(ann_results)
+    else:
+        ### LATEX prints
+        # the TTEs detail table
+        print("\\begin{table}[] "
+              "\\begin{adjustwidth}{-0.75in}{-0.75in}\\centering "
+              "\\begin{tabular}{ c c " + " ".join(["S[table-format=3.2]"] * (len(ann_results.columns) - 2)) + "}")
+        # multicolumns
+        print("\\toprule")
+        latex_str = "\\multicolumn{2}{c}{test setup} & " \
+                    "\\multicolumn{" + str(len(ann_results.columns) - 2) + "}{c}{times-to-exhaustion (seconds)}\\\\"
         print(latex_str)
-    # # RMSE
-    # print("\\addlinespace[2mm]")
-    # latex_str = " & & \\multicolumn{1}{c}{RMSE} "
-    # for i, col in enumerate(results.columns):
-    #     if i > 2:  # athletes, resistance, observed are skipped
-    #         rmse = ((ann_results[col] - ann_results["observed"]) ** 2).mean() ** .5
-    #         latex_str += " & {}".format(round(rmse, 2))
-    # latex_str += "\\\\"
-    # print(latex_str)
-    # Mean +- STD
-    # latex_str = " & & \\multicolumn{1}{c}{avg} "
-    # for i, col in enumerate(results.columns):
-    #     if i > 2:  # athletes, resistance, observed are skipped
-    #         vals = (ann_results[col] - ann_results["observed"]).abs()
-    #         avgv = vals.mean()
-    #         stdv = vals.std()
-    #         latex_str += " & {}$\\pm${}".format(round(avgv, 2), round(stdv, 2))
-    # latex_str += "\\\\"
-    # print(latex_str)
-    # table end
-    print("\\bottomrule "
-          "\\end{tabular} "
-          "\\end{adjustwidth} "
-          "\\caption{} "
-          "\\label{tab:ttes_detail} "
-          "\\end{table}")
+        print("\\cmidrule(r){1-2} \\cmidrule(l){3-" + str(len(ann_results.columns)) + "}")
+        # column names
+        latex_str = " & ".join(["\\multicolumn{1}{c}{" + str(x) + "}" for x in ann_results.columns]) + "\\\\"
+        print(latex_str)
+        print("\\midrule")
+        # content
+        for _, row in ann_results.iterrows():
+            latex_str = ""
+            for _, item in row.iteritems():
+                latex_str += "{} & ".format(item)
+            latex_str = latex_str[:-2] + "\\\\"
+            print(latex_str)
+        # # RMSE
+        # print("\\addlinespace[2mm]")
+        # latex_str = " & & \\multicolumn{1}{c}{RMSE} "
+        # for i, col in enumerate(results.columns):
+        #     if i > 2:  # athletes, resistance, observed are skipped
+        #         rmse = ((ann_results[col] - ann_results["observed"]) ** 2).mean() ** .5
+        #         latex_str += " & {}".format(round(rmse, 2))
+        # latex_str += "\\\\"
+        # print(latex_str)
+        # Mean +- STD
+        # latex_str = " & & \\multicolumn{1}{c}{avg} "
+        # for i, col in enumerate(results.columns):
+        #     if i > 2:  # athletes, resistance, observed are skipped
+        #         vals = (ann_results[col] - ann_results["observed"]).abs()
+        #         avgv = vals.mean()
+        #         stdv = vals.std()
+        #         latex_str += " & {}$\\pm${}".format(round(avgv, 2), round(stdv, 2))
+        # latex_str += "\\\\"
+        # print(latex_str)
+        # table end
+        print("\\bottomrule "
+              "\\end{tabular} "
+              "\\end{adjustwidth} "
+              "\\caption{} "
+              "\\label{tab:ttes_detail} "
+              "\\end{table}")
 
     # test specific stats. i increases from lowest to highest resistance
     tte_specific_rmse = pd.DataFrame()
@@ -186,35 +193,39 @@ if __name__ == "__main__":
             ) / np.mean(ann_results["observed"]))
     tte_specific_rmse = tte_specific_rmse.append(pd.DataFrame(row))
 
-    ### print LATEX
+    # separate the two tables
     print("\n \n TTE CATEGORY TABLE \n \n")
 
-    print("\\begin{table}[] "
-          "\\begin{adjustwidth}{-0.75in}{-0.75in}\\centering "
-          "\\begin{tabular}{ c " + " ".join(["S[table-format=4.2] @{${}\pm{}$} S[table-format=3.2]"] *
-                                            (len(tte_specific_rmse.columns) - 1)) + "}")
-    # multicolumns
-    print("\\toprule")
-    latex_str = "resistance category & " \
-                "\\multicolumn{2}{c}{observed TTE } &" \
-                "\\multicolumn{" + str((len(tte_specific_rmse.columns) - 2) * 2) + "}{c}{prediction error} \\\\"
-    print(latex_str)
-    print("\\cmidrule(l){4-" + str(len(tte_specific_rmse.columns) * 2 - 1) + "}")
-    # column names
-    latex_str = "\\multicolumn{3}{c}{} & " + " & ".join(
-        ["\\multicolumn{2}{c}{" + str(x) + "}" for x in tte_specific_rmse.columns[2:]]) + "\\\\"
-    print(latex_str)
-    print("\\midrule")
-    # content
-    for _, row in tte_specific_rmse.iterrows():
-        latex_str = ""
-        for _, item in row.iteritems():
-            latex_str += "{} & ".format(item)
-        latex_str = latex_str[:-2] + "\\\\"
+    if not latex_printout:
+        print(tte_specific_rmse)
+    else:
+        ### print LATEX
+        print("\\begin{table}[] "
+              "\\begin{adjustwidth}{-0.75in}{-0.75in}\\centering "
+              "\\begin{tabular}{ c " + " ".join(["S[table-format=4.2] @{${}\pm{}$} S[table-format=3.2]"] *
+                                                (len(tte_specific_rmse.columns) - 1)) + "}")
+        # multicolumns
+        print("\\toprule")
+        latex_str = "resistance category & " \
+                    "\\multicolumn{2}{c}{observed TTE } &" \
+                    "\\multicolumn{" + str((len(tte_specific_rmse.columns) - 2) * 2) + "}{c}{prediction error} \\\\"
         print(latex_str)
-    print("\\bottomrule "
-          "\\end{tabular} "
-          "\\end{adjustwidth} "
-          "\\caption{Each athlete completed five TTE trials and, e.g., the ``lowest'' intensity category are the lowest-intensity trials of all athletes together. The ``overall'' category entails all TTE trials of all athletes. Prediction error is the average difference between observed TTE and model prediction.} "
-          "\\label{tab:tte_categories} "
-          "\\end{table}")
+        print("\\cmidrule(l){4-" + str(len(tte_specific_rmse.columns) * 2 - 1) + "}")
+        # column names
+        latex_str = "\\multicolumn{3}{c}{} & " + " & ".join(
+            ["\\multicolumn{2}{c}{" + str(x) + "}" for x in tte_specific_rmse.columns[2:]]) + "\\\\"
+        print(latex_str)
+        print("\\midrule")
+        # content
+        for _, row in tte_specific_rmse.iterrows():
+            latex_str = ""
+            for _, item in row.iteritems():
+                latex_str += "{} & ".format(item)
+            latex_str = latex_str[:-2] + "\\\\"
+            print(latex_str)
+        print("\\bottomrule "
+              "\\end{tabular} "
+              "\\end{adjustwidth} "
+              "\\caption{Each athlete completed five TTE trials and, e.g., the ``lowest'' intensity category are the lowest-intensity trials of all athletes together. The ``overall'' category entails all TTE trials of all athletes. Prediction error is the average difference between observed TTE and model prediction.} "
+              "\\label{tab:tte_categories} "
+              "\\end{table}")
