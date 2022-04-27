@@ -22,6 +22,8 @@ if __name__ == "__main__":
 
     # prints results tables in LATEX format if True
     latex_printout = False
+    # display plots
+    show_plot = True
 
     subjects = [0, 1, 2, 3, 4]
     hz = 1  # observations are in seconds
@@ -67,20 +69,21 @@ if __name__ == "__main__":
         ts_ext = np.arange(90, 800, 20 / resolution)
         powers_ext = [((wp + x * cp) / x) for x in ts_ext]
 
-        PlotLayout.set_rc_params()
-        matplotlib.rcParams['axes.labelsize'] = 10.5
-        fig = plt.figure(figsize=(6, 3.2))
-        ax = fig.add_subplot()
-        hyd_curve = [ThreeCompHydSimulator.tte(hyd_agent, x) for x in powers_ext]
-        ax.plot(hyd_curve, powers_ext, label='$hydaulic_{weig}$')
-        ax.plot(ts_ext, powers_ext, label='two-parameter')
-        ax.scatter(tte_ms.times, tte_ms.measures, label='observed TTE')
-        ax.set_xlabel("time-to-exhaustion (seconds)")
-        ax.set_ylabel("constant exercise intensity (Watts)")
-        ax.legend()
-        plt.tight_layout()
-        # plt.show()
-        plt.close(fig)
+        if show_plot:
+            PlotLayout.set_rc_params()
+            matplotlib.rcParams['axes.labelsize'] = 10.5
+            fig = plt.figure(figsize=(6, 3.2))
+            ax = fig.add_subplot()
+            hyd_curve = [ThreeCompHydSimulator.tte(hyd_agent, x) for x in powers_ext]
+            ax.plot(hyd_curve, powers_ext, label='$hydaulic_{weig}$')
+            ax.plot(ts_ext, powers_ext, label='two-parameter')
+            ax.scatter(tte_ms.times, tte_ms.measures, label='observed TTE')
+            ax.set_xlabel("time-to-exhaustion (seconds)")
+            ax.set_ylabel("constant exercise intensity (Watts)")
+            ax.legend()
+            plt.tight_layout()
+            plt.show()
+            plt.close(fig)
 
     ann_results = results.sort_values(by=['athlete', 'resistance (Watts)'])
 
