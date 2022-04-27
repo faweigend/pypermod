@@ -4,6 +4,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from threecomphyd.simulator.three_comp_hyd_simulator import ThreeCompHydSimulator
@@ -21,6 +22,9 @@ if __name__ == "__main__":
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. "
                                "[file=%(filename)s:%(lineno)d]")
 
+# display plots
+show_plot = True
+
 # the VO2 study had 5 participants
 subjects = ['0', '1', '2', '3', '4']
 
@@ -32,11 +36,10 @@ vo2_averaging_radius = 15
 hz = 1
 
 # organise results
-results = {}
+results = pd.DataFrame()
 
 # plot all data of all athletes
 for subject in subjects:
-    results[subject] = dict()
 
     # create and load athlete object
     athlete = Athlete(os.path.join(config.paths["data_storage"],
@@ -59,6 +62,9 @@ for subject in subjects:
         bbb_t = activity.bbb_time_data
         bbb_vo2 = activity.vo2_data
         srm_alt = activity.altitude_data
+
+        warmup_end = activity.get_warmup_end_timestamp()
+        recovery_start = activity.get_recovery_start_timestamp()
 
         # average breathing data
         avg_vo2 = time_dependant_rolling_average_center(seconds=bbb_t,
@@ -90,58 +96,79 @@ for subject in subjects:
 
         hyd_sim = np.argmax(h)
 
-        results[subject].update({res: {"vo2_t": vo2_peak_t,
-                                       "m_u_t": m_u_t}})
+        # add estimations to results data frame
+        row = {
+            "athlete": [subject],
+            "resistance (Watts)": [int(res)],
+            "warmup_end": warmup_end,
+            "time VO2_max": [int(vo2_peak_t)],
+            "time MU": [int(m_u_t)]
+        }
+        df_row = pd.DataFrame(row)
+        results = results.append(df_row, ignore_index=True)
 
         # srm_pow = activity.altitude_data
         t = np.arange(len(srm_pow))
 
-        # set up plot
-        fig = plt.figure(figsize=(7.5, 2.8))
-        ax = fig.add_subplot(1, 1, 1)
-        ax2 = ax.twinx()
+        if show_plot:
+            # set up plot
+            fig = plt.figure(figsize=(8, 2.8))
+            ax = fig.add_subplot(1, 1, 1)
+            ax2 = ax.twinx()
 
-        Pl.set_rc_params()
-        # ax.set_title("athlete {} - resistance {}".format(subject, int(res)))
+            Pl.set_rc_params()
+            # ax.set_title("athlete {} - resistance {}".format(subject, int(res)))
 
-        ax.scatter(bbb_t, avg_bbb_vo2_norm, color=Pl.get_plot_color("vo2"), label="averaged $\dotV_{\mathrm{O}_2}$",
-                   s=5)
-        ax.plot(t, p_ae_norm, color=Pl.get_plot_color("hyd_ae"), label="flow from $Ae$")
+            ax.plot(t[:m_u_t], p_ae_norm[:m_u_t], color=Pl.get_plot_color("hyd_ae"), label="flow from $Ae$")
+            ax.scatter(bbb_t[:vo2_peak_pos], avg_bbb_vo2_norm[:vo2_peak_pos], color=Pl.get_plot_color("vo2"),
+                       label="averaged $\dotV_{\mathrm{O}_2}$",
+                       s=5)
+            ax.scatter(vo2_peak_t, np.max(avg_bbb_vo2_norm), color=Pl.get_plot_color("vo2"),
+                       marker="X", s=80)
+            ax.scatter(m_u_t, np.max(p_ae_norm), color=Pl.get_plot_color("hyd_ae"),  marker="X", s=80)
 
-        # plot liquid flows
-        ax2.plot(t, srm_pow, color=Pl.get_plot_color("intensity"), label="power output", alpha=0.5)
+            # plot power output
+            ax2.plot(t[:int(vo2_peak_t)+10], srm_pow[:int(vo2_peak_t)+10], color=Pl.get_plot_color("intensity"), label="power output", alpha=0.5)
 
-        # label plot
-        ax.set_xlabel("time (s)")
-        ax2.set_ylabel("power (Watts)")
-        ax.set_ylabel("normalised flow/uptake")
+            # label plot
+            ax.set_xticks([warmup_end, m_u_t, vo2_peak_t])
+            ax.set_xticklabels([
+                0,
+                int(m_u_t - warmup_end),
+                int(vo2_peak_t - warmup_end)
+            ])
+            ax.set_xlabel("time since exercise start (s)")
+            ax2.set_ylabel("power (Watts)")
+            ax.set_ylabel("normalised flow/uptake")
 
-        # legends
-        ax.legend(loc=2)
-        ax2.legend(loc=1)
+            # legends
+            ax.legend(loc=2)
+            ax2.legend(loc=4)
 
-        # formant plot
-        locs, labels = plt.xticks()
-        plt.setp(labels, rotation=-45)
-        plt.tight_layout()
-        plt.show()
-        plt.close()
+            # formant plot
+            locs, labels = plt.xticks()
+            plt.setp(labels, rotation=-45)
+            plt.tight_layout()
+            plt.show()
+            plt.close()
 
-    results[subject] = collections.OrderedDict(sorted(results[subject].items()))
+print(results)
 
-# some stats
-vo2 = []
-mu = []
+print(results["time VO2_max"] - results["warmup_end"])
 
-# subject, values
-for s, v in results.items():
-    # num, tte_power, measures
-    for i, (t, m) in enumerate(v.items()):
-        vo2.append(m["vo2_t"])
-        mu.append(m["m_u_t"])
-
-# print mean and std
-vo2 = np.array(vo2)
-mu = np.array(mu)
-logging.info("avg vo2 - mu :  ${} \\pm {}$~seconds".format(np.average(vo2 - mu), np.round(np.std(vo2 - mu), 2)))
-logging.info("min vo2 - mu : ${}$~seconds".format(np.min(vo2 - mu)))
+# # some stats
+# vo2 = []
+# mu = []
+#
+# # subject, values
+# for s, v in results.items():
+#     # num, tte_power, measures
+#     for i, (t, m) in enumerate(v.items()):
+#         vo2.append(m["vo2_t"])
+#         mu.append(m["m_u_t"])
+#
+# # print mean and std
+# vo2 = np.array(vo2)
+# mu = np.array(mu)
+# logging.info("avg vo2 - mu :  ${} \\pm {}$~seconds".format(np.average(vo2 - mu), np.round(np.std(vo2 - mu), 2)))
+# logging.info("min vo2 - mu : ${}$~seconds".format(np.min(vo2 - mu)))
