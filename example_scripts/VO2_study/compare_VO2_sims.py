@@ -1,4 +1,3 @@
-import collections
 import logging
 import os
 
@@ -23,7 +22,8 @@ if __name__ == "__main__":
                                "[file=%(filename)s:%(lineno)d]")
 
 # display plots
-show_plot = True
+show_plot = False
+latex_printout = True
 
 # the VO2 study had 5 participants
 subjects = ['0', '1', '2', '3', '4']
@@ -53,11 +53,16 @@ for subject in subjects:
                                   m_u=conf[2], m_ls=conf[3],
                                   m_lf=conf[4], the=conf[5],
                                   gam=conf[6], phi=conf[7])
-    # ThreeCompVisualisation(agent=hyd_agent)
 
     # iterate through all TTEs
     for activity in athlete.iterate_activities_of_type_and_protocol(a_type=ActivityTypes.SRM_BBB_TEST,
                                                                     p_type=ProtocolTypes.TTE):
+
+        # skip these activities due to faulty VO2 data (see manuscript Weigend et al. 2022)
+        if activity.id in ["SRMBbbTestA2020-11-02_17:01:12:0", "SRMBbbTestA2020-11-19_16:25:00:0"]:
+            logging.info("skipped {} due to faulty VO2 data".format(activity.id))
+            continue
+
         srm_pow = activity.power_data
         bbb_t = activity.bbb_time_data
         bbb_vo2 = activity.vo2_data
@@ -94,21 +99,19 @@ for subject in subjects:
         # SRM resistance
         res = np.max(srm_alt)
 
-        hyd_sim = np.argmax(h)
+        # srm_pow = activity.altitude_data
+        t = np.arange(len(srm_pow))
 
         # add estimations to results data frame
         row = {
-            "athlete": [subject],
+            "participant": [subject],
             "resistance (Watts)": [int(res)],
-            "warmup_end": warmup_end,
-            "time VO2_max": [int(vo2_peak_t)],
-            "time MU": [int(m_u_t)]
+            "\gls{vo2}": [int(vo2_peak_t - warmup_end)],
+            "flow from $Ae$": [int(m_u_t - warmup_end)],
+            "prediction error": [int(vo2_peak_t - m_u_t)]
         }
         df_row = pd.DataFrame(row)
         results = results.append(df_row, ignore_index=True)
-
-        # srm_pow = activity.altitude_data
-        t = np.arange(len(srm_pow))
 
         if show_plot:
             # set up plot
@@ -125,10 +128,11 @@ for subject in subjects:
                        s=5)
             ax.scatter(vo2_peak_t, np.max(avg_bbb_vo2_norm), color=Pl.get_plot_color("vo2"),
                        marker="X", s=80)
-            ax.scatter(m_u_t, np.max(p_ae_norm), color=Pl.get_plot_color("hyd_ae"),  marker="X", s=80)
+            ax.scatter(m_u_t, np.max(p_ae_norm), color=Pl.get_plot_color("hyd_ae"), marker="X", s=80)
 
             # plot power output
-            ax2.plot(t[:int(vo2_peak_t)+10], srm_pow[:int(vo2_peak_t)+10], color=Pl.get_plot_color("intensity"), label="power output", alpha=0.5)
+            ax2.plot(t[:int(vo2_peak_t) + 10], srm_pow[:int(vo2_peak_t) + 10], color=Pl.get_plot_color("intensity"),
+                     label="power output", alpha=0.5)
 
             # label plot
             ax.set_xticks([warmup_end, m_u_t, vo2_peak_t])
@@ -137,13 +141,15 @@ for subject in subjects:
                 int(m_u_t - warmup_end),
                 int(vo2_peak_t - warmup_end)
             ])
-            ax.set_xlabel("time since exercise start (s)")
+            ax.set_xlabel("time since exercise started (seconds)")
             ax2.set_ylabel("power (Watts)")
             ax.set_ylabel("normalised flow/uptake")
 
             # legends
             ax.legend(loc=2)
             ax2.legend(loc=4)
+
+            print(df_row)
 
             # formant plot
             locs, labels = plt.xticks()
@@ -152,23 +158,57 @@ for subject in subjects:
             plt.show()
             plt.close()
 
-print(results)
+results = results.sort_values(by=['participant', 'resistance (Watts)'])
 
-print(results["time VO2_max"] - results["warmup_end"])
+print("\n \n OVERVIEW TABLE \n \n")
+if not latex_printout:
+    print(results)
+    print("mean error ", results["error"].mean(), "std", results["error"].std())
 
-# # some stats
-# vo2 = []
-# mu = []
-#
-# # subject, values
-# for s, v in results.items():
-#     # num, tte_power, measures
-#     for i, (t, m) in enumerate(v.items()):
-#         vo2.append(m["vo2_t"])
-#         mu.append(m["m_u_t"])
-#
-# # print mean and std
-# vo2 = np.array(vo2)
-# mu = np.array(mu)
-# logging.info("avg vo2 - mu :  ${} \\pm {}$~seconds".format(np.average(vo2 - mu), np.round(np.std(vo2 - mu), 2)))
-# logging.info("min vo2 - mu : ${}$~seconds".format(np.min(vo2 - mu)))
+else:
+    ### LATEX prints
+    # the TTEs detail table
+    print("\\begin{table}[] "
+          "\\begin{adjustwidth}{-0.75in}{-0.75in}\\centering "
+          "\\begin{tabular}{" + " ".join(["S[table-format=3]"] * (len(results.columns))) + "}")
+    # multicolumns
+    print("\\toprule")
+    latex_str = "\\multicolumn{2}{c}{test setup} & " \
+                "\\multicolumn{2}{c}{time until max was reached (seconds)} & " \
+                "\multicolumn{1}{c}{}\\\\"
+    print(latex_str)
+    print("\\cmidrule(r){1-2} \\cmidrule(l){3-4}")
+
+    # column names
+    latex_str = " & ".join(["\\multicolumn{1}{c}{" + str(x) + "}" for x in results.columns]) + "\\\\"
+    print(latex_str)
+    print("\\midrule")
+    # content
+    for _, row in results.iterrows():
+        latex_str = ""
+        for _, item in row.iteritems():
+            latex_str += "{} & ".format(item)
+        latex_str = latex_str[:-2] + "\\\\"
+        print(latex_str)
+    # MEAN STD
+    print("\\bottomrule"
+          "\\addlinespace[2mm]")
+    latex_str = " \\multicolumn{2}{c}{avg$\pm$std} "
+    for i, col in enumerate(results.columns):
+        if i > 1:  # athletes, resistance, observed are skipped
+            vals = results[col]
+            avgv = vals.mean()
+            stdv = vals.std()
+            latex_str += " & {}$\\pm${}".format(int(round(avgv, 0)), int(round(stdv, 0)))
+    latex_str += "\\\\"
+    print(latex_str)
+    # table end
+    print("\\end{tabular} "
+          "\\end{adjustwidth} "
+          "\\caption{The summary of all hydraulic prediction evaluations. The example of participant 1 with 396"
+          " W from \Cref{fig:tte} is in row 9. The columns \"time until max was reached\" "
+          "inform about the seconds it took from the onset of exercise to reach the maximal"
+          " averaged \gls{vo2} (blue dots in \Cref{fig:tte}) or maximal flow from $Ae$ "
+          "(azure line in \Cref{fig:tte}). The prediction error is the difference between these two times.} "
+          "\\label{tab:vo2_detail} "
+          "\\end{table}")
