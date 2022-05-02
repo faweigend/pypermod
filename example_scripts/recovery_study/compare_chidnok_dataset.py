@@ -10,7 +10,7 @@ from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeige
 from pypermod.utility import PlotLayout
 from pypermod.simulator.study_simulator import StudySimulator
 
-from example_scripts.fitting_tau_chidnok import fit_taus_chidnok
+from example_scripts.recovery_study.fitting_tau_chidnok import fit_taus_chidnok
 
 
 def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
