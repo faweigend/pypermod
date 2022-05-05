@@ -133,7 +133,8 @@ for subject in subjects:
                              label="power output")
 
             # simulated
-            ax.plot(t[:m_u_t], p_ae_norm[:m_u_t], color=Pl.get_plot_color("hyd_ae"), label="flow from $Ae$")
+            ax.plot(t[:m_u_t], p_ae_norm[:m_u_t], color=Pl.get_plot_color("hyd_ae"),
+                    label="flow from $Ae$", linewidth=2)
             ax.scatter(m_u_t, np.max(p_ae_norm), color=Pl.get_plot_color("hyd_ae"), marker="X", s=80)
 
             # observed
@@ -143,7 +144,7 @@ for subject in subjects:
             p_bbt = p_bbt[p_bbt > 0]
             ax.scatter(p_bbt, p_avg, color=Pl.get_plot_color("vo2"),
                        label="averaged $\dotV_{\mathrm{O}_2}$",
-                       s=5)
+                       s=10)
             ax.scatter(vo2_peak_t, np.max(avg_bbb_vo2_norm), color=Pl.get_plot_color("vo2"),
                        marker="X", s=80)
 
