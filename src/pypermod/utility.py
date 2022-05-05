@@ -127,14 +127,14 @@ class PlotLayout:
         Sets standardised font and fontsize
         """
         # plot font and font size settings
-        matplotlib.rcParams['font.size'] = 12
         matplotlib.rcParams['pdf.fonttype'] = 42
         matplotlib.rcParams['ps.fonttype'] = 42
-        matplotlib.rcParams['axes.labelsize'] = 11
-        matplotlib.rcParams['axes.titlesize'] = 12
+        matplotlib.rcParams['axes.labelsize'] = 12
+        matplotlib.rcParams['axes.titlesize'] =12
         matplotlib.rcParams['xtick.labelsize'] = 12
         matplotlib.rcParams['ytick.labelsize'] = 12
-        matplotlib.rcParams['legend.fontsize'] = 11
+        matplotlib.rcParams['legend.fontsize'] = 12
+        matplotlib.rcParams['font.size'] = 12
 
     @staticmethod
     def create_standardised_legend(agents, ground_truth: bool = False, errorbar: bool = False, scatter: bool = False):

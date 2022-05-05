@@ -22,7 +22,7 @@ if __name__ == "__main__":
                                "[file=%(filename)s:%(lineno)d]")
 
 # display plots
-show_plot = False
+show_plot = True
 latex_printout = True
 
 # the VO2 study had 5 participants
@@ -92,6 +92,7 @@ for subject in subjects:
 
         # simulated peak
         m_u_t = np.argmax(p_ae)
+
         # ground truth peak
         vo2_peak_pos = np.argmax(avg_vo2)
         vo2_peak_t = bbb_t[vo2_peak_pos]
@@ -114,25 +115,37 @@ for subject in subjects:
         results = results.append(df_row, ignore_index=True)
 
         if show_plot:
+
+            Pl.set_rc_params()
             # set up plot
             fig = plt.figure(figsize=(8, 2.8))
             ax = fig.add_subplot(1, 1, 1)
             ax2 = ax.twinx()
 
-            Pl.set_rc_params()
             # ax.set_title("athlete {} - resistance {}".format(subject, int(res)))
 
+            # power output
+            d = np.zeros(len(srm_pow[:int(vo2_peak_t) + 10]))
+            ax2.fill_between(t[:int(vo2_peak_t) + 10], srm_pow[:int(vo2_peak_t) + 10],
+                             where=srm_pow[:int(vo2_peak_t) + 10] >= d, interpolate=True,
+                             color=Pl.get_plot_color("intensity"),
+                             alpha=0.3,
+                             label="power output")
+
+            # simulated
             ax.plot(t[:m_u_t], p_ae_norm[:m_u_t], color=Pl.get_plot_color("hyd_ae"), label="flow from $Ae$")
-            ax.scatter(bbb_t[:vo2_peak_pos], avg_bbb_vo2_norm[:vo2_peak_pos], color=Pl.get_plot_color("vo2"),
+            ax.scatter(m_u_t, np.max(p_ae_norm), color=Pl.get_plot_color("hyd_ae"), marker="X", s=80)
+
+            # observed
+            p_avg = avg_bbb_vo2_norm[:vo2_peak_pos]
+            p_bbt = bbb_t[:vo2_peak_pos]
+            p_avg = p_avg[p_bbt > 0]
+            p_bbt = p_bbt[p_bbt > 0]
+            ax.scatter(p_bbt, p_avg, color=Pl.get_plot_color("vo2"),
                        label="averaged $\dotV_{\mathrm{O}_2}$",
                        s=5)
             ax.scatter(vo2_peak_t, np.max(avg_bbb_vo2_norm), color=Pl.get_plot_color("vo2"),
                        marker="X", s=80)
-            ax.scatter(m_u_t, np.max(p_ae_norm), color=Pl.get_plot_color("hyd_ae"), marker="X", s=80)
-
-            # plot power output
-            ax2.plot(t[:int(vo2_peak_t) + 10], srm_pow[:int(vo2_peak_t) + 10], color=Pl.get_plot_color("intensity"),
-                     label="power output", alpha=0.5)
 
             # label plot
             ax.set_xticks([warmup_end, m_u_t, vo2_peak_t])
@@ -149,11 +162,10 @@ for subject in subjects:
             ax.legend(loc=2)
             ax2.legend(loc=4)
 
+
             print(df_row)
 
             # formant plot
-            locs, labels = plt.xticks()
-            plt.setp(labels, rotation=-45)
             plt.tight_layout()
             plt.show()
             plt.close()
