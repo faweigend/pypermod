@@ -11,17 +11,17 @@ from matplotlib.lines import Line2D
 
 plot_labels = {
     "hyd_h": "$AnF$ fill-level",
-    "cp": "CP",
+    "cp": "$CP$",
     "w'": "$W^\prime$",
-    "p_work": "$P_{work}$",
-    "p_rec": "$P_{rec}$",
-    "t_rec": "$T_{rec}$",
-    "WbalODEAgentWeigend": "$W^\prime_{weig}$",
-    "WbalIntAgentSkiba": "$W^\prime_{bal-int}$",
-    "WbalODEAgentSkiba": "$W^\prime_{skib}$",
-    "WbalODEAgentBartram": "$W^\prime_{bart}$",
+    "p_work": "$P_\mathrm{work}$",
+    "p_rec": "$P_\mathrm{rec}$",
+    "t_rec": "$T_\mathrm{rec}$",
+    "WbalODEAgentWeigend": "$W^\prime_\mathrm{weig}$",
+    "WbalIntAgentSkiba": "$W^\prime_\mathrm{bal-int}$",
+    "WbalODEAgentSkiba": "$W^\prime_\mathrm{skib}$",
+    "WbalODEAgentBartram": "$W^\prime_\mathrm{bart}$",
     "WbalODEAgentFixTau": "fixTau",
-    "ThreeCompHydAgent": "$hydraulic_{weig}$",
+    "ThreeCompHydAgent": "$\mathrm{hydraulic}_\mathrm{weig}$",
     "ground_truth": "observations",
     "intensity": "intensity"
 }
@@ -130,7 +130,7 @@ class PlotLayout:
         matplotlib.rcParams['pdf.fonttype'] = 42
         matplotlib.rcParams['ps.fonttype'] = 42
         matplotlib.rcParams['axes.labelsize'] = 12
-        matplotlib.rcParams['axes.titlesize'] =12
+        matplotlib.rcParams['axes.titlesize'] = 12
         matplotlib.rcParams['xtick.labelsize'] = 12
         matplotlib.rcParams['ytick.labelsize'] = 12
         matplotlib.rcParams['legend.fontsize'] = 12
