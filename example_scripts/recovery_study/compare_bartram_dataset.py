@@ -83,7 +83,7 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
             ax.grid(axis="y", linestyle=':', alpha=0.5)
 
             if i == 2:
-                ax.set_xlabel("$T_{rec}$ (sec)")
+                ax.set_xlabel("$T_{\mathrm{rec}}$ (seconds)")
             if i == 0:
                 ax.set_ylabel("recovery ratio (%)")
                 ax.set_yticks([25, 50, 75])
@@ -92,7 +92,7 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
         # Create the legend
         handles = PlotLayout.create_standardised_legend(agents=dcp_results[0].keys(), ground_truth=True)
         fig.legend(handles=handles, loc='upper center', ncol=5)
-        fig.suptitle("          $P_{work} = P100$ \n $P_{rec}$  = ", y=0.88, fontsize="medium")
+        fig.suptitle("          $P_{\mathrm{work}} = P100$ \n $P_{\mathrm{rec}}$  = ", y=0.87, fontsize="medium")
         # finish plot
         plt.tight_layout()
         plt.subplots_adjust(top=0.70, bottom=0.13)

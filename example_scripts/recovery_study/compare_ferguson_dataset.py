@@ -80,8 +80,8 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
         ax.legend(handles=handles)
 
         # finish layout
-        ax.set_title("$P_{exp} = P360$ \n      $P_{rec}   = $20 watts")
-        ax.set_xlabel("$T_{rec}$ (sec)")
+        ax.set_title("$P_{\mathrm{work}} = P360$ \n      $P_{\mathrm{rec}}   = $20 watts")
+        ax.set_xlabel("$T_{\mathrm{rec}}$ (seconds)")
         ax.set_xticks([0, 120, 360, 900])
         ax.set_ylabel("recovery ratio (%)")
 

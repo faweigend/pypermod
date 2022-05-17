@@ -68,7 +68,7 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
     if plot:
         # set up the figure
         PlotLayout.set_rc_params()
-        fig = plt.figure(figsize=(10, 8))
+        fig = plt.figure(figsize=(10.5, 8.5))
         ax1 = fig.add_subplot(2, 2, 1)
         ax2 = fig.add_subplot(2, 2, 2, sharey=ax1)
         ax3 = fig.add_subplot(2, 2, 3)
@@ -90,10 +90,10 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
             ax4.plot(rec_times, results_p8_cp_66[p_res_key], color=PlotLayout.get_plot_color(p_res_key))
 
         # finalise layout
-        ax1.set_title("$P_{work}$ = P240\n         $P_{rec}$  = 33% of CP")
-        ax2.set_title("$P_{work}$ = P240\n         $P_{rec}$  = 66% of CP")
-        ax3.set_title("$P_{work}$ = P480\n         $P_{rec}$  = 33% of CP")
-        ax4.set_title("$P_{work}$ = P480\n         $P_{rec}$  = 66% of CP")
+        ax1.set_title("$P_{\mathrm{work}} = P240$\n         $P_{\mathrm{rec}}$  = 33% of $CP$")
+        ax2.set_title("$P_{\mathrm{work}} = P240$\n         $P_{\mathrm{rec}}$  = 66% of $CP$")
+        ax3.set_title("$P_{\mathrm{work}} = P480$\n         $P_{\mathrm{rec}}$  = 33% of $CP$")
+        ax4.set_title("$P_{\mathrm{work}} = P480$\n         $P_{\mathrm{rec}}$  = 66% of $CP$")
 
         # create legend
         handles = PlotLayout.create_standardised_legend(agents=results_p8_cp_33.keys(),
@@ -101,8 +101,8 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
 
         ax1.set_ylabel("recovery ratio (%)")
         ax3.set_ylabel("recovery ratio (%)")
-        ax3.set_xlabel("$T_{rec}$ (sec)")
-        ax4.set_xlabel("$T_{rec}$ (sec)")
+        ax3.set_xlabel("$T_{\mathrm{rec}}$ (seconds)")
+        ax4.set_xlabel("$T_{\mathrm{rec}}$ (seconds)")
         for ax in [ax1, ax2, ax3, ax4]:
             ax.set_xticks([0, 120, 240, 360])
         ax1.legend(handles=handles)
