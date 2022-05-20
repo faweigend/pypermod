@@ -1,13 +1,17 @@
 import logging
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from pypermod.utility import PlotLayout
 from pypermod.simulator.study_simulator import StudySimulator
+
+import pypermod.config as pyconfig
 
 
 def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
@@ -18,17 +22,31 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
     :param hz: Simulation computations per second. 1/hz defines delta t for used agents
     :return: predicted and ground truth measurements in a dict
     """
+    # data is in the recovery_study subdirectory of data_storage
+    # see git structure in src at https://github.com/faweigend/pypermod
+    data = pd.read_csv(os.path.join(pyconfig.paths["data_storage"],
+                                    "recovery_study",
+                                    "weigend.csv"))
 
-    # measures taken from Caen et al. 2019
-    w_p = 18200
-    cp = 248
+    # CP and W' are constants in Weigend data set. Take the values from the first row
+    w_p = data["wp"].iloc[0]
+    cp = data["cp"].iloc[0]
 
-    # power level and recovery level intensities according to Caen et al.
-    p240 = w_p / 240 + cp
-    p480 = w_p / 480 + cp
-    cp_33 = cp * 0.33
-    cp_66 = cp * 0.66
-    rec_times = np.arange(0, 370, 10)
+    # power level and recovery level intensities according to Weigend et al.
+    p240 = data["p_work"].iloc[0]
+    p480 = data["p_work"].iloc[6]  # second intensity from 7th row on
+    cp_33 = data["p_rec"].iloc[0]
+    cp_66 = data["p_rec"].iloc[3]  # second intensity in 4th row
+
+    # separated ground truth values derived by Weigend et al. from Caen et al.
+    ground_truth_t = data["t_rec"].iloc[0:3]
+    ground_truth_p4_cp33 = data["obs"].iloc[0:3]
+    ground_truth_p4_cp66 = data["obs"].iloc[3:6]
+    ground_truth_p8_cp33 = data["obs"].iloc[6:9]
+    ground_truth_p8_cp66 = data["obs"].iloc[9:12]
+
+    # the time window to be covered by the plot
+    plot_rec_times = np.arange(0, 370, 10)
 
     # hydraulic parameters fitted to W' and CP by Caen et al. 2019
     p = [
@@ -52,17 +70,14 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
     agents = [agent_bartram, agent_skiba_2015, agent_fit_caen, agent_hyd]
 
     # run simulations for all four conditions
-    results_p4_cp_33 = StudySimulator.standard_comparison(agents=agents, p_work=p240, p_rec=cp_33, rec_times=rec_times)
-    results_p4_cp_66 = StudySimulator.standard_comparison(agents=agents, p_work=p240, p_rec=cp_66, rec_times=rec_times)
-    results_p8_cp_33 = StudySimulator.standard_comparison(agents=agents, p_work=p480, p_rec=cp_33, rec_times=rec_times)
-    results_p8_cp_66 = StudySimulator.standard_comparison(agents=agents, p_work=p480, p_rec=cp_66, rec_times=rec_times)
-
-    # separated ground truth values derived by Weigend et al. from Caen et al.
-    ground_truth_t = [120, 240, 360]
-    ground_truth_p4_cp33 = [55.0, 61.0, 70.5]
-    ground_truth_p4_cp66 = [49.0, 55.0, 58.5]
-    ground_truth_p8_cp33 = [42.0, 52.0, 59.5]
-    ground_truth_p8_cp66 = [38.0, 37.5, 50.0]
+    results_p4_cp_33 = StudySimulator.standard_comparison(agents=agents, p_work=p240, p_rec=cp_33,
+                                                          rec_times=plot_rec_times)
+    results_p4_cp_66 = StudySimulator.standard_comparison(agents=agents, p_work=p240, p_rec=cp_66,
+                                                          rec_times=plot_rec_times)
+    results_p8_cp_33 = StudySimulator.standard_comparison(agents=agents, p_work=p480, p_rec=cp_33,
+                                                          rec_times=plot_rec_times)
+    results_p8_cp_66 = StudySimulator.standard_comparison(agents=agents, p_work=p480, p_rec=cp_66,
+                                                          rec_times=plot_rec_times)
 
     # plot overview if required
     if plot:
@@ -84,10 +99,10 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
 
         # plot simulated agent data
         for p_res_key, p_res_val in results_p4_cp_33.items():
-            ax1.plot(rec_times, p_res_val, color=PlotLayout.get_plot_color(p_res_key))
-            ax2.plot(rec_times, results_p4_cp_66[p_res_key], color=PlotLayout.get_plot_color(p_res_key))
-            ax3.plot(rec_times, results_p8_cp_33[p_res_key], color=PlotLayout.get_plot_color(p_res_key))
-            ax4.plot(rec_times, results_p8_cp_66[p_res_key], color=PlotLayout.get_plot_color(p_res_key))
+            ax1.plot(plot_rec_times, p_res_val, color=PlotLayout.get_plot_color(p_res_key))
+            ax2.plot(plot_rec_times, results_p4_cp_66[p_res_key], color=PlotLayout.get_plot_color(p_res_key))
+            ax3.plot(plot_rec_times, results_p8_cp_33[p_res_key], color=PlotLayout.get_plot_color(p_res_key))
+            ax4.plot(plot_rec_times, results_p8_cp_66[p_res_key], color=PlotLayout.get_plot_color(p_res_key))
 
         # finalise layout
         ax1.set_title("$P_{\mathrm{work}} = P240$\n         $P_{\mathrm{rec}}$  = 33% of $CP$")
@@ -123,14 +138,14 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
             results[names[i] + " T{}".format(t)] = {
                 PlotLayout.get_plot_label("cp"): cp,
                 PlotLayout.get_plot_label("w'"): w_p,
-                PlotLayout.get_plot_label("ground_truth"): gt[j],
+                PlotLayout.get_plot_label("ground_truth"): gt.iloc[j],
                 PlotLayout.get_plot_label("p_work"): p240 if "P240" in names[i] else p480,
                 PlotLayout.get_plot_label("p_rec"): cp_33 if "CP33" in names[i] else cp_66,
                 PlotLayout.get_plot_label("t_rec"): t
             }
             for k, v in res[i].items():
                 results[names[i] + " T{}".format(t)][PlotLayout.get_plot_label(k)] = round(
-                    v[np.where(rec_times == t)[0][0]], 1)
+                    v[np.where(plot_rec_times == t)[0][0]], 1)
 
     return results
 

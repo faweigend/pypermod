@@ -1,13 +1,17 @@
 import logging
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from pypermod.utility import PlotLayout
 from pypermod.simulator.study_simulator import StudySimulator
+
+import pypermod.config as pyconfig
 
 
 def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
@@ -18,15 +22,27 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
     :return: predicted and ground truth measurements in a dict
     """
 
-    # measures taken from Bartram et al.
-    w_p = 23300
-    cp = 393
+    # data is in the recovery_study subdirectory of data_storage
+    # see git structure in src at https://github.com/faweigend/pypermod
+    data = pd.read_csv(os.path.join(pyconfig.paths["data_storage"],
+                                    "recovery_study",
+                                    "bartram.csv"))
 
-    # intensities and time frames tested by Bartram et al
-    p_recs = [cp, cp - 50, cp - 100, cp - 150, cp - 200]
-    p_work = cp + (0.3 * w_p) / 30
-    t_rec = 60
-    rec_times = np.arange(0, 130, 10)
+    # CP and W' are constants in Bartram data set. Take the values from the first row
+    w_p = data["wp"].iloc[0]
+    cp = data["cp"].iloc[0]
+
+    # recovery intensities tested by Bartram et al.
+    p_recs = data["p_rec"]
+    # p_work and t_rec are constants. Take values from first row
+    p_work = data["p_work"].iloc[0]  # p_work is a constant. Take value from first row
+    t_rec = data["t_rec"].iloc[0]
+
+    # get observations from data
+    ground_truth_v = data["obs"]
+
+    # the time window the plot covers
+    plot_rec_times = np.arange(0, 130, 10)
 
     # three component hydraulic agent configuration fitted to
     # W' and CP group averages reported by Bartram et al.
@@ -51,14 +67,9 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
 
     # run simulations for all dcp conditions
     dcp_results = []
-    ground_truth_v = []
     for p_rec in p_recs:
-        result = StudySimulator.standard_comparison(agents=agents, p_work=p_work, p_rec=p_rec, rec_times=rec_times)
+        result = StudySimulator.standard_comparison(agents=agents, p_work=p_work, p_rec=p_rec, rec_times=plot_rec_times)
         dcp_results.append(result)
-
-        # add ground truth as bartram simulation
-        gt_ratio = StudySimulator.get_recovery_ratio_wb1_wb2(bart, p_work=p_work, p_rec=p_rec, t_rec=t_rec)
-        ground_truth_v.append(gt_ratio)
 
     # create overview plot if required
     if plot:
@@ -70,7 +81,7 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
 
         for i, result in enumerate(dcp_results):
             for p_res_key, p_res_val in result.items():
-                axes[i].plot(rec_times, p_res_val,
+                axes[i].plot(plot_rec_times, p_res_val,
                              color=PlotLayout.get_plot_color(p_res_key),
                              linestyle=PlotLayout.get_plot_linestyle(p_res_key))
             axes[i].scatter(t_rec, ground_truth_v[i], color=PlotLayout.get_plot_color("ground_truth"))
@@ -78,8 +89,8 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
         for i, ax in enumerate(axes):
             ax.set_title(r'$D_{CP}$' + "{}".format(cp - p_recs[i]))
 
-            ax.set_xticks([0, t_rec, rec_times[-1]])
-            ax.set_xticklabels([0, t_rec, rec_times[-1]])
+            ax.set_xticks([0, t_rec, plot_rec_times[-1]])
+            ax.set_xticklabels([0, t_rec, plot_rec_times[-1]])
             ax.grid(axis="y", linestyle=':', alpha=0.5)
 
             if i == 2:
@@ -115,7 +126,7 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
         for k, v in dcp_results[i].items():
             if k == bart.get_name():
                 continue
-            ret_results[comp_name][PlotLayout.get_plot_label(k)] = round(v[np.where(rec_times == t_rec)[0][0]], 1)
+            ret_results[comp_name][PlotLayout.get_plot_label(k)] = round(v[np.where(plot_rec_times == t_rec)[0][0]], 1)
 
     return ret_results
 

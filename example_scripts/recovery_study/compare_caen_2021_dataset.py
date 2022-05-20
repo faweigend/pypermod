@@ -1,13 +1,17 @@
 import logging
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from pypermod.utility import PlotLayout
 from pypermod.simulator.study_simulator import StudySimulator
+
+import pypermod.config as pyconfig
 
 
 def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
@@ -17,15 +21,28 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
     :param hz: Simulation computations per second. 1/hz defines delta t for used agents
     :return: predicted and ground truth measurements in a dict
     """
-    # means from the paper
-    w_p = 19200
-    cp = 269
 
-    p_exp = (w_p / 240) + cp  # 348 in the paper
-    get = 179  # mean from the paper
-    p_rec = get * 0.9  # recovery at 90% of GET -> results in pretty much 60% CP
+    # data is in the recovery_study subdirectory of data_storage
+    # see git structure in src at https://github.com/faweigend/pypermod
+    data = pd.read_csv(os.path.join(pyconfig.paths["data_storage"],
+                                    "recovery_study",
+                                    "caen.csv"))
 
-    rec_times = np.arange(0, 910, 10)
+    # CP and W' are constants in Caen data set. Take values from the first row
+    w_p = data["wp"].iloc[0]
+    cp = data["cp"].iloc[0]
+
+    # p_work and p_rec are constants in Caen data set. Take values from the first row
+    p_work = data["p_work"].iloc[0]
+    p_rec = data["p_rec"].iloc[0]
+
+    # the time window the plot covers
+    plot_rec_times = np.arange(0, 910, 10)
+
+    # the ground truth values from the paper
+    ground_truth_t = data["t_rec"]  # t_recs
+    ground_truth_v = data["obs"]  # mean values
+    ground_truth_e = data["obs_sd"]  # std errors
 
     # fitted to Caen et al. 2021 (w_p = 19200 cp = 269) with recoveries from Caen et al. (2019)
     # general settings for three component hydraulic agent
@@ -50,14 +67,9 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
     agents = [agent_bartram, agent_skiba_2015, agent_fit_caen, agent_hyd]
 
     results = StudySimulator.standard_comparison(agents=agents,
-                                                 p_work=p_exp,
+                                                 p_work=p_work,
                                                  p_rec=p_rec,
-                                                 rec_times=rec_times)
-
-    # the ground truth values from the paper
-    ground_truth_t = [30, 60, 120, 180, 240, 300, 600, 900]  # time steps
-    ground_truth_v = [28.6, 34.8, 44.2, 50.5, 55.1, 56.8, 73.7, 71.3]  # mean values
-    ground_truth_e = [8.2, 11.1, 9.7, 12.1, 13.3, 16.4, 19.3, 20.8]  # std errors
+                                                 rec_times=plot_rec_times)
 
     if plot:
         # set up the figure
@@ -72,7 +84,7 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
 
         # plot the agent dynamics
         for agent_n, agent_d in results.items():
-            ax.plot(rec_times,
+            ax.plot(plot_rec_times,
                     agent_d,
                     color=PlotLayout.get_plot_color(agent_n),
                     linestyle=PlotLayout.get_plot_linestyle(agent_n))
@@ -80,7 +92,7 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
         # finalise layout
         ax.set_title("$P_{\mathrm{work}} = P240$ \n         $P_{\mathrm{rec}}$  = 161 watts")
         ax.set_xlabel("$T_{\mathrm{rec}}$ (seconds)")
-        ax.set_xticks([30, 60, 120, 180, 240, 300, 600, 900])
+        ax.set_xticks(ground_truth_t)
         ax.set_xticklabels(ax.get_xticks(), rotation=-45, ha='center')
         ax.set_ylabel("recovery ratio (%)")
 
@@ -102,13 +114,13 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
         ret_results[name] = {
             PlotLayout.get_plot_label("cp"): cp,
             PlotLayout.get_plot_label("w'"): w_p,
-            PlotLayout.get_plot_label("p_work"): p_exp,
+            PlotLayout.get_plot_label("p_work"): p_work,
             PlotLayout.get_plot_label("p_rec"): p_rec,
             PlotLayout.get_plot_label("t_rec"): t,
             PlotLayout.get_plot_label("ground_truth"): ground_truth_v[i]
         }
         for k, v in results.items():
-            ret_results[name][PlotLayout.get_plot_label(k)] = round(v[np.where(rec_times == t)[0][0]], 1)
+            ret_results[name][PlotLayout.get_plot_label(k)] = round(v[np.where(plot_rec_times == t)[0][0]], 1)
     return ret_results
 
 
