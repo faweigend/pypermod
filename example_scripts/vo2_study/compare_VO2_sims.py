@@ -106,7 +106,7 @@ for subject in subjects:
         # add estimations to results data frame
         row = {
             "participant": [subject],
-            "resistance (Watts)": [int(res)],
+            "resistance (watts)": [int(res)],
             "\gls{vo2}": [int(vo2_peak_t - warmup_end)],
             "flow from $Ae$": [int(m_u_t - warmup_end)],
             "prediction error": [int(vo2_peak_t - m_u_t)]
@@ -156,7 +156,7 @@ for subject in subjects:
                 int(vo2_peak_t - warmup_end)
             ])
             ax.set_xlabel("time since exercise started (seconds)")
-            ax2.set_ylabel("power (Watts)")
+            ax2.set_ylabel("power (watts)")
             ax.set_ylabel("normalised flow/uptake")
 
             # legends
@@ -171,7 +171,7 @@ for subject in subjects:
             plt.show()
             plt.close()
 
-results = results.sort_values(by=['participant', 'resistance (Watts)'])
+results = results.sort_values(by=['participant', 'resistance (watts)'])
 
 print("\n \n OVERVIEW TABLE \n \n")
 if not latex_printout:
