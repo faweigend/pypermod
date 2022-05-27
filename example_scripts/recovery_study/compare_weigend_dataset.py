@@ -11,7 +11,7 @@ from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeige
 from pypermod.utility import PlotLayout
 from pypermod.simulator.study_simulator import StudySimulator
 
-import pypermod.config as pyconfig
+import pypermod.config as pypconfig
 
 
 def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
@@ -24,7 +24,7 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
     """
     # data is in the recovery_study subdirectory of data_storage
     # see git structure in src at https://github.com/faweigend/pypermod
-    data = pd.read_csv(os.path.join(pyconfig.paths["data_storage"],
+    data = pd.read_csv(os.path.join(pypconfig.paths["data_storage"],
                                     "recovery_study",
                                     "weigend.csv"))
 
