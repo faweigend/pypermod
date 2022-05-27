@@ -132,7 +132,7 @@ def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
     # assemble dict for model comparison
     ret_results = {}
     for i, p_rec in enumerate(p_recs):
-        name = "329 watts {} watts T30".format(p_rec)
+        name = "329W {}W T30".format(p_rec)
         ret_results[name] = {
             PlotLayout.get_plot_label("cp"): cp,
             PlotLayout.get_plot_label("w'"): w_p,

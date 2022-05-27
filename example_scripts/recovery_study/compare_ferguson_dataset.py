@@ -103,7 +103,7 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
     ret_results = {}
     # assemble results dict for big comparison
     for i, t in enumerate(ground_truth_t):
-        name = "P240 20 watts T{}".format(t)
+        name = "P240 20W T{}".format(t)
         ret_results[name] = {
             PlotLayout.get_plot_label("cp"): cp,
             PlotLayout.get_plot_label("w'"): w_p,

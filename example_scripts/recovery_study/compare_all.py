@@ -19,18 +19,23 @@ logging.basicConfig(level=logging.INFO,
 hz = 10  # 10 hz is a dt of 0.1
 
 # run all simulations...
+logging.info("Begin Bartram Data Set")
 bart_res = compare_bartram_dataset(hz=hz)
 bart_res = pd.DataFrame.from_dict(bart_res, orient='index')
 
+logging.info("Begin Weigend Data Set")
 weig_res = compare_weigend_dataset(hz=hz)
 weig_res = pd.DataFrame.from_dict(weig_res, orient='index')
 
+logging.info("Begin Caen Data Set")
 caen_res = compare_caen_2021_dataset(hz=hz)
 caen_res = pd.DataFrame.from_dict(caen_res, orient='index')
 
+logging.info("Begin Chidnok Data Set")
 chid_res = compare_chidnok_dataset(hz=hz)
 chid_res = pd.DataFrame.from_dict(chid_res, orient='index')
 
+logging.info("Begin Ferguson Data Set")
 ferg_res = compare_ferguson_dataset(hz=hz)
 ferg_res = pd.DataFrame.from_dict(ferg_res, orient='index')
 

@@ -36,16 +36,4 @@ You can install the files from the repository by running `pip3 install -e <path_
 ### Usage
 
 Please see the scripts in the `example_scripts` 
-folder of our [GitHub_repository](https://github.com/faweigend/pypermod) for example applications on how to use the package. Three types of example scripts are available:
-
-#### Compare to Data
-
-Scripts that have a name that starts with `compare` recreate comparison plots of the [manuscript](https://arxiv.org/abs/2108.04510). You may use them to investigate the data we extracted from other studies or to see examples for how to use `pypermod` agents to predict recovery ratios.
-
-#### Fitting Tau
-
-Scripts that have a name that starts with `fitting` recreate the fitting process of time constants for W'bal-weig and Chidnok comparisons in our [manuscript](https://arxiv.org/abs/2108.04510). You may use them to further investigate our approaches to derive these time constants and how fitted models perform.
-
-#### Simulate
-
-Scripts that have a name that starts with `simulate` use one or several models to simulate energy dynamics of an athlete during exercise. Use these scripts as examples for how to use `pypermod` for predictions.
+folder of our [GitHub_repository](https://github.com/faweigend/pypermod) for example applications on how to use the package and the data sets it comes with.
