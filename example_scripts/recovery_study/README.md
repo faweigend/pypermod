@@ -11,7 +11,7 @@ This directory contains scripts related to our publication:
       primaryClass={cs.OH}
 }
 ```
-Three types of scripts are available:
+Two types of scripts are available:
 
 #### Compare to Data
 
