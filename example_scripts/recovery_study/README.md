@@ -22,6 +22,8 @@ You may use them to investigate the data we extracted from other studies or to s
 
 `comparison_significance_test` tests for statistical differences in prediction error distributions of two models as done in our [paper](https://arxiv.org/abs/2108.04510). 
 
+`compare_p_work_effec` recreates the plot 4.1 of our paper [paper](https://arxiv.org/abs/2108.04510)
+
 #### Fitting Tau
 
 Scripts that have a name that starts with `fitting` recreate the fitting process of time constants for W'bal-weig and Chidnok comparisons in our [paper](https://arxiv.org/abs/2108.04510). 
