@@ -26,8 +26,8 @@ def get_all_tte_predictions(show_plot=False) -> pd.DataFrame:
     # store results in here
     results = pd.DataFrame()
 
-    # for every participant...
-    for subj in [0, 1, 2, 3, 4]:
+    # for every participant (0 - 5) ...
+    for subj in range(5):
         # ... load data as an athlete object
         athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", str(subj)))
 

@@ -25,8 +25,8 @@ def ramp_test_and_cp_fitting_table():
     # summarises results in here
     data = []
 
-    # for every athlete ...
-    for subj in [0, 1, 2, 3, 4]:
+    # for every athlete (participant 0 - 5) ...
+    for subj in range(5):
         athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", str(subj)))
 
         # get fitted CP and W' params
