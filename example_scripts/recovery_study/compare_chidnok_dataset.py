@@ -106,7 +106,8 @@ def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
             axes[i].scatter(t_rec, ground_truth_v[i], color=PlotLayout.get_plot_color("ground_truth"))
 
         for i, ax in enumerate(axes):
-            ax.set_title("{} watts".format(p_recs[i]))
+            ax.set_title("$P_{\mathrm{work}} = P240$ \n "
+                         "      $P_{\mathrm{rec}}$  = " + str(p_recs[i]) + " watts")
 
             ax.set_xticks([0, t_rec, plot_rec_times[-1]])
             ax.set_xticklabels([0, t_rec, plot_rec_times[-1]])
@@ -122,10 +123,9 @@ def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
         # Create the legend
         handles = PlotLayout.create_standardised_legend(agents=dcp_results[0].keys(), ground_truth=True)
         fig.legend(handles=handles, loc='upper center', ncol=5)
-        fig.suptitle("          $P_{\mathrm{work}} = P240$ \n $P_{\mathrm{rec}}$  =", y=0.87, fontsize="medium")
         # finish plot
         plt.tight_layout()
-        plt.subplots_adjust(top=0.70, bottom=0.13)
+        plt.subplots_adjust(top=0.755, bottom=0.13)
         plt.show()
         plt.close(fig=fig)
 
