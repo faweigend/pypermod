@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pypermod.agents.wbal_agents.wbal_int_agent_skiba import WbalIntAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from pypermod.agents.wbal_agents.wbal_ode_agent_linear import CpODEAgentBasisLinear
 from pypermod.simulator.simulator_basis import SimulatorBasis
 from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
@@ -23,6 +24,7 @@ if __name__ == "__main__":
     w_p = 20000
 
     # the agent to perform simulations
+    agent_lin = CpODEAgentBasisLinear(w_p=w_p, cp=cp, hz=hz)
     agent_ode = WbalODEAgentSkiba(w_p, cp, hz=hz)
     agent_wei = WbalODEAgentWeigend(w_p, cp, hz=hz)
     agent_int = WbalIntAgentSkiba(w_p, cp)
@@ -44,7 +46,7 @@ if __name__ == "__main__":
     # we start predicted W'bal with second 1 because simulations omit the initial time step 0
     sim_times = pow_times + 1
 
-    agents = [agent_ode, agent_wei, agent_bar]
+    agents = [agent_lin, agent_ode, agent_bar, agent_int]
 
     # set up plot
     fig = plt.figure(figsize=(8, 5))

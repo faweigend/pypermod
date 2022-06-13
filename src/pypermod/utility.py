@@ -10,6 +10,7 @@ from matplotlib.container import ErrorbarContainer
 from matplotlib.lines import Line2D
 
 plot_labels = {
+    "CpODEAgentBasisLinear" : "Morton and Billat (2004)",
     "hyd_h": "$AnF$ fill-level",
     "cp": "$CP$",
     "w'": "$W^\prime$",
@@ -38,6 +39,7 @@ plot_marker = {
 
 # used in verification plots
 plot_color_scheme = {
+    "CpODEAgentBasisLinear": "tab:olive",
     "hyd_h": "tab:olive",
     "hyd_ae": "tab:cyan",
     "vo2": "tab:blue",
