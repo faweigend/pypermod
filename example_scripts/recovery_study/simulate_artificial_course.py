@@ -32,21 +32,21 @@ if __name__ == "__main__":
 
     inter = 180
     # the power demands over the artificial course
-    pow_course = [100] * inter + \
+    pow_course = [150] * inter + \
                  [250] * inter + \
-                 [100] * inter + \
+                 [150] * inter + \
                  [250] * inter + \
-                 [50] * inter + \
-                 [50] * inter + \
-                 [50] * inter + \
-                 [300] * inter + \
+                 [250] * inter + \
+                 [150] * inter + \
+                 [150] * inter + \
+                 [250] * inter + \
                  [200] * inter
     pow_times = np.arange(len(pow_course))
 
     # we start predicted W'bal with second 1 because simulations omit the initial time step 0
     sim_times = pow_times + 1
 
-    agents = [agent_lin, agent_ode, agent_bar, agent_int]
+    agents = [agent_int, agent_lin]
 
     # set up plot
     fig = plt.figure(figsize=(8, 5))
