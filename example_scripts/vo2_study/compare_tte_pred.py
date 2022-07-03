@@ -33,7 +33,7 @@ def get_all_tte_predictions(show_plot=False) -> pd.DataFrame:
 
         # get fitted CP params
         fitting = athlete.get_cp_fitting_of_type(a_type=ActivityTypes.SRM_BBB_TEST)
-        cp_params = fitting.get_params(CPMTypes.P2MONOD)
+        cp_params = fitting.get_params(CPMTypes.P2_LINEAR)
         wp = cp_params["w_p"]
         cp = cp_params["cp"]
 

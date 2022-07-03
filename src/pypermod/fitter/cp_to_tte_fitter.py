@@ -10,9 +10,9 @@ from scipy import stats
 
 class CPMTypes(Enum):
     """determines available CP models"""
-    P2WHIPP = "2p_whipp"
-    P2MONOD = "2p_monod_and_scherrer"
-    P2MORIT = "2p_moritani"
+    P2_1dTIME = "2p_1/time"
+    P2_LINEAR = "2p_linear"
+    P2_HYP = "2p_hyp"
     P3K = "3p_k"
     P3PMAX = "3p_pmax"
 
@@ -22,19 +22,25 @@ class CPMFits:
 
     def __init__(self):
         """simple setup of the internal storage"""
-        self.__param_dict = {"tte_intensities": {}}
+        self.__param_dict = {"ttes_time:power": {}}
 
-    def set_p2whipp(self, w_p, cp, err, r2):
+    def set_p2_1dtime(self, w_p, cp, wp_see, cp_see, r2):
         """setter for Whipp et. al. (1982) estimation results"""
-        self.__param_dict.update({CPMTypes.P2WHIPP.value: {"w_p": w_p, "cp": cp, "error": err, "r2": r2}})
+        self.__param_dict.update({
+            CPMTypes.P2_1dTIME.value: {"w_p": w_p, "cp": cp, "wp_see": wp_see, "cp_see": cp_see, "r2": r2}
+        })
 
-    def set_p2monod(self, w_p, cp, err, r2):
+    def set_p2_linear(self, w_p, cp, wp_see, cp_see, r2):
         """setter for Monod & Scherrer (1965) estimation results"""
-        self.__param_dict.update({CPMTypes.P2MONOD.value: {"w_p": w_p, "cp": cp, "error": err, "r2": r2}})
+        self.__param_dict.update({
+            CPMTypes.P2_LINEAR.value: {"w_p": w_p, "cp": cp, "wp_see": wp_see, "cp_see": cp_see, "r2": r2}
+        })
 
-    def set_p2morit(self, w_p, cp, err, r2):
+    def set_p2_hyp(self, w_p, cp, wp_see, cp_see, r2):
         """setter for  Moritani et. al. (1981) estimation results"""
-        self.__param_dict.update({CPMTypes.P2MORIT.value: {"w_p": w_p, "cp": cp, "error": err.tolist(), "r2": r2}})
+        self.__param_dict.update({
+            CPMTypes.P2_HYP.value: {"w_p": w_p, "cp": cp, "wp_see": wp_see, "cp_see": cp_see, "r2": r2}
+        })
 
     def set_p3k(self, w_p, cp, k, err, r2):
         """setter for Morton (1996) 3-p model with simple k parameter"""
@@ -50,7 +56,7 @@ class CPMFits:
         simple check whether tte intensities and times were stored with the fitting
         :return: boolean
         """
-        return bool(self.__param_dict["tte_intensities"])
+        return bool(self.__param_dict["ttes_time:power"])
 
     def get_params(self, cpm_type: CPMTypes):
         """returns desired set of stored estimation results"""
@@ -60,7 +66,7 @@ class CPMFits:
         """
         :return: used TTEs as a simple constant effort measures object
         """
-        dict_tte = self.__param_dict["tte_intensities"]
+        dict_tte = self.__param_dict["ttes_time:power"]
         return SimpleConstantEffortMeasures(times=list(dict_tte.keys()),
                                             measures=list(dict_tte.values()))
 
@@ -72,17 +78,17 @@ class CPMFits:
         """
 
         # save ttes
-        self.__param_dict["tte_intensities"] = es.as_dict()
+        self.__param_dict["ttes_time:power"] = es.as_dict()
 
         # fit all available models and store results in CPMFits instance
-        w_p_m, cp_m, err, r2 = CpToTTEsFitter.fit_2_param_model_monod_and_scherrer(es)
-        self.set_p2monod(w_p=w_p_m, cp=cp_m, err=err, r2=r2)
+        w_p_m, cp_m, wp_see, cp_see, r2 = CpToTTEsFitter.fit_2p_linear(es)
+        self.set_p2_linear(w_p=w_p_m, cp=cp_m, wp_see=wp_see, cp_see=cp_see, r2=r2)
 
-        w_p, cp, err, r2 = CpToTTEsFitter.fit_2_param_model_whipp(es)
-        self.set_p2whipp(w_p=w_p, cp=cp, err=err, r2=r2)
+        w_p, cp, wp_see, cp_see, r2 = CpToTTEsFitter.fit_2p_1dtime(es)
+        self.set_p2_1dtime(w_p=w_p, cp=cp, wp_see=wp_see, cp_see=cp_see, r2=r2)
 
-        w_p, cp, err, r2 = CpToTTEsFitter.fit_2_param_model_moritani(es, initial_guess=[300, 5000])
-        self.set_p2morit(w_p=w_p, cp=cp, err=err, r2=r2)
+        w_p, cp, wp_see, cp_see, r2 = CpToTTEsFitter.fit_2p_hyp(es)
+        self.set_p2_hyp(w_p=w_p, cp=cp, wp_see=wp_see, cp_see=cp_see, r2=r2)
 
         w_p, cp, k, err, r2 = CpToTTEsFitter.fit_3_param_model_k(es, initial_guess=[w_p_m, cp_m, -40])
         self.set_p3k(w_p=w_p, cp=cp, k=k, err=err, r2=r2)
@@ -98,7 +104,7 @@ class CPMFits:
                 self.__param_dict[cpm_type.value] = param_dict[cpm_type.value]
 
         # keep track of extra values (used to be more)
-        extra_values = ["tte_intensities"]
+        extra_values = ["ttes_time:power"]
         for extra_value in extra_values:
             if extra_value in param_dict:
                 self.__param_dict[extra_value] = param_dict[extra_value]
@@ -141,20 +147,20 @@ class CpToTTEsFitter:
         return w_p / (t_lim - k) + cp
 
     @staticmethod
-    def func_2p_moritani(t_lim, w_p, cp):
+    def func_2p_hyp(p, w_p, cp):
         """
         two parameter model
-        :param t_lim:
+        :param p:
         :param w_p:
         :param cp:
-        :return: P(t)
+        :return: t_lim
         """
-        return (w_p / t_lim) + cp
+        return w_p / (p - cp)
 
     @staticmethod
-    def fit_2_param_model_whipp(ttes: SimpleConstantEffortMeasures):
+    def fit_2p_1dtime(ttes: SimpleConstantEffortMeasures):
         """
-        Fits 2 parameter CP model using Whipp et. al. (1982)
+        Fits 2 parameter CP model using 1/time approach by Whipp et al. (1982)
         Uses given TTE times fit an estimate of W' (Anaerobic work capacity) and
         CP (Critical Power) using the two parameter model.
         :return: w' and critical power as two variables
@@ -163,7 +169,7 @@ class CpToTTEsFitter:
         trans_times = [1 / x for x in ttes.times]
 
         # flip values: W' * 1/t + CP
-        w_p, cp, err = CpToTTEsFitter.__linear_regression(trans_times, ttes.measures)
+        w_p, cp, wp_see, cp_see = CpToTTEsFitter.__linear_regression(trans_times, ttes.measures)
 
         # estimate the r2 score for comparison
         true = ttes.measures
@@ -173,12 +179,12 @@ class CpToTTEsFitter:
             pred.append(w_p * time + cp)
         r2 = r2_score(true, pred)
 
-        return w_p, cp, err, r2
+        return w_p, cp, wp_see, cp_see, r2
 
     @staticmethod
-    def fit_2_param_model_monod_and_scherrer(ttes: SimpleConstantEffortMeasures):
+    def fit_2p_linear(ttes: SimpleConstantEffortMeasures):
         """
-        Fits 2 parameter CP model using Monod & Scherrer (1965)
+        Fits 2 linear parameter CP model using Monod & Scherrer (1965)
         Uses given TTE times fit an estimate of W' (Anaerobic work capacity) and
         CP (Critical Power) using the two parameter model.
         :return: w' and critical power as two variables
@@ -191,7 +197,7 @@ class CpToTTEsFitter:
             w_lim.append(float(x) * (tte_times[i]))
 
         # flip values: cp * t + W'
-        cp, w_p, err = CpToTTEsFitter.__linear_regression(tte_times, w_lim)
+        cp, w_p, cp_see, wp_see = CpToTTEsFitter.__linear_regression(tte_times, w_lim)
 
         # estimate the r2 score for comparison
         true = w_lim
@@ -200,12 +206,12 @@ class CpToTTEsFitter:
             pred.append(cp * time + w_p)
         r2 = r2_score(true, pred)
 
-        return w_p, cp, err, r2
+        return w_p, cp, wp_see, cp_see, r2
 
     @staticmethod
-    def fit_2_param_model_moritani(ttes: SimpleConstantEffortMeasures, initial_guess: list = None):
+    def fit_2p_hyp(ttes: SimpleConstantEffortMeasures, initial_guess: list = None):
         """
-        Fits 2 parameter CP model using Moritani et. al. (1981)
+        Fits 2 parameter hyperbolic CP model using Moritani et. al. (1981)
         Uses given TTE times fit an estimate of W' (Anaerobic work capacity) and
         CP (Critical Power) using the two parameter model.
         :return: w' and critical power as two variables
@@ -215,10 +221,32 @@ class CpToTTEsFitter:
 
         # apply non-linear regression
         guess = [15000, 50] if initial_guess is None else initial_guess
-        slope, intercept, err, r2 = CpToTTEsFitter.__2_param_curve_fit(
-            CpToTTEsFitter.func_2p_moritani, ttes,
-            guess)
-        return slope, intercept, err, r2
+
+        if len(ttes) < 2:
+            raise UserWarning("{} are not enough time frames to estimate W' and CP".format(len(ttes)))
+        try:
+            # The model function, f(x, ...).  It must take the independent
+            # variable as the first argument and the parameters to fit as
+            # separate remaining arguments.
+            popt, pcov = curve_fit(CpToTTEsFitter.func_2p_hyp,
+                                   xdata=ttes.measures,
+                                   ydata=ttes.times,
+                                   p0=guess)
+
+            # estimate the r2 score for comparison
+            true = ttes.times
+            pred = []
+            for p in ttes.measures:
+                pred.append(CpToTTEsFitter.func_2p_hyp(p, popt[0], popt[1]))
+            r2 = r2_score(true, pred)
+
+            # standard error is sqrt of diag of cov matrix
+            sees = np.sqrt(np.diag(pcov))
+            # w_p, cp, k,
+            return popt[0], popt[1], sees[0], sees[1], r2
+        except RuntimeError:
+            logging.warning("Optimal parameters not found")
+            return -1, -1, -1, -1
 
     @staticmethod
     def fit_3_param_model_k(ttes: SimpleConstantEffortMeasures, initial_guess: list = None):
@@ -254,38 +282,9 @@ class CpToTTEsFitter:
         """
         if len(x) < 2:
             raise UserWarning("{} are not enough time frames to estimate W' and CP".format(len(x)))
-        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
-        return slope, intercept, std_err
+        lm = stats.linregress(x, y)
 
-    @staticmethod
-    def __2_param_curve_fit(func, ttes: SimpleConstantEffortMeasures, guess: list):
-        """
-        base method for 3 param k or p_max fit
-        :param func:
-        :param ttes:
-        :param guess:
-        :return:
-        """
-        if len(ttes) < 2:
-            raise UserWarning("{} are not enough time frames to estimate W' and CP".format(len(ttes)))
-        try:
-            # The model function, f(x, ...).  It must take the independent
-            # variable as the first argument and the parameters to fit as
-            # separate remaining arguments.
-            popt, pcov = curve_fit(func, ttes.times, ttes.measures, guess)
-
-            # estimate the r2 score for comparison
-            true = ttes.measures
-            pred = []
-            for time in ttes.times:
-                pred.append(func(time, popt[0], popt[1]))
-            r2 = r2_score(true, pred)
-
-            # w_p, cp, k, standard error is sqrt of cov matrix
-            return popt[0], popt[1], np.sqrt(np.diag(pcov)), r2
-        except RuntimeError:
-            logging.warning("Optimal parameters not found")
-            return -1, -1, -1, -1
+        return lm.slope, lm.intercept, lm.stderr, lm.intercept_stderr
 
     @staticmethod
     def __3_param_curve_fit(func, ttes: SimpleConstantEffortMeasures, guess: list, bounds=None):

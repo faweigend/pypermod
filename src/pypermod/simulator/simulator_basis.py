@@ -3,6 +3,7 @@ import logging
 from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from pypermod.agents.wbal_agents.wbal_ode_agent_linear import CpODEAgentBasisLinear
 from pypermod.agents.wbal_agents.wbal_int_agent import WbalIntAgent
+from threecomphyd.agents.two_comp_hyd_agent import TwoCompHydAgent
 
 
 class SimulatorBasis:
@@ -146,7 +147,7 @@ class SimulatorBasis:
         if isinstance(agent, WbalIntAgent):
             w_bal_hist = agent.estimate_w_p_bal_to_data(course_data)
         # ... differential agent
-        elif isinstance(agent, CpODEAgentBasisLinear):
+        elif isinstance(agent, CpODEAgentBasisLinear) or isinstance(agent, TwoCompHydAgent):
             for tick in course_data:
                 agent.set_power(tick)
                 agent.perform_one_step()

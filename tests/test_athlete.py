@@ -208,8 +208,8 @@ if __name__ == "__main__":
     assert type(cpm1) is CPMFits
 
     # double check W' and CP values
-    assert cpm1.get_params(CPMTypes.P2MONOD)["w_p"] == 15096.0
-    assert cpm1.get_params(CPMTypes.P2MONOD)["cp"] == 66.0
+    assert cpm1.get_params(CPMTypes.P2_LINEAR)["w_p"] == 15096.0
+    assert cpm1.get_params(CPMTypes.P2_LINEAR)["cp"] == 66.0
     logging.info("PASSED first SRM BBB TTE fitting")
 
     # clear one TTE and see if fitting is updated
@@ -234,8 +234,8 @@ if __name__ == "__main__":
     assert cpm2 != cpm1 != cpm3
 
     # double check W' and CP values
-    assert cpm3.get_params(CPMTypes.P2MONOD)["w_p"] == 14475.303501945524
-    assert cpm3.get_params(CPMTypes.P2MONOD)["cp"] == 71.73346303501945
+    assert cpm3.get_params(CPMTypes.P2_LINEAR)["w_p"] == 14475.303501945524
+    assert cpm3.get_params(CPMTypes.P2_LINEAR)["cp"] == 71.73346303501945
 
     # nothing changed -> should be loaded
     cpm4 = athlete.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
@@ -261,8 +261,8 @@ if __name__ == "__main__":
                                           ProtocolTypes.TTE)
     assert len(tte_list) == 5
 
-    assert cpm5.get_params(CPMTypes.P2MONOD)["w_p"] == 14475.303501945524
-    assert cpm5.get_params(CPMTypes.P2MONOD)["cp"] == 71.73346303501945
+    assert cpm5.get_params(CPMTypes.P2_LINEAR)["w_p"] == 14475.303501945524
+    assert cpm5.get_params(CPMTypes.P2_LINEAR)["cp"] == 71.73346303501945
 
     logging.info("PASSED 2 athletes 1 ID tests")
 

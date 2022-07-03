@@ -33,7 +33,7 @@ def ramp_test_and_cp_fitting_table():
         fitting = athlete.get_cp_fitting_of_type(a_type=ActivityTypes.SRM_BBB_TEST)
 
         # we want CP and W' estimated with the method by Monod and Scherrer.
-        cp_params = fitting.get_params(CPMTypes.P2MONOD)
+        cp_params = fitting.get_params(CPMTypes.P2_LINEAR)
 
         # get the IDs of recorded ramp tests of the athlete
         ramps = athlete.list_activity_ids(a_type=ActivityTypes.SRM_BBB_TEST,

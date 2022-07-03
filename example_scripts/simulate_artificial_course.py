@@ -10,6 +10,7 @@ from pypermod.simulator.simulator_basis import SimulatorBasis
 from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from pypermod.utility import PlotLayout
+from threecomphyd.agents.two_comp_hyd_agent import TwoCompHydAgent
 
 if __name__ == "__main__":
     # set logging level to highest level
@@ -24,13 +25,15 @@ if __name__ == "__main__":
     w_p = 20000
 
     # the agent to perform simulations
-    agent_lin = CpODEAgentBasisLinear(w_p=w_p, cp=cp, hz=hz)
     agent_ode = WbalODEAgentSkiba(w_p, cp, hz=hz)
     agent_wei = WbalODEAgentWeigend(w_p, cp, hz=hz)
     agent_int = WbalIntAgentSkiba(w_p, cp)
     agent_bar = WbalODEAgentBartram(w_p, cp, hz=hz)
+    agent_lin = CpODEAgentBasisLinear(w_p=w_p, cp=cp, hz=hz)
+    agent_2tm_lin = TwoCompHydAgent(an=w_p, cp=cp, phi=0.3, psi=0.7, hz=hz)
+    agent_2tm_exp = TwoCompHydAgent(an=w_p, cp=cp, phi=0.5, psi=0.1, hz=hz)
 
-    inter = 180
+    inter = 180 * hz
     # the power demands over the artificial course
     pow_course = [150] * inter + \
                  [250] * inter + \
@@ -40,13 +43,13 @@ if __name__ == "__main__":
                  [150] * inter + \
                  [150] * inter + \
                  [250] * inter + \
-                 [200] * inter
+                 [350] * inter
     pow_times = np.arange(len(pow_course))
 
     # we start predicted W'bal with second 1 because simulations omit the initial time step 0
     sim_times = pow_times + 1
 
-    agents = [agent_int, agent_lin]
+    agents = [agent_lin, agent_2tm_lin]
 
     # set up plot
     fig = plt.figure(figsize=(8, 5))
@@ -56,10 +59,20 @@ if __name__ == "__main__":
     # use simulator for every agent and plot result
     for agent in agents:
         balances = SimulatorBasis.simulate_course(agent, course_data=pow_course)
+
+        linewidth = 2
+        linestyle = "-"
+
+        if agent == agent_2tm_lin:
+            linewidth = 4
+            linestyle = ":"
+
         ax2.plot(sim_times,
                  balances,
                  color=PlotLayout.get_plot_color(agent.get_name()),
-                 label=PlotLayout.get_plot_label(agent.get_name()))
+                 label=PlotLayout.get_plot_label(agent.get_name()),
+                 linewidth=linewidth,
+                 linestyle=linestyle)
 
     # plot power demands
     ax.plot(pow_times, pow_course, color='black', label="intensity")

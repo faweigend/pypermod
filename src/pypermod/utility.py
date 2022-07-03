@@ -23,6 +23,7 @@ plot_labels = {
     "WbalODEAgentBartram": "$W^\prime_\mathrm{bart}$",
     "WbalODEAgentFixTau": "fixTau",
     "ThreeCompHydAgent": "$\mathrm{hydraulic}_\mathrm{weig}$",
+    "TwoCompHydAgent" : "$\mathrm{hydraulic}_\mathrm{2TM}$",
     "ground_truth": "observations",
     "intensity": "intensity"
 }
@@ -34,6 +35,7 @@ plot_marker = {
     "WbalODEAgentBartram": "+",
     "WbalODEAgentFixTau": "o",
     "ThreeCompHydAgent": "v",
+    "TwoCompHydAgent": ".",
     "ground_truth": "X",
 }
 
@@ -49,6 +51,7 @@ plot_color_scheme = {
     "WbalODEAgentSkiba": "tab:red",
     "WbalODEAgentBartram": "tab:purple",
     "ThreeCompHydAgent": "tab:green",
+    "TwoCompHydAgent" : "tab:brown",
     "ground_truth": "tab:blue",
     "intensity": "tab:grey"
 }
