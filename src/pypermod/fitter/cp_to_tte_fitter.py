@@ -24,33 +24,6 @@ class CPMFits:
         """simple setup of the internal storage"""
         self.__param_dict = {"ttes_time:power": {}}
 
-    def set_p2_1dtime(self, w_p, cp, wp_see, cp_see, r2):
-        """setter for Whipp et. al. (1982) estimation results"""
-        self.__param_dict.update({
-            CPMTypes.P2_1dTIME.value: {"w_p": w_p, "cp": cp, "wp_see": wp_see, "cp_see": cp_see, "r2": r2}
-        })
-
-    def set_p2_linear(self, w_p, cp, wp_see, cp_see, r2):
-        """setter for Monod & Scherrer (1965) estimation results"""
-        self.__param_dict.update({
-            CPMTypes.P2_LINEAR.value: {"w_p": w_p, "cp": cp, "wp_see": wp_see, "cp_see": cp_see, "r2": r2}
-        })
-
-    def set_p2_hyp(self, w_p, cp, wp_see, cp_see, r2):
-        """setter for  Moritani et. al. (1981) estimation results"""
-        self.__param_dict.update({
-            CPMTypes.P2_HYP.value: {"w_p": w_p, "cp": cp, "wp_see": wp_see, "cp_see": cp_see, "r2": r2}
-        })
-
-    def set_p3k(self, w_p, cp, k, err, r2):
-        """setter for Morton (1996) 3-p model with simple k parameter"""
-        self.__param_dict.update({CPMTypes.P3K.value: {"w_p": w_p, "cp": cp, "k": k, "error": err.tolist(), "r2": r2}})
-
-    def set_p3p_pmax(self, w_p, cp, p_max, err, r2):
-        """setter for Morton (1996) 3-p model with dynamic p_max parameter"""
-        self.__param_dict.update(
-            {CPMTypes.P3PMAX.value: {"w_p": w_p, "cp": cp, "p_max": p_max, "error": err.tolist(), "r2": r2}})
-
     def has_ttes(self):
         """
         simple check whether tte intensities and times were stored with the fitting
@@ -82,20 +55,73 @@ class CPMFits:
 
         # fit all available models and store results in CPMFits instance
         w_p_m, cp_m, wp_see, cp_see, r2 = CpToTTEsFitter.fit_2p_linear(es)
-        self.set_p2_linear(w_p=w_p_m, cp=cp_m, wp_see=wp_see, cp_see=cp_see, r2=r2)
+        self.__param_dict.update({
+            CPMTypes.P2_LINEAR.value: {"w_p": w_p_m,
+                                       "cp": cp_m,
+                                       "wp_see": wp_see,
+                                       "cp_see": cp_see,
+                                       "wp_see%": round(wp_see / w_p_m * 100, 1),
+                                       "cp_see%": round(cp_see / cp_m * 100, 1),
+                                       "r2": r2}
+        })
 
         w_p, cp, wp_see, cp_see, r2 = CpToTTEsFitter.fit_2p_1dtime(es)
-        self.set_p2_1dtime(w_p=w_p, cp=cp, wp_see=wp_see, cp_see=cp_see, r2=r2)
+        self.__param_dict.update({
+            CPMTypes.P2_1dTIME.value: {"w_p": w_p,
+                                       "cp": cp,
+                                       "wp_see": wp_see,
+                                       "cp_see": cp_see,
+                                       "wp_see%": round(wp_see / w_p * 100, 1),
+                                       "cp_see%": round(cp_see / cp * 100, 1),
+                                       "r2": r2}
+        })
 
         w_p, cp, wp_see, cp_see, r2 = CpToTTEsFitter.fit_2p_hyp(es)
-        self.set_p2_hyp(w_p=w_p, cp=cp, wp_see=wp_see, cp_see=cp_see, r2=r2)
+        self.__param_dict.update({
+            CPMTypes.P2_HYP.value: {"w_p": w_p,
+                                    "cp": cp,
+                                    "wp_see": wp_see,
+                                    "cp_see": cp_see,
+                                    "wp_see%": round(wp_see / w_p * 100, 1),
+                                    "cp_see%": round(cp_see / cp * 100, 1),
+                                    "r2": r2}
+        })
 
-        w_p, cp, k, err, r2 = CpToTTEsFitter.fit_3_param_model_k(es, initial_guess=[w_p_m, cp_m, -40])
-        self.set_p3k(w_p=w_p, cp=cp, k=k, err=err, r2=r2)
+        w_p, cp, k, err, r2 = CpToTTEsFitter.fit_3_param_model_k(es)
+        self.__param_dict.update({CPMTypes.P3K.value: {"w_p": w_p, "cp": cp, "k": k, "error": err.tolist(), "r2": r2}})
 
         # set cp *2 as the initial guess for max instantaneous power
-        w_p, cp, p_max, err, r2 = CpToTTEsFitter.fit_3_param_model_p_max(es, initial_guess=[w_p_m, cp_m, cp_m * 2])
-        self.set_p3p_pmax(w_p=w_p, cp=cp, p_max=p_max, err=err, r2=r2)
+        w_p, cp, p_max, err, r2 = CpToTTEsFitter.fit_3_param_model_p_max(es)
+        self.__param_dict.update(
+            {CPMTypes.P3PMAX.value: {"w_p": w_p, "cp": cp, "p_max": p_max, "error": err.tolist(), "r2": r2}})
+
+    def get_best_2p_fit(self):
+        """
+        finds the 2p model fitting with the smallest sum of (W' SEE)/W' + (CP SEE)/CP. Recommended by Jones et al. 2019
+        :return:  dict with entries {model, cp, w_p, wp_see%, cp_see, score}
+        """
+        checks = [CPMTypes.P2_1dTIME, CPMTypes.P2_LINEAR, CPMTypes.P2_HYP]
+        score = 100
+        best = None
+        for chk in checks:
+            vals = self.get_params(chk)
+            w_p = vals["w_p"]
+            cp = vals["cp"]
+            wp_see = vals["wp_see"]
+            cp_see = vals["cp_see"]
+            s = (wp_see / w_p + cp_see / cp) * 100
+            if s < score:
+                score = s
+                best = {
+                    "model": chk.value,
+                    "cp": cp,
+                    "w_p": w_p,
+                    "wp_see%": round(wp_see / w_p * 100, 1),
+                    "cp_see%": round(cp_see / cp * 100, 1),
+                    "score": score
+                }
+        self.__param_dict["best_2p"] = best
+        return best
 
     def create_from_saved_dict(self, param_dict: dict):
         """sets input dict as internal storage"""
@@ -104,7 +130,7 @@ class CPMFits:
                 self.__param_dict[cpm_type.value] = param_dict[cpm_type.value]
 
         # keep track of extra values (used to be more)
-        extra_values = ["ttes_time:power"]
+        extra_values = ["ttes_time:power", "best_2p"]
         for extra_value in extra_values:
             if extra_value in param_dict:
                 self.__param_dict[extra_value] = param_dict[extra_value]
@@ -121,41 +147,6 @@ class CpToTTEsFitter:
     provides functions and fitting for
     2 and 3 param critical power models
     """
-
-    @staticmethod
-    def func_3p_p_max(t_lim, w_p, cp, p_max):
-        """
-        three parameter model P(t_lim)
-        :param t_lim:
-        :param w_p: Anaerobic power capacity
-        :param p_max:
-        :param cp: critical power
-        :return: P(t)
-        """
-        return w_p / (t_lim - (w_p / (cp - p_max))) + cp
-
-    @staticmethod
-    def func_3p_k(t_lim, w_p, cp, k):
-        """
-        three parameter model P(t_lim)
-        :param t_lim:
-        :param w_p: Anaerobic power capacity
-        :param k:
-        :param cp: critical power
-        :return: P(t)
-        """
-        return w_p / (t_lim - k) + cp
-
-    @staticmethod
-    def func_2p_hyp(p, w_p, cp):
-        """
-        two parameter model
-        :param p:
-        :param w_p:
-        :param cp:
-        :return: t_lim
-        """
-        return w_p / (p - cp)
 
     @staticmethod
     def fit_2p_1dtime(ttes: SimpleConstantEffortMeasures):
@@ -225,10 +216,18 @@ class CpToTTEsFitter:
         if len(ttes) < 2:
             raise UserWarning("{} are not enough time frames to estimate W' and CP".format(len(ttes)))
         try:
+
+            def func_2p_hyp(p, w_p, cp):
+                """
+                two parameter model
+                :return: t_lim
+                """
+                return w_p / (p - cp)
+
             # The model function, f(x, ...).  It must take the independent
             # variable as the first argument and the parameters to fit as
             # separate remaining arguments.
-            popt, pcov = curve_fit(CpToTTEsFitter.func_2p_hyp,
+            popt, pcov = curve_fit(func_2p_hyp,
                                    xdata=ttes.measures,
                                    ydata=ttes.times,
                                    p0=guess)
@@ -237,7 +236,7 @@ class CpToTTEsFitter:
             true = ttes.times
             pred = []
             for p in ttes.measures:
-                pred.append(CpToTTEsFitter.func_2p_hyp(p, popt[0], popt[1]))
+                pred.append(func_2p_hyp(p, popt[0], popt[1]))
             r2 = r2_score(true, pred)
 
             # standard error is sqrt of diag of cov matrix
@@ -255,9 +254,21 @@ class CpToTTEsFitter:
         CP (Critical Power) using the three parameter model
         :return: w' and critical power and p_max
         """
-        guess = [150, 50, -40] if initial_guess is None else initial_guess
+        guess = [10000, 100, -150] if initial_guess is None else initial_guess
         bounds = ([0, 0, -np.inf], [np.inf, np.inf, 0])
-        w_p, cp, k, err, r2 = CpToTTEsFitter.__3_param_curve_fit(CpToTTEsFitter.func_3p_k, ttes,
+
+        def func_3p_k(p, w_p, cp, k):
+            """
+            three parameter model P(t_lim)
+            :param p:
+            :param w_p: Anaerobic power capacity
+            :param k:
+            :param cp: critical power
+            :return: t_lim
+            """
+            return w_p / (p - cp) + k
+
+        w_p, cp, k, err, r2 = CpToTTEsFitter.__3_param_curve_fit(func_3p_k, ttes,
                                                                  guess, bounds)
         return w_p, cp, k, err, r2
 
@@ -268,8 +279,20 @@ class CpToTTEsFitter:
         CP (Critical Power) using the three parameter model
         :return: w' and critical power and p_max
         """
-        guess = [150, 50, 300] if initial_guess is None else initial_guess
-        w_p, cp, p_max, err, r2 = CpToTTEsFitter.__3_param_curve_fit(CpToTTEsFitter.func_3p_p_max,
+        guess = [10000, 100, 300] if initial_guess is None else initial_guess
+
+        def func_3p_p_max(p, w_p, cp, p_max):
+            """
+            three parameter model P(t_lim)
+            :param p:
+            :param w_p: Anaerobic power capacity
+            :param p_max:
+            :param cp: critical power
+            :return: t_lim
+            """
+            return w_p / (p - cp) + w_p / (cp - p_max)
+
+        w_p, cp, p_max, err, r2 = CpToTTEsFitter.__3_param_curve_fit(func_3p_p_max,
                                                                      ttes, guess)
         return w_p, cp, p_max, err, r2
 
@@ -300,13 +323,17 @@ class CpToTTEsFitter:
         try:
             if bounds is None:
                 bounds = ([0, 0, 0], [np.inf, np.inf, np.inf])
-            popt, pcov = curve_fit(func, ttes.times, ttes.measures, guess, bounds=bounds)
+            popt, pcov = curve_fit(func,
+                                   xdata=ttes.measures,
+                                   ydata=ttes.times,
+                                   p0=guess,
+                                   bounds=bounds)
 
             # estimate the r2 score for comparison
-            true = ttes.measures
+            true = ttes.times
             pred = []
-            for time in ttes.times:
-                pred.append(func(time, popt[0], popt[1], popt[2]))
+            for p in ttes.measures:
+                pred.append(func(p, popt[0], popt[1], popt[2]))
             r2 = r2_score(true, pred)
 
             # w_p, cp, k, standard error is sqrt of cov matrix
