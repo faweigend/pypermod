@@ -55,5 +55,5 @@ if __name__ == "__main__":
 
     # display collected data
     table1 = cp_fitting_table()
-    print("\n Peak and CP table \n")
+    print("\n CP fittings table \n")
     print(table1.to_string())

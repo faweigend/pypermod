@@ -33,7 +33,7 @@ def get_all_tte_predictions(show_plot=False) -> pd.DataFrame:
 
         # get fitted CP params
         fitting = athlete.get_cp_fitting_of_type(a_type=ActivityTypes.SRM_BBB_TEST)
-        cp_params = fitting.get_params(CPMTypes.P2_LINEAR)
+        cp_params = fitting.get_best_2p_fit()
         wp = cp_params["w_p"]
         cp = cp_params["cp"]
 
@@ -52,8 +52,8 @@ def get_all_tte_predictions(show_plot=False) -> pd.DataFrame:
 
             # add estimations to results data frame
             row = {
-                "athlete": [subj],
-                "resistance (Watts)": [int(i)],
+                "participant": [subj + 1],
+                "resistance (W)": [int(i)],
                 "observed": [int(t)],
                 PlotLayout.get_plot_label(hyd_agent.get_name()): [int(tte_hyd)],
                 "two-parameter": [round(tte_cp)]
@@ -81,7 +81,7 @@ def get_all_tte_predictions(show_plot=False) -> pd.DataFrame:
             plt.show()
             plt.close(fig)
 
-    return results.sort_values(by=['athlete', 'resistance (Watts)'])
+    return results.sort_values(by=['participant', 'resistance (W)'])
 
 
 def get_categorised_tte_predictions() -> pd.DataFrame:
@@ -93,7 +93,7 @@ def get_categorised_tte_predictions() -> pd.DataFrame:
     """
     # get all ttes from function above
     ann_results = get_all_tte_predictions()
-    participants = ann_results['athlete'].unique()
+    participants = ann_results['participant'].unique()
 
     # test specific stats. i increases from lowest to highest resistance
     categorised_rmse = pd.DataFrame()
@@ -104,9 +104,9 @@ def get_categorised_tte_predictions() -> pd.DataFrame:
 
         # filter resistance category
         filtered_tests = pd.DataFrame()
-        for subj in range(len(participants)):
-            subj_tests = ann_results[ann_results["athlete"] == subj]
-            subj_test = subj_tests.sort_values(by='resistance (Watts)').iloc[i]
+        for subj in participants:
+            subj_tests = ann_results[ann_results["participant"] == subj]
+            subj_test = subj_tests.sort_values(by='resistance (W)').iloc[i]
             filtered_tests = filtered_tests.append(subj_test, ignore_index=True)
 
         # basic stats of filtered ttes
@@ -116,7 +116,7 @@ def get_categorised_tte_predictions() -> pd.DataFrame:
         })
         # model prediction errors on filtered ttes
         for j, col in enumerate(ann_results.columns):
-            if j > 2:  # athletes, resistance, observed are skipped
+            if j > 2:  # participant, resistance, observed are skipped
                 vals = (filtered_tests[col] - filtered_tests["observed"])
                 avgv = round(vals.mean(), 2)
                 stdv = round(vals.std(), 2)
@@ -138,7 +138,7 @@ def get_categorised_tte_predictions() -> pd.DataFrame:
     }
     # and overall model prediction errors
     for j, col in enumerate(ann_results.columns):
-        if j > 2:  # athletes, resistance, observed are skipped
+        if j > 2:  # participant, resistance, observed are skipped
             vals = (ann_results[col] - ann_results["observed"])
             avgv = round(vals.mean(), 2)
             stdv = round(vals.std(), 2)
