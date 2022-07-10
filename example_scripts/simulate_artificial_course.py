@@ -39,17 +39,17 @@ if __name__ == "__main__":
                  [250] * inter + \
                  [150] * inter + \
                  [250] * inter + \
-                 [250] * inter + \
-                 [150] * inter + \
-                 [150] * inter + \
-                 [250] * inter + \
-                 [350] * inter
+                 [100] * inter + \
+                 [100] * inter + \
+                 [100] * inter + \
+                 [300] * inter + \
+                 [200] * inter
     pow_times = np.arange(len(pow_course))
 
     # we start predicted W'bal with second 1 because simulations omit the initial time step 0
     sim_times = pow_times + 1
 
-    agents = [agent_lin, agent_2tm_lin]
+    agents = [agent_ode, agent_bar]
 
     # set up plot
     fig = plt.figure(figsize=(8, 5))
@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     # format axis
     ax.set_ylim([0, cp * 2.5])
-    ax.set_ylabel("power output (watts)")
+    ax.set_ylabel("power output (W)")
     ax.set_xlabel("time (min)")
     ax.set_yticks([agent_ode.cp])
     ax.set_yticklabels(["CP"])
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     ax.set_xticks(range(0, len(pow_course) + 5, 180))
     ax.set_xticklabels(int(x / 60) for x in ax.get_xticks())
 
-    ax2.set_ylabel(r'$W^\prime$' + " balance (joules)")
+    ax2.set_ylabel(r'$W^\prime$' + " balance (J)")
     ax2.set_yticks([0, agent_ode.w_p])
     ax2.set_yticklabels([0, r'$W^\prime$'])
     ax2.legend()
