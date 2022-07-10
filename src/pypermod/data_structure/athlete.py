@@ -219,9 +219,10 @@ class Athlete:
             exercise_times = test.get_exercise_srm_data()["sec"]
             exercise_time_s = exercise_times.iloc[-1] - exercise_times.iloc[0]
             exercise_power = np.max(test.get_exercise_srm_data()["altitude"])
-            times.append(exercise_time_s)
-            powers.append(exercise_power)
-            ids.append(test.id)
+            if exercise_time_s > 117:
+                times.append(exercise_time_s)
+                powers.append(exercise_power)
+                ids.append(test.id)
 
         # check if a fitting is already saved and can be returned
         if typename in self.__cp_fittings:
