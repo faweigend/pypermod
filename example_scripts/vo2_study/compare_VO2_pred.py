@@ -10,14 +10,11 @@ from threecomphyd.simulator.three_comp_hyd_simulator import ThreeCompHydSimulato
 
 from pypermod.utility import PlotLayout as Pl
 from pypermod.data_structure.athlete import Athlete
-from pypermod.processing.time_series_processing import time_dependant_rolling_average_center
 from pypermod.data_structure.activities.activity_types import ActivityTypes
 from pypermod.data_structure.activities.protocol_types import ProtocolTypes
 from pypermod import config
 
-# average window for VO2 measurements.
-# The value at the center is the average of all values 15 sec to the left and to the right
-vo2_averaging_radius = 15
+from utility import time_dependant_rolling_average_right
 
 
 def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
@@ -32,8 +29,8 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
     hz = 1
     # organise results
     results = pd.DataFrame()
-    # for every participant (0 - 5) ...
-    for subj in range(5):
+    # for every participant (1 - 5) ...
+    for subj in range(1, 6):
 
         # create and load athlete object
         athlete = Athlete(os.path.join(config.paths["data_storage"],
@@ -65,9 +62,9 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
             warmup_end = activity.get_warmup_end_timestamp()
 
             # average breathing data
-            avg_vo2 = time_dependant_rolling_average_center(seconds=bbb_t,
-                                                            values=bbb_vo2,
-                                                            time_radius=vo2_averaging_radius)
+            avg_vo2 = time_dependant_rolling_average_right(seconds=bbb_t,
+                                                           values=bbb_vo2,
+                                                           window_size=30)
 
             # simulate hydraulic
             h, g, anf, ans, p_ae, p_an, m_flow, _ = ThreeCompHydSimulator.simulate_course_detail(agent=hyd_agent,
@@ -98,9 +95,9 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
             # add estimations to results data frame
             row = {
                 "participant": [subj],
-                "resistance (watts)": [int(res)],
-                "\gls{vo2}": [int(vo2_peak_t - warmup_end)],
-                "flow from $Ae$": [int(m_u_t - warmup_end)],
+                "power (W)": [int(res)],
+                "observed": [int(vo2_peak_t - warmup_end)],
+                "$\mathrm{hydraulic}_\mathrm{weig}$": [int(m_u_t - warmup_end)],
                 "prediction error": [int(vo2_peak_t - m_u_t)]
             }
             df_row = pd.DataFrame(row)
@@ -109,11 +106,11 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
             if show_plot:
                 Pl.set_rc_params()
                 # set up plot
-                fig = plt.figure(figsize=(8, 2.8))
+                fig = plt.figure(figsize=(8, 3.5))
                 ax = fig.add_subplot(1, 1, 1)
                 ax2 = ax.twinx()
 
-                ax.set_title("participant {} - resistance {}".format(subj, int(res)))
+                ax.set_title("participant {} - power {}".format(subj, int(res)))
 
                 # power output
                 d = np.zeros(len(srm_pow[:int(vo2_peak_t) + 10]))
@@ -125,7 +122,7 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
 
                 # simulated
                 ax.plot(t[:m_u_t], p_ae_norm[:m_u_t], color=Pl.get_plot_color("hyd_ae"),
-                        label="flow from $Ae$", linewidth=2)
+                        label="predicted $\dotV_{\mathrm{O}_2}$ by $\mathrm{hydraulic}_\mathrm{weig}$", linewidth=2)
                 ax.scatter(m_u_t, np.max(p_ae_norm), color=Pl.get_plot_color("hyd_ae"), marker="X", s=80)
 
                 # observed
@@ -134,7 +131,7 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
                 p_avg = p_avg[p_bbt > 0]
                 p_bbt = p_bbt[p_bbt > 0]
                 ax.scatter(p_bbt, p_avg, color=Pl.get_plot_color("vo2"),
-                           label="averaged $\dotV_{\mathrm{O}_2}$",
+                           label="averaged breath-by-breath $\dotV_{\mathrm{O}_2}$",
                            s=10)
                 ax.scatter(vo2_peak_t, np.max(avg_bbb_vo2_norm), color=Pl.get_plot_color("vo2"),
                            marker="X", s=80)
@@ -146,8 +143,8 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
                     int(m_u_t - warmup_end),
                     int(vo2_peak_t - warmup_end)
                 ])
-                ax.set_xlabel("time since exercise started (seconds)")
-                ax2.set_ylabel("power (watts)")
+                ax.set_xlabel("time since exercise started (s)")
+                ax2.set_ylabel("power (W)")
                 ax.set_ylabel("normalised flow/uptake")
 
                 # legends
@@ -161,7 +158,7 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
                 plt.show()
                 plt.close()
 
-    return results.sort_values(by=['participant', 'resistance (watts)'])
+    return results.sort_values(by=['participant', 'power (W)'])
 
 
 if __name__ == "__main__":
@@ -169,9 +166,9 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. "
                                "[file=%(filename)s:%(lineno)d]")
-    results = get_vo2_predictions()
+    results = get_vo2_predictions(show_plot=True)
 
     print("\n \n OVERVIEW TABLE \n \n")
 
-    print(results)
+    print(results.to_string())
     print("mean error ", results["prediction error"].mean(), "std", results["prediction error"].std())

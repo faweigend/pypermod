@@ -15,7 +15,7 @@ def hydraulic_fitting_table():
     # summarises results in here
     data = []
     # for every athlete ...
-    for subj in range(5):
+    for subj in range(1, 6):
         # load athlete object
         athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", str(subj)))
         # load stored hydraulic model configuration of the athlete

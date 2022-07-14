@@ -15,8 +15,8 @@ def cp_fitting_table():
     # summarises results in here
     data = []
 
-    # for every athlete (participant 0 - 4) ...
-    for subj in range(5):
+    # for every athlete (participant 1 - 5) ...
+    for subj in range(1,6):
         athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", str(subj)))
 
         # get fitted CP and W' params of all models

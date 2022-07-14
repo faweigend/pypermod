@@ -26,8 +26,8 @@ def get_all_tte_predictions(show_plot=False) -> pd.DataFrame:
     # store results in here
     results = pd.DataFrame()
 
-    # for every participant (0 - 5) ...
-    for subj in range(5):
+    # for every participant (1 - 5) ...
+    for subj in range(1, 6):
         # ... load data as an athlete object
         athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", str(subj)))
 
@@ -52,8 +52,8 @@ def get_all_tte_predictions(show_plot=False) -> pd.DataFrame:
 
             # add estimations to results data frame
             row = {
-                "participant": [subj + 1],
-                "resistance (W)": [int(i)],
+                "participant": [subj],
+                "power (W)": [int(i)],
                 "observed": [int(t)],
                 PlotLayout.get_plot_label(hyd_agent.get_name()): [int(tte_hyd)],
                 "two-parameter": [round(tte_cp)]
@@ -81,74 +81,7 @@ def get_all_tte_predictions(show_plot=False) -> pd.DataFrame:
             plt.show()
             plt.close(fig)
 
-    return results.sort_values(by=['participant', 'resistance (W)'])
-
-
-def get_categorised_tte_predictions() -> pd.DataFrame:
-    """
-    This function returns Table 3 of our VO2 paper. TTEs of all participants of the VO2 data set are categorised into
-    "lowest", "low", "medium", "high", "highest". We scrutinised prediction errors of models in these categories to detect
-    prediction bias.
-    :return: the table as a pandas dataframe
-    """
-    # get all ttes from function above
-    ann_results = get_all_tte_predictions()
-    participants = ann_results['participant'].unique()
-
-    # test specific stats. i increases from lowest to highest resistance
-    categorised_rmse = pd.DataFrame()
-    names = ["lowest", "low", "medium", "high", "highest"]
-    for i in range(len(names)):
-
-        row = {"resistance category": [names[i]]}
-
-        # filter resistance category
-        filtered_tests = pd.DataFrame()
-        for subj in participants:
-            subj_tests = ann_results[ann_results["participant"] == subj]
-            subj_test = subj_tests.sort_values(by='resistance (W)').iloc[i]
-            filtered_tests = filtered_tests.append(subj_test, ignore_index=True)
-
-        # basic stats of filtered ttes
-        row.update({
-            "observed TTE": ["{} & {}".format(round(filtered_tests["observed"].mean(), 2),
-                                              round(filtered_tests["observed"].std(), 2))]
-        })
-        # model prediction errors on filtered ttes
-        for j, col in enumerate(ann_results.columns):
-            if j > 2:  # participant, resistance, observed are skipped
-                vals = (filtered_tests[col] - filtered_tests["observed"])
-                avgv = round(vals.mean(), 2)
-                stdv = round(vals.std(), 2)
-
-                row.update({
-                    col: ["{} & {}".format(avgv, stdv)]
-                })
-        # add to dataframe
-        categorised_rmse = categorised_rmse.append(pd.DataFrame(row))
-
-    # Add overall stats
-    row = {
-        "resistance category": ["overall"],
-        "observed TTE": [
-            "{} & {}".format(
-                round(ann_results["observed"].mean(), 2),
-                round(ann_results["observed"].std(), 2))
-        ]
-    }
-    # and overall model prediction errors
-    for j, col in enumerate(ann_results.columns):
-        if j > 2:  # participant, resistance, observed are skipped
-            vals = (ann_results[col] - ann_results["observed"])
-            avgv = round(vals.mean(), 2)
-            stdv = round(vals.std(), 2)
-
-            row.update({
-                col: ["{} & {}".format(avgv, stdv)]
-            })
-
-    # return complete dataframe
-    return categorised_rmse.append(pd.DataFrame(row))
+    return results.sort_values(by=['participant', 'power (W)'])
 
 
 if __name__ == "__main__":
@@ -160,7 +93,3 @@ if __name__ == "__main__":
     ann_results = get_all_tte_predictions(show_plot=False)
     print("\n \n OVERVIEW TABLE \n \n")
     print(ann_results.to_string())
-
-    categorised_error = get_categorised_tte_predictions()
-    print("\n \n TTE CATEGORY TABLE \n \n")
-    print(categorised_error.to_string())

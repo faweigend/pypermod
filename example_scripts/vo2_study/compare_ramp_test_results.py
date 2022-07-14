@@ -24,8 +24,8 @@ def ramp_test_results_table():
     # summarises results in here
     data = []
 
-    # for every athlete (participant 0 - 5) ...
-    for subj in range(5):
+    # for every athlete (participant 1 - 5) ...
+    for subj in range(1, 6):
         athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", str(subj)))
 
         # get the IDs of recorded ramp tests of the athlete
@@ -54,9 +54,10 @@ def ramp_test_results_table():
         p_peak = np.max(exercise_avg_power)
 
         # finally store all values in our dataframe
-        data.append([round(ramp_vo2_max, 2),
+        data.append([subj,
+                     round(ramp_vo2_max, 2),
                      round(p_peak, 2)])
-    return pd.DataFrame(data, columns=["VO2_max", "P_peak"])
+    return pd.DataFrame(data, columns=["participant", "VO2_max", "P_peak"])
 
 
 if __name__ == "__main__":
