@@ -1,7 +1,8 @@
 from enum import Enum
 
 from pypermod.data_structure.activities.activity import Activity
-from pypermod.data_structure.activities.test_formats.srm_bbb_test import SRMBbbTest
+from pypermod.data_structure.activities.type_classes.srm_bbb_test import SRMBbbTest
+from pypermod.data_structure.activities.type_classes.strava_bike import StravaBike
 
 
 class ActivityTypes(Enum):
@@ -10,6 +11,7 @@ class ActivityTypes(Enum):
     """
     UNDEFINED = Activity
     SRM_BBB_TEST = SRMBbbTest  # srm data to be linked with breath by breath data
+    STRAVA_BIKE = StravaBike
 
     @classmethod
     def has_name(cls, name):

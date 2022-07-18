@@ -7,7 +7,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
-from pypermod.data_structure.activities.test_formats.srm_bbb_test import SRMBbbTest
+from pypermod.data_structure.activities.type_classes.srm_bbb_test import SRMBbbTest
 from pypermod.data_structure.activities.activity import Activity
 from pypermod.data_structure.activities.activity_types import ActivityTypes
 from pypermod.data_structure.activities.protocol_types import ProtocolTypes

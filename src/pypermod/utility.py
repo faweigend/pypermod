@@ -81,7 +81,6 @@ plot_grayscale_linestyles = {
     "WbalODEAgentFixTau": "-"
 }
 
-
 def string_to_date(dt_id: str):
     """
     transforms given date time string to an actual dt object
