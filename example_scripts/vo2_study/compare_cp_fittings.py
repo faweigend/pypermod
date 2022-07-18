@@ -26,14 +26,15 @@ def cp_fitting_table():
 
         # get best fit
         b_fit = cp_fitting.get_best_2p_fit()
-        vals += [round(b_fit["cp"]), b_fit["cp_see%"],
+        vals += [subj,
+                 round(b_fit["cp"]), b_fit["cp_see%"],
                  round(b_fit["w_p"]), b_fit["wp_see%"],
                  b_fit["model"]]
 
         # finally store all values in our dataframe
         data.append(vals)
 
-    return pd.DataFrame(data, columns=["CP(W)", "SEE(%)", "W\'(J)", "SEE(%)", "model"])
+    return pd.DataFrame(data, columns=["participant", "CP(W)", "SEE(%)", "W\'(J)", "SEE(%)", "model"])
 
 
 if __name__ == "__main__":

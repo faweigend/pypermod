@@ -9,9 +9,9 @@ from pypermod.data_structure.activities.activity_types import ActivityTypes
 from pypermod.data_structure.activities.protocol_types import ProtocolTypes
 from pypermod import config
 
-from utility import time_dependant_rolling_average_right
-
 # averaging window for VO2 measurements.
+from pypermod.processing.time_series_processing import time_dependant_rolling_average_right
+
 vo2_averaging = 30
 p_averaging = 10
 

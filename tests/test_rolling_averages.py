@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pypermod import config
 from pypermod.data_structure.athlete import Athlete
+from pypermod.processing.time_series_processing import time_dependant_rolling_average_center, rolling_average_center, \
+    time_dependant_rolling_average_right, rolling_average_right
 
 import utility
 
@@ -24,18 +26,18 @@ for test in athlete.iterate_activities_all():
     bbb_binned_times = binned_data["sec"]
     bbb_vo2_binned = binned_data["vo2"]
 
-    avg_timed = utility.time_dependant_rolling_average_center(bbb_times, bbb_vo2, 30)
-    avg_binned = utility.rolling_average_center(bbb_vo2_binned, 30, ignore_zeros=True)
+    avg_timed = time_dependant_rolling_average_center(bbb_times, bbb_vo2, 30)
+    avg_binned = rolling_average_center(bbb_vo2_binned, 30, ignore_zeros=True)
 
     # compare with pandas rolling average estimations
     pd_binned = bbb_vo2_binned.rolling(31, center=True).mean()
-    pd_comp_binned = utility.rolling_average_center(bbb_vo2_binned, 15, ignore_zeros=False)
+    pd_comp_binned = rolling_average_center(bbb_vo2_binned, 15, ignore_zeros=False)
 
-    avg_timed_right = utility.time_dependant_rolling_average_right(bbb_times, bbb_vo2, 30)
-    avg_binned_right = utility.rolling_average_right(bbb_vo2_binned, 30, ignore_zeros=True)
+    avg_timed_right = time_dependant_rolling_average_right(bbb_times, bbb_vo2, 30)
+    avg_binned_right = rolling_average_right(bbb_vo2_binned, 30, ignore_zeros=True)
 
     pd_binned_right = bbb_vo2_binned.rolling(30).mean()
-    pd_comp_right_binned = utility.rolling_average_right(bbb_vo2_binned, 30, ignore_zeros=False)
+    pd_comp_right_binned = rolling_average_right(bbb_vo2_binned, 30, ignore_zeros=False)
 
     # set up plot
     fig = plt.figure(figsize=(14, 10))

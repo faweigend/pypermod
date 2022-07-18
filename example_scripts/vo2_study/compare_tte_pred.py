@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 
 from pypermod.data_structure.athlete import Athlete
 from pypermod.data_structure.activities.activity_types import ActivityTypes
-from pypermod.fitter.cp_to_tte_fitter import CPMTypes
 from pypermod.utility import PlotLayout
 from pypermod import config
 

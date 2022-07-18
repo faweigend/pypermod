@@ -102,9 +102,11 @@ def rolling_average_right(column: pd.Series, window_size: int = 8, ignore_zeros=
     smoothed_data = np.zeros(column.shape)
 
     # estimate averages and insert them into target
-    for i in range(len(column)):
+    for i in range(len(column.index)):
         # all the values to the left of current with given window size
-        window = zero_border[i:i + window_size]
+        # the +1 is needed because we want write the value in the most right cell
+        # of the window. Otherwise window_size would be the end and excluded
+        window = zero_border[i + 1:i + window_size + 1]
 
         if np.nan in window:
             smoothed_data[i] = np.nan
@@ -118,6 +120,39 @@ def rolling_average_right(column: pd.Series, window_size: int = 8, ignore_zeros=
                 smoothed_data[i] = 0
             else:
                 smoothed_data[i] = np.average(window)
+
+    return smoothed_data
+
+
+def time_dependant_rolling_average_right(seconds: pd.Series, values: pd.Series, window_size: int):
+    """
+    Averages over time frames. This requires the addition of observation times.
+    :param seconds:
+    :param values:
+    :param window_size:
+    :return: smoothed data
+    """
+
+    smoothed_data = np.zeros(values.shape)
+
+    # iterate over every observation and
+    # walk back and forth in time to add values within the time frame
+    for i in range(len(seconds)):
+        # create clean list
+        avg = []
+        for b_i in range(i):
+            # walk back till radius is hit
+            if seconds.iloc[i - b_i] <= (seconds.iloc[i] - window_size):
+                break
+            else:
+                # include value in average
+                avg.append(values.iloc[i - b_i])
+        # average extracted data window
+        if len(avg) == 0:
+            logging.warning("averaging window is empty!")
+            smoothed_data[i] = 0
+        else:
+            smoothed_data[i] = np.average(avg)
 
     return smoothed_data
 

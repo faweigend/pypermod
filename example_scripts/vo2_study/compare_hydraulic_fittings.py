@@ -21,8 +21,8 @@ def hydraulic_fitting_table():
         # load stored hydraulic model configuration of the athlete
         hyd_conf = athlete.get_hydraulic_fitting_of_type(a_type=ActivityTypes.SRM_BBB_TEST)
         # append to collection
-        data.append(hyd_conf)
-    return pd.DataFrame(data, columns=["LF", "LS", "M_U", "M_LS", "M_LF", "theta", "gamma", "phi"])
+        data.append([subj] + hyd_conf)
+    return pd.DataFrame(data, columns=["participant", "LF", "LS", "M_U", "M_LS", "M_LF", "theta", "gamma", "phi"])
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from pypermod.processing.time_series_processing import time_dependant_rolling_average_right
 
 from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from threecomphyd.simulator.three_comp_hyd_simulator import ThreeCompHydSimulator
@@ -14,7 +15,6 @@ from pypermod.data_structure.activities.activity_types import ActivityTypes
 from pypermod.data_structure.activities.protocol_types import ProtocolTypes
 from pypermod import config
 
-from utility import time_dependant_rolling_average_right
 
 
 def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
