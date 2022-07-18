@@ -16,11 +16,11 @@ def cp_fitting_table():
     data = []
 
     # for every athlete (participant 1 - 5) ...
-    for subj in range(1,6):
+    for subj in range(1, 6):
         athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", str(subj)))
 
         # get fitted CP and W' params of all models
-        cp_fitting = athlete.get_cp_fitting_of_type(a_type=ActivityTypes.SRM_BBB_TEST)
+        cp_fitting = athlete.get_cp_fitting_of_type(a_type=ActivityTypes.SRM_BBB_TEST, min_tte=117)
 
         vals = []
 
