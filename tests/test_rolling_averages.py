@@ -8,16 +8,13 @@ from pypermod.data_structure.athlete import Athlete
 
 import utility
 
-from sportsparsing.data_parser import DataParser
-from sportsparsing.activities.activity_types import ActivityTypes
-from sportsparsing.activities.protocol_types import ProtocolTypes
 
 if __name__ == "__main__":
     # set logging level to highest level
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", "0"))
+athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", "1"))
 
 for test in athlete.iterate_activities_all():
     bbb_times = test.bbb_time_data

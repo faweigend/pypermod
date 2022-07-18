@@ -254,7 +254,7 @@ class CpToTTEsFitter:
         CP (Critical Power) using the three parameter model
         :return: w' and critical power and p_max
         """
-        guess = [10000, 100, -150] if initial_guess is None else initial_guess
+        guess = [9999, 99, -150] if initial_guess is None else initial_guess
         bounds = ([0, 0, -np.inf], [np.inf, np.inf, 0])
 
         def func_3p_k(p, w_p, cp, k):
@@ -266,6 +266,9 @@ class CpToTTEsFitter:
             :param cp: critical power
             :return: t_lim
             """
+            if (p-cp == 0).any():
+                raise UserWarning("Cannot fit to P=CP (division by 0) {}-{}={}".format(p, cp, p-cp))
+
             return w_p / (p - cp) + k
 
         w_p, cp, k, err, r2 = CpToTTEsFitter.__3_param_curve_fit(func_3p_k, ttes,
@@ -279,7 +282,7 @@ class CpToTTEsFitter:
         CP (Critical Power) using the three parameter model
         :return: w' and critical power and p_max
         """
-        guess = [10000, 100, 300] if initial_guess is None else initial_guess
+        guess = [9999, 99, 300] if initial_guess is None else initial_guess
 
         def func_3p_p_max(p, w_p, cp, p_max):
             """

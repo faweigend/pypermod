@@ -14,7 +14,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", "0"))
+athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", "1"))
 
 for test in athlete.iterate_activities_of_type_and_protocol(ActivityTypes.SRM_BBB_TEST, ProtocolTypes.TTE):
     bbb_data = test.bbb_data

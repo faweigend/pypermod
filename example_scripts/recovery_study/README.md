@@ -31,5 +31,7 @@ You may use them to further investigate our approaches to derive these time cons
 
 #### Simulate
 
+__note:__ the `simulate` script has been moved to the directory above as it is relevant for all data.
+
 Scripts that have a name that starts with `simulate` use one or several models to simulate energy dynamics of an athlete during exercise. 
 Use these scripts as examples for how to use `pypermod` for predictions.

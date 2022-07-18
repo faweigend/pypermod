@@ -219,7 +219,7 @@ if __name__ == "__main__":
     # no fitting possible because only three tests remain
     cpm2 = athlete.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
     assert cpm2 != cpm1
-    assert cpm2 is None
+    assert cpm2.has_ttes() == False
     logging.info("PASSED changed TTEs test")
 
     # add new ttes
@@ -280,7 +280,7 @@ if __name__ == "__main__":
 
     # clean up
     athlete.clear_all_data()
-    # shutil.rmtree(os.path.join(
-    #     config.paths["data_storage"],
-    #     "test_athlete")
-    # )
+    shutil.rmtree(os.path.join(
+        config.paths["data_storage"],
+        "test_athlete")
+    )
