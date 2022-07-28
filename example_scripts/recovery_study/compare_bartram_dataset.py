@@ -96,7 +96,7 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
             ax.grid(axis="y", linestyle=':', alpha=0.5)
 
             if i == 2:
-                ax.set_xlabel("$T_{\mathrm{rec}}$ (seconds)")
+                ax.set_xlabel("$T_{\mathrm{rec}}$ (s)")
             if i == 0:
                 ax.set_ylabel("recovery ratio (%)")
                 ax.set_yticks([25, 50, 75])

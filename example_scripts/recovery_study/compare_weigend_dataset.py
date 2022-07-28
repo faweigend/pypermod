@@ -116,8 +116,8 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
 
         ax1.set_ylabel("recovery ratio (%)")
         ax3.set_ylabel("recovery ratio (%)")
-        ax3.set_xlabel("$T_{\mathrm{rec}}$ (seconds)")
-        ax4.set_xlabel("$T_{\mathrm{rec}}$ (seconds)")
+        ax3.set_xlabel("$T_{\mathrm{rec}}$ (s)")
+        ax4.set_xlabel("$T_{\mathrm{rec}}$ (s)")
         for ax in [ax1, ax2, ax3, ax4]:
             ax.set_xticks([0, 120, 240, 360])
         ax1.legend(handles=handles)
