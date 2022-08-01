@@ -1,6 +1,6 @@
 # VO2 Study
 
-This directory contains scripts related to our publication:
+This directory contains scripts related to our preprint:
 
 ```
 @misc{https://doi.org/10.48550/arxiv.2207.14295,
