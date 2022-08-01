@@ -157,7 +157,7 @@ class CpODEAgentBasisLinear(CpAgentBasis):
         linear recovery happens for p < cp. It reduces W' exp and increases W' balance
         """
         # nothing to do if fully recovered
-        if self._w_bal < (self._w_p * 0.01):
+        if self._w_bal < self._w_p - 0.01:
             diff = (self._cp - p) * self._delta_t
             self._w_bal += diff
             # cannot be more recovered than w'

@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+from datetime import datetime
+
 import matplotlib
 import numpy as np
 import pypermod.config
@@ -8,18 +10,20 @@ from matplotlib.container import ErrorbarContainer
 from matplotlib.lines import Line2D
 
 plot_labels = {
+    "CpODEAgentBasisLinear" : "Morton and Billat (2004)",
     "hyd_h": "$AnF$ fill-level",
-    "cp": "CP",
+    "cp": "$CP$",
     "w'": "$W^\prime$",
-    "p_work": "$P_{work}$",
-    "p_rec": "$P_{rec}$",
-    "t_rec": "$T_{rec}$",
-    "WbalODEAgentWeigend": "$W^\prime_{weig}$",
-    "WbalIntAgentSkiba": "$W^\prime_{bal-int}$",
-    "WbalODEAgentSkiba": "$W^\prime_{skib}$",
-    "WbalODEAgentBartram": "$W^\prime_{bart}$",
+    "p_work": "$P_\mathrm{work}$",
+    "p_rec": "$P_\mathrm{rec}$",
+    "t_rec": "$T_\mathrm{rec}$",
+    "WbalODEAgentWeigend": "$W^\prime_\mathrm{weig}$",
+    "WbalIntAgentSkiba": "$W^\prime_\mathrm{bal-int}$",
+    "WbalODEAgentSkiba": "$W^\prime_\mathrm{skib}$",
+    "WbalODEAgentBartram": "$W^\prime_\mathrm{bart}$",
     "WbalODEAgentFixTau": "fixTau",
-    "ThreeCompHydAgent": "$hydraulic_{weig}$",
+    "ThreeCompHydAgent": "$\mathrm{hydraulic}_\mathrm{weig}$",
+    "TwoCompHydAgent" : "$\mathrm{hydraulic}_\mathrm{2TM}$",
     "ground_truth": "observations",
     "intensity": "intensity"
 }
@@ -31,31 +35,38 @@ plot_marker = {
     "WbalODEAgentBartram": "+",
     "WbalODEAgentFixTau": "o",
     "ThreeCompHydAgent": "v",
+    "TwoCompHydAgent": ".",
     "ground_truth": "X",
 }
 
 # used in verification plots
 plot_color_scheme = {
+    "CpODEAgentBasisLinear": "tab:olive",
     "hyd_h": "tab:olive",
+    "hyd_ae": "tab:cyan",
+    "vo2": "tab:blue",
     "WbalODEAgentWeigend": "black",
     "WbalODEAgentFixTau": "tab:orange",
     "WbalIntAgentSkiba": "tab:orange",
     "WbalODEAgentSkiba": "tab:red",
     "WbalODEAgentBartram": "tab:purple",
     "ThreeCompHydAgent": "tab:green",
+    "TwoCompHydAgent" : "tab:brown",
     "ground_truth": "tab:blue",
-    "intensity": "tab:blue"
+    "intensity": "tab:grey"
 }
 
 # used in verification plots
 plot_grayscale = {
-    "intensity": (0.6, 0.6, 0.6),
+    "hyd_ae": (0.2, 0.2, 0.2),
+    "vo2": (0, 0, 0),
     "WbalIntAgentSkiba": (0, 0, 0),
     "WbalODEAgentFixTau": (0.55, 0.55, 0.55),
     "WbalODEAgentSkiba": (0.55, 0.55, 0.55),
     "WbalODEAgentBartram": (0.5, 0.5, 0.5),
     "ThreeCompHydAgent": (0.05, 0.05, 0.05),
     "ground_truth": (0.6, 0.6, 0.6),
+    "intensity": (0.4, 0.4, 0.4)
 }
 
 plot_color_linestyles = defaultdict(lambda: "-")
@@ -69,6 +80,25 @@ plot_grayscale_linestyles = {
     "intensity": "-",
     "WbalODEAgentFixTau": "-"
 }
+
+def string_to_date(dt_id: str):
+    """
+    transforms given date time string to an actual dt object
+    :param dt_id: date time id
+    :return: converted datetime object
+    """
+    return datetime.strptime(dt_id, "%Y-%m-%d_%H:%M:%S:%f")
+
+
+def date_to_string(dt: datetime):
+    """
+    transforms given date time to an ID
+    :param dt: date time object to create id from
+    :return: id
+    """
+    return "{:04d}-{:02d}-{:02d}_" \
+           "{:02d}:{:02d}:{:02d}:{}".format(dt.year, dt.month, dt.day,
+                                            dt.hour, dt.minute, dt.second, dt.microsecond)
 
 
 def insert_with_key_enumeration(agent, agent_data: list, results: dict):
@@ -101,14 +131,14 @@ class PlotLayout:
         Sets standardised font and fontsize
         """
         # plot font and font size settings
-        matplotlib.rcParams['font.size'] = 12
         matplotlib.rcParams['pdf.fonttype'] = 42
         matplotlib.rcParams['ps.fonttype'] = 42
-        matplotlib.rcParams['axes.labelsize'] = 11
+        matplotlib.rcParams['axes.labelsize'] = 12
         matplotlib.rcParams['axes.titlesize'] = 12
         matplotlib.rcParams['xtick.labelsize'] = 12
         matplotlib.rcParams['ytick.labelsize'] = 12
-        matplotlib.rcParams['legend.fontsize'] = 11
+        matplotlib.rcParams['legend.fontsize'] = 12
+        matplotlib.rcParams['font.size'] = 12
 
     @staticmethod
     def create_standardised_legend(agents, ground_truth: bool = False, errorbar: bool = False, scatter: bool = False):

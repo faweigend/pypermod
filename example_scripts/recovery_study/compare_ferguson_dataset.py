@@ -1,13 +1,16 @@
 import logging
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
 from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from pypermod.utility import PlotLayout
 from pypermod.simulator.study_simulator import StudySimulator
+import pypermod.config as pypconfig
 
 
 def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
@@ -18,14 +21,27 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
     :return: predicted and ground truth measurements in a dict
     """
 
-    # published means from the paper
-    w_p = 21600
-    cp = 212
+    # data is in the recovery_study subdirectory of data_storage
+    # see git structure in src at https://github.com/faweigend/pypermod
+    data = pd.read_csv(os.path.join(pypconfig.paths["data_storage"],
+                                    "recovery_study",
+                                    "ferguson.csv"))
 
-    p_exp = 269  # P6 taken from the paper
-    p_rec = 20  # from paper too
-    # defined to provide enough detail in the short time frames
-    rec_times = np.arange(0, 910, 10)
+    # CP and W' are constants in Ferguson data set. Take the values from the first row
+    w_p = data["wp"].iloc[0]
+    cp = data["cp"].iloc[0]
+
+    # p_work and p_rec are constants. Take values from first row
+    p_work = data["p_work"].iloc[0]  # p_work is a constant. Take value from first row
+    p_rec = data["p_rec"].iloc[0]
+
+    # the time window covered by the plot
+    plot_rec_times = np.arange(0, 910, 10)
+
+    # observations from the paper
+    ground_truth_t = data["t_rec"]
+    ground_truth_v = data["obs"]
+    ground_truth_e = data["obs_sd"]
 
     # fitted to Ferguson et al. (w_p = 21600 cp = 212) with recoveries from Caen et al.
     # general settings for three component hydraulic agent
@@ -40,11 +56,6 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
         0.3363619580983015
     ]
 
-    # ground truth measures from the paper
-    ground_truth_t = [120, 360, 900]
-    ground_truth_v = [37, 65, 86]  # means
-    ground_truth_e = [5, 6, 4]  # stds
-
     agent_skiba_2015 = WbalODEAgentSkiba(w_p=w_p, cp=cp, hz=hz)
     agent_bartram = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
     agent_fit_caen = WbalODEAgentWeigend(w_p=w_p, cp=cp, hz=hz)
@@ -55,7 +66,7 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
     agents = [agent_bartram, agent_skiba_2015, agent_fit_caen, agent_hyd]
 
     # run the simulations
-    sims = StudySimulator.standard_comparison(agents=agents, p_work=p_exp, p_rec=p_rec, rec_times=rec_times)
+    sims = StudySimulator.standard_comparison(agents=agents, p_work=p_work, p_rec=p_rec, rec_times=plot_rec_times)
     # display overview plot if required
     if plot:
         # set up the figure
@@ -70,7 +81,7 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
 
         # plot the simulated agent dynamics
         for agent_n, agent_d in sims.items():
-            ax.plot(rec_times,
+            ax.plot(plot_rec_times,
                     agent_d,
                     color=PlotLayout.get_plot_color(agent_n),
                     linestyle=PlotLayout.get_plot_linestyle(agent_n))
@@ -80,8 +91,8 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
         ax.legend(handles=handles)
 
         # finish layout
-        ax.set_title("$P_{exp} = P360$ \n      $P_{rec}   = $20 watts")
-        ax.set_xlabel("$T_{rec}$ (sec)")
+        ax.set_title("$P_{\mathrm{work}} = P360$ \n  $P_{\mathrm{rec}}   = $20 W")
+        ax.set_xlabel("$T_{\mathrm{rec}}$ (s)")
         ax.set_xticks([0, 120, 360, 900])
         ax.set_ylabel("recovery ratio (%)")
 
@@ -92,18 +103,18 @@ def compare_ferguson_dataset(plot: bool = False, hz: int = 1) -> dict:
     ret_results = {}
     # assemble results dict for big comparison
     for i, t in enumerate(ground_truth_t):
-        name = "P240 20 watts T{}".format(t)
+        name = "P240 20W T{}".format(t)
         ret_results[name] = {
             PlotLayout.get_plot_label("cp"): cp,
             PlotLayout.get_plot_label("w'"): w_p,
-            PlotLayout.get_plot_label("p_work"): p_exp,
+            PlotLayout.get_plot_label("p_work"): p_work,
             PlotLayout.get_plot_label("p_rec"): p_rec,
             PlotLayout.get_plot_label("t_rec"): t,
             PlotLayout.get_plot_label("ground_truth"): ground_truth_v[i]
         }
         for k, v in sims.items():
             ret_results[name][PlotLayout.get_plot_label(k)] = round(
-                v[np.where(rec_times == t)[0][0]], 1)
+                v[np.where(plot_rec_times == t)[0][0]], 1)
 
     return ret_results
 
