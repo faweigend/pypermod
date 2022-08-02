@@ -1,0 +1,13 @@
+{
+    "activity": "SRMBbbTest",
+    "protocol": "tte",
+    "datetime": "2020-11-26 15:22:00",
+    "steps": 770,
+    "duration": 774.0,
+    "warmup": 180.0,
+    "recovery": 471.0,
+    "resistance": 221.0,
+    "bbb_offset": -28.0,
+    "vo2_avr": 2020.0133341402668,
+    "vo2_max": 3101.0984347
+}
