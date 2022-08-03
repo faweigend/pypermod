@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 
 from pypermod.data_structure.activities.data_formats.time_series import TimeSeries
-from sportsparsing.activities.protocol_types import ProtocolTypes
+from pypermod.data_structure.activities.protocol_types import ProtocolTypes
 
 
 class ProtocolTimeStamps(TimeSeries):
