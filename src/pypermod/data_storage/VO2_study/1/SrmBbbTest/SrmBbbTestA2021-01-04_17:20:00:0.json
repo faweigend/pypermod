@@ -1,0 +1,13 @@
+{
+    "activity": "SrmBbbTest",
+    "protocol": "ramp",
+    "datetime": "2021-01-04 17:20:00",
+    "steps": 984,
+    "duration": 986.0,
+    "warmup": 180.0,
+    "recovery": 683.0,
+    "resistance": 320.0,
+    "bbb_offset": -15.0,
+    "vo2_avr": 2202.9374738153715,
+    "vo2_max": 3944.5440204
+}

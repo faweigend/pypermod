@@ -216,9 +216,9 @@ class Athlete:
         # store TTE time and power data for a CP fitting
         times, powers, ids = [], [], []
         for i, test in enumerate(self.iterate_activities_of_type_and_protocol(a_type, ProtocolTypes.TTE)):
-            exercise_times = test.get_exercise_srm_data()["sec"]
+            exercise_times = test.get_exercise_bike_data()["sec"]
             exercise_time_s = exercise_times.iloc[-1] - exercise_times.iloc[0]
-            exercise_power = np.max(test.get_exercise_srm_data()["altitude"])
+            exercise_power = np.max(test.get_exercise_bike_data()["altitude"])
             if min_tte is not None:
                 if exercise_time_s < min_tte:
                     continue

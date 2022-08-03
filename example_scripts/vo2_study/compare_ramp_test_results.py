@@ -46,7 +46,7 @@ def ramp_test_results_table():
         ramp_vo2_max = np.max(avg_vo2)
 
         # get P_peak from ramp test power data
-        exercise_srm_data = activity.get_exercise_srm_data()
+        exercise_srm_data = activity.get_exercise_bike_data()
         exercise_srm_times = exercise_srm_data["sec"]
         exercise_avg_power = time_dependant_rolling_average_right(seconds=exercise_srm_times,
                                                                   values=exercise_srm_data["power"],

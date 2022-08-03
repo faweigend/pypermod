@@ -50,7 +50,7 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
                                                                         p_type=ProtocolTypes.TTE):
 
             # skip these activities due to faulty VO2 data (see manuscript Weigend et al. 2022)
-            if activity.id in ["SRMBbbTestA2020-11-02_17:01:12:0", "SRMBbbTestA2020-11-19_16:25:00:0"]:
+            if activity.id in ["SrmBbbTestA2020-11-02_17:01:12:0", "SrmBbbTestA2020-11-19_16:25:00:0"]:
                 logging.info("skipped {} due to faulty VO2 data".format(activity.id))
                 continue
 

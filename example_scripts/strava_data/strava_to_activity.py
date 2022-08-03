@@ -4,7 +4,7 @@ import fitparse
 
 import pandas as pd
 from pypermod import config
-from pypermod.data_structure.activities.type_classes.strava_bike import StravaBike
+from pypermod.data_structure.activities.type_classes.standard_bike import StandardBike
 
 
 
@@ -54,7 +54,7 @@ def strava_to_activity(datapath: os.path):
     dt = pd_data["timestamp"].iloc[0]
 
     # create activity
-    new_activity = StravaBike(date_time=dt)
+    new_activity = StandardBike(date_time=dt)
     new_activity.set_data(pd_data)
     return new_activity
 
