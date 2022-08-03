@@ -1,6 +1,6 @@
 # Recovery Study
 
-This directory contains scripts related to our publication:
+This directory contains scripts related to our prerpint:
 ```
 @misc{weigend2021hydraulic,
       title={A hydraulic model outperforms work-balance models for predicting recovery kinetics from intermittent exercise}, 

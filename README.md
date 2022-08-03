@@ -15,7 +15,7 @@ You may also want to check our detailed video presentation
 at [STARS](https://www.clearinghouseforsport.gov.au/digital-media/conferences/2020/stars/modelling-energy-expenditure-and-recovery-investigation-and-validation-of-a-three-component-hydraulic-model)
 . Or the more recent presentation at the [SFU Sports Analytics Seminar](https://www.youtube.com/watch?v=OGiv_frvM6g).
 
-If you make use of this project, we would be grateful if you star the repository and/or cite our paper.
+If you make use of this project, we would be grateful if you star the repository and/or cite our preprint.
 
 ```
 @misc{weigend2021hydraulic,
