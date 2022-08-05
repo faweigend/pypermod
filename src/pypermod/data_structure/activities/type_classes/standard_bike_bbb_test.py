@@ -14,7 +14,7 @@ class StandardBikeBbbTest(ProtocolTimeStamps, BbbMeasured):
         Adds actual exercise data to the activity object
         :param data: the data to add
         """
-        needed_cols = ['power', 'speed', 'cadence', 'altitude']
+        needed_cols = ['power', 'speed', 'cadence']
         # check if mandatory columns exist
         if any(i not in data.columns for i in needed_cols):
             raise UserWarning("Given dataframe with {} does not "

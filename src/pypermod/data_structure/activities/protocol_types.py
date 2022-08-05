@@ -8,6 +8,7 @@ class ProtocolTypes(Enum):
     UNDEFINED = "undefined"
     RAMP = "ramp"
     TTE = "tte"
+    TT = "tt"
     RECOVERY = "recovery"
     ALL_OUT = "all-out"
     RAMP_ALL_OUT = "ramp_all-out"

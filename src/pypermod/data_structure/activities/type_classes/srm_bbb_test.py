@@ -14,6 +14,11 @@ class SrmBbbTest(StandardBikeBbbTest):
         Adds actual exercise data to the activity object
         :param data: the data to add
         """
+        needed_cols = ['altitude']
+        # check if mandatory columns exist
+        if any(i not in data.columns for i in needed_cols):
+            raise UserWarning("Given dataframe with {} does not "
+                              "contain one of {}".format(data.columns, needed_cols))
         super().set_data(data)
 
     def update_meta_data(self):
