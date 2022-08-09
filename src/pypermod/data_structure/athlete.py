@@ -3,14 +3,12 @@ import logging
 import os
 import shutil
 
-import numpy as np
 from pypermod import utility
 
 from pypermod.data_structure.activities.activity import Activity
 from pypermod.data_structure.activities.activity_types import ActivityTypes
 from pypermod.data_structure.activities.protocol_types import ProtocolTypes
-from pypermod.data_structure.helper.simple_constant_effort_measures import SimpleConstantEffortMeasures
-from pypermod.fitter.cp_to_tte_fitter import CPMFits
+from pypermod.fitter.cp_model_fit import CPMFits
 
 
 class Athlete:
@@ -33,7 +31,6 @@ class Athlete:
         # internal data is structured in dicts
         self.__activities = dict()
         self.__meta_data = dict()
-        self.__cp_fittings = dict()
 
         # load data if some exists
         if os.path.exists(os.path.join(self.__dir_path, 'meta.json')):
@@ -130,21 +127,32 @@ class Athlete:
                 for act in self.__activities[a_type.value.__name__][p_type]:
                     yield act
 
-    def list_activity_ids(self, a_type: ActivityTypes, p_type: ProtocolTypes, as_sorted: bool = False):
+    def get_activities(self, a_type: ActivityTypes, p_type: ProtocolTypes, as_sorted: bool = False) -> list:
         """
         WARNING! list is not guaranteed to be sorted, use parameter flag to force an additional sorting
         :param a_type: type of activity to be listed
         :param p_type: protocol type to look for
         :param as_sorted: Per default, data is not guaranteed to be sorted. If this is true, it is sorted before return
-        :return: A list with all stored training_sessions
+        :return: A list with all stored activity objects
         """
         # only sort list if required to. This action can be computationally
         # expensive and therefore is optional
+        acts = self.__activities[a_type.value.__name__][p_type]
         if as_sorted is True:
             # sort activities according to date time
-            acts = self.__activities[a_type.value.__name__][p_type]
-            return [y.id for y in sorted(acts, key=lambda x: x.date_time)]
-        return [y.id for y in self.__activities[a_type.value.__name__][p_type]]
+            return sorted(acts, key=lambda x: x.date_time)
+        return acts
+
+    def list_activity_ids(self, a_type: ActivityTypes, p_type: ProtocolTypes, as_sorted: bool = False) -> list:
+        """
+        WARNING! list is not guaranteed to be sorted, use parameter flag to force an additional sorting
+        :param a_type: type of activity to be listed
+        :param p_type: protocol type to look for
+        :param as_sorted: Per default, data is not guaranteed to be sorted. If this is true, it is sorted before return
+        :return: A list with all activity IDs
+        """
+        acts = self.get_activities(a_type=a_type, p_type=p_type, as_sorted=as_sorted)
+        return [y.id for y in acts]
 
     def add_and_save_activity(self, activity):
         """
@@ -205,112 +213,65 @@ class Athlete:
         # reset metadata to empty state
         self.save()
 
-    def get_cp_fitting_of_type(self, a_type: ActivityTypes, min_tte: int = None) -> CPMFits:
+    def set_cp_fitting_of_type_and_protocol(self, cpmf: CPMFits, a_type: ActivityTypes, p_type: ProtocolTypes):
         """
-        Checks for TTEs of given type and returns the fitting object
+        Stores CPMFits object as dictionary in metadata to save and load with athlete
+        """
+        tpname = "{}_{}".format(a_type.value.__name__, p_type.name)
+        if "cp_fittings" in self.__meta_data:
+            self.__meta_data["cp_fittings"][tpname] = cpmf.as_dict()
+        else:
+            self.__meta_data["cp_fittings"] = {tpname: cpmf.as_dict()}
+        self.save()
+
+    def get_cp_fitting_of_type_and_protocol(self, a_type: ActivityTypes, p_type: ProtocolTypes) -> CPMFits:
+        """
+        Checks whether a fitting was stored in the metadata
         :param a_type: ActivityType to check for
+        :param p_type: ProtocolType, e.g., TTE or TT
         :return:
         """
-        typename = a_type.name
-
-        # store TTE time and power data for a CP fitting
-        times, powers, ids = [], [], []
-        for i, test in enumerate(self.iterate_activities_of_type_and_protocol(a_type, ProtocolTypes.TTE)):
-            exercise_times = test.get_exercise_bike_data()["sec"]
-            exercise_time_s = exercise_times.iloc[-1] - exercise_times.iloc[0]
-            exercise_power = np.max(test.get_exercise_bike_data()["altitude"])
-            if min_tte is not None:
-                if exercise_time_s < min_tte:
-                    continue
-            times.append(exercise_time_s)
-            powers.append(exercise_power)
-            ids.append(test.id)
-
-        # check if a fitting is already saved and can be returned
-        if typename in self.__cp_fittings:
-            if "ttes" in self.__cp_fittings[typename]:
-                # only load existing fitting if id list is still similar
-                if self.__cp_fittings[typename]["ttes"] == ids:
-                    cpmf = self.__cp_fittings[typename]["fitting"]
-                    logging.info("TTE ids are the same. Athlete {} loaded {} "
-                                 "CP fitting from meta data".format(self.__id,
-                                                                    typename))
-                    return cpmf
-                else:
-                    logging.info("athlete {} stored list of TTEs of type {} changed. "
-                                 "New CP fitting is estimated".format(self.__id,
-                                                                      typename))
-
-        # if not enough TTEs are available, return nothing
-        if len(times) < 4:
-            logging.warning("athlete {} not enough ({}) "
-                            "TTEs of type {} to estimate CP fitting".format(self.__id,
-                                                                            len(times),
-                                                                            typename))
+        if "cp_fittings" in self.__meta_data:
+            tpname = "{}_{}".format(a_type.value.__name__, p_type.name)
+            if tpname in self.__meta_data["cp_fittings"]:
+                cpmf = CPMFits()
+                cpmf.create_from_saved_dict(self.__meta_data["cp_fittings"][tpname])
+                return cpmf
+        else:
+            logging.info("athlete {} has no stored CP fittings for {} {} activities".format(self.__id,
+                                                                                            a_type.name,
+                                                                                            p_type.name))
             return CPMFits()
 
-        # create fitting, store in meta, and return object
-        else:
-            # conduct a CP fitting if enough data is available
-            es = SimpleConstantEffortMeasures(times=times,
-                                              measures=powers)
-
-            # do a full cp fitting with the fitter object
-            cpm_fits = CPMFits()
-            cpm_fits.create_from_ttes(es=es)
-
-            # store in meta data
-            if typename not in self.__cp_fittings:
-                self.__cp_fittings[typename] = {
-                    "ttes": ids,
-                    "fitting": cpm_fits
-                }
-            else:
-                self.__cp_fittings[typename].update({
-                    "ttes": ids,
-                    "fitting": cpm_fits
-                })
-
-            logging.info("athlete {} created CP fitting for {}".format(self.__id, typename))
-            # save created fitting
-            self.save()
-            # return created fitting
-            return cpm_fits
-
-    def set_hydraulic_fitting_of_type(self, config: list, a_type: ActivityTypes):
+    def set_hydraulic_fitting_of_type_and_protocol(self, config: list, a_type: ActivityTypes, p_type: ProtocolTypes):
         """
         Stores a given hydraulic model fitting into metadata under given activity type.
         The activity type is the mode of exercise tests the hydraulic model was fitted to
         :param config: the hydraulic model configuration
         :param a_type: the activity type to store it under
+        :param p_type: the protocol type to store it under
         """
-        typename = a_type.name
-        if self.__meta_data is not None:
-            if "threecomphyd_fitting" in self.__meta_data:
-                self.__meta_data["threecomphyd_fitting"][typename] = config
-            else:
-                self.__meta_data["threecomphyd_fitting"] = {typename: config}
-            self.save()
+        tpname = "{}_{}".format(a_type.value.__name__, p_type.name)
+        if "threecomphyd_fitting" in self.__meta_data:
+            self.__meta_data["threecomphyd_fitting"][tpname] = config
         else:
-            raise UserWarning("trying to set hydraulic fitting for a model without meta data")
+            self.__meta_data["threecomphyd_fitting"] = {tpname: config}
+        self.save()
 
-    def get_hydraulic_fitting_of_type(self, a_type: ActivityTypes):
+    def get_hydraulic_fitting_of_type_and_protocol(self, a_type: ActivityTypes, p_type: ProtocolTypes):
         """
         Checks if a hydraulic fitting is stored in metadata and returns it if yes.
         """
-        typename = a_type.name
-        if self.__meta_data is not None:
-            if "threecomphyd_fitting" in self.__meta_data:
-                if typename in self.__meta_data["threecomphyd_fitting"]:
-                    return self.__meta_data["threecomphyd_fitting"][typename]
-                else:
-                    logging.warning("no hydraulic model configuration for type {} assigned".format(a_type))
-                    return None
+        if "threecomphyd_fitting" in self.__meta_data:
+            tpname = "{}_{}".format(a_type.value.__name__, p_type.name)
+            if tpname in self.__meta_data["threecomphyd_fitting"]:
+                return self.__meta_data["threecomphyd_fitting"][tpname]
             else:
-                logging.warning("no hydraulic model configuration assigned")
+                logging.warning("no hydraulic model configuration for {} assigned".format(tpname))
                 return None
         else:
-            raise UserWarning("trying to get hydraulic fitting of a model without meta data")
+            logging.warning("no hydraulic model configuration assigned")
+            return None
 
     def save(self):
         """
@@ -329,12 +290,6 @@ class Athlete:
 
         # add meta data to json
         json_dict["meta_data"] = self.__meta_data
-
-        # store cp fittings as dictionaries
-        json_dict["cp_fittings"] = {}
-        for cpn, cpv in self.__cp_fittings.items():
-            json_dict["cp_fittings"][cpn] = {"ttes": cpv["ttes"],
-                                             "fitting": cpv["fitting"].as_dict()}
 
         # write everything into a file
         with open(os.path.join(self.__dir_path, 'meta.json'), 'w') as fp:

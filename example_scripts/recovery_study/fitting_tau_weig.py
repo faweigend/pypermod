@@ -7,7 +7,7 @@ from pypermod.utility import PlotLayout
 from scipy.optimize import curve_fit
 from sklearn.metrics import r2_score
 from pypermod.agents.wbal_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
-from pypermod.fitter.tau_fitter import TauFitter
+from pypermod.fitter.tau_fit import TauFitter
 
 
 def get_tau(act_rec, t_rec, p_exp, p_rec):

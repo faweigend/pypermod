@@ -12,7 +12,7 @@ from pypermod.data_structure.activities.activity import Activity
 from pypermod.data_structure.activities.activity_types import ActivityTypes
 from pypermod.data_structure.activities.protocol_types import ProtocolTypes
 from pypermod.data_structure.athlete import Athlete
-from pypermod.fitter.cp_to_tte_fitter import CPMFits, CPMTypes
+from pypermod.fitter.cp_model_fit import CPMFits, CPMTypes
 
 import config
 
@@ -204,12 +204,12 @@ if __name__ == "__main__":
     athlete.save()
 
     # load a fitting
-    cpm1 = athlete.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
+    cpm1 = athlete.get_cp_fitting_of_type_and_protocol(ActivityTypes.SRM_BBB_TEST)
     assert type(cpm1) is CPMFits
 
     # double check W' and CP values
-    assert cpm1.get_params(CPMTypes.P2_LINEAR)["w_p"] == 15096.0
-    assert cpm1.get_params(CPMTypes.P2_LINEAR)["cp"] == 66.0
+    assert cpm1.get_fitted_params(CPMTypes.P2_LINEAR)["w_p"] == 15096.0
+    assert cpm1.get_fitted_params(CPMTypes.P2_LINEAR)["cp"] == 66.0
     logging.info("PASSED first SRM BBB TTE fitting")
 
     # clear one TTE and see if fitting is updated
@@ -217,9 +217,9 @@ if __name__ == "__main__":
     athlete.remove_activity_by_id(tte_ids[0])
 
     # no fitting possible because only three tests remain
-    cpm2 = athlete.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
+    cpm2 = athlete.get_cp_fitting_of_type_and_protocol(ActivityTypes.SRM_BBB_TEST)
     assert cpm2 != cpm1
-    assert cpm2.has_ttes() == False
+    assert cpm2.has_time_power_pairs() == False
     logging.info("PASSED changed TTEs test")
 
     # add new ttes
@@ -229,16 +229,16 @@ if __name__ == "__main__":
                                          ProtocolTypes.TTE)
     assert len(tte_list) == 5
 
-    cpm3 = athlete.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
+    cpm3 = athlete.get_cp_fitting_of_type_and_protocol(ActivityTypes.SRM_BBB_TEST)
 
     assert cpm2 != cpm1 != cpm3
 
     # double check W' and CP values
-    assert cpm3.get_params(CPMTypes.P2_LINEAR)["w_p"] == 14475.303501945524
-    assert cpm3.get_params(CPMTypes.P2_LINEAR)["cp"] == 71.73346303501945
+    assert cpm3.get_fitted_params(CPMTypes.P2_LINEAR)["w_p"] == 14475.303501945524
+    assert cpm3.get_fitted_params(CPMTypes.P2_LINEAR)["cp"] == 71.73346303501945
 
     # nothing changed -> should be loaded
-    cpm4 = athlete.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
+    cpm4 = athlete.get_cp_fitting_of_type_and_protocol(ActivityTypes.SRM_BBB_TEST)
     assert cpm4 == cpm3
 
     logging.info("PASSED changed TTEs test 2")
@@ -256,13 +256,13 @@ if __name__ == "__main__":
         config.paths["data_storage"],
         athlete.id)
     )
-    cpm5 = athlete2.get_cp_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
+    cpm5 = athlete2.get_cp_fitting_of_type_and_protocol(ActivityTypes.SRM_BBB_TEST)
     tte_list = athlete2.list_activity_ids(ActivityTypes.SRM_BBB_TEST,
                                           ProtocolTypes.TTE)
     assert len(tte_list) == 5
 
-    assert cpm5.get_params(CPMTypes.P2_LINEAR)["w_p"] == 14475.303501945524
-    assert cpm5.get_params(CPMTypes.P2_LINEAR)["cp"] == 71.73346303501945
+    assert cpm5.get_fitted_params(CPMTypes.P2_LINEAR)["w_p"] == 14475.303501945524
+    assert cpm5.get_fitted_params(CPMTypes.P2_LINEAR)["cp"] == 71.73346303501945
 
     logging.info("PASSED 2 athletes 1 ID tests")
 
@@ -271,8 +271,8 @@ if __name__ == "__main__":
                 11.586559865141686, 0.7718471321983202,
                 0.011210584001550252, 0.21310297838308895]
 
-    athlete.set_hydraulic_fitting_of_type(hyd_conf, ActivityTypes.SRM_BBB_TEST)
-    test_conf = athlete.get_hydraulic_fitting_of_type(ActivityTypes.SRM_BBB_TEST)
+    athlete.set_hydraulic_fitting_of_type_and_protocol(hyd_conf, ActivityTypes.SRM_BBB_TEST, ProtocolTypes.TTE)
+    test_conf = athlete.get_hydraulic_fitting_of_type_and_protocol(ActivityTypes.SRM_BBB_TEST, ProtocolTypes.TTE)
 
     assert test_conf == hyd_conf
 

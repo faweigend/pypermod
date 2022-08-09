@@ -2,7 +2,7 @@ import logging
 
 import matplotlib.pyplot as plt
 from pypermod.agents.wbal_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
-from pypermod.fitter.tau_fitter import TauFitter
+from pypermod.fitter.tau_fit import TauFitter
 from pypermod.utility import PlotLayout
 from pypermod.simulator.simulator_basis import SimulatorBasis
 

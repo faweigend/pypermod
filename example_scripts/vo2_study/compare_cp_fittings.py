@@ -2,6 +2,7 @@ import logging
 import os
 
 import pandas as pd
+from pypermod.data_structure.activities.protocol_types import ProtocolTypes
 
 from pypermod.data_structure.athlete import Athlete
 from pypermod.data_structure.activities.activity_types import ActivityTypes
@@ -20,7 +21,8 @@ def cp_fitting_table():
         athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", str(subj)))
 
         # get fitted CP and W' params of all models
-        cp_fitting = athlete.get_cp_fitting_of_type(a_type=ActivityTypes.SRM_BBB_TEST, min_tte=117)
+        cp_fitting = athlete.get_cp_fitting_of_type_and_protocol(a_type=ActivityTypes.SRM_BBB_TEST,
+                                                                 p_type=ProtocolTypes.TTE)
 
         vals = []
 

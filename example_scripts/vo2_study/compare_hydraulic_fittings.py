@@ -2,6 +2,7 @@ import logging
 import os
 
 import pandas as pd
+from pypermod.data_structure.activities.protocol_types import ProtocolTypes
 
 from pypermod.data_structure.athlete import Athlete
 from pypermod.data_structure.activities.activity_types import ActivityTypes
@@ -19,7 +20,8 @@ def hydraulic_fitting_table():
         # load athlete object
         athlete = Athlete(os.path.join(config.paths["data_storage"], "VO2_study", str(subj)))
         # load stored hydraulic model configuration of the athlete
-        hyd_conf = athlete.get_hydraulic_fitting_of_type(a_type=ActivityTypes.SRM_BBB_TEST)
+        hyd_conf = athlete.get_hydraulic_fitting_of_type_and_protocol(a_type=ActivityTypes.SRM_BBB_TEST,
+                                                                      p_type=ProtocolTypes.TTE)
         # append to collection
         data.append([subj] + hyd_conf)
     return pd.DataFrame(data, columns=["participant", "LF", "LS", "M_U", "M_LS", "M_LF", "theta", "gamma", "phi"])

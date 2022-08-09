@@ -38,7 +38,7 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
                                        str(subj)))
 
         # create hydraulic agent from saved configuration
-        conf = athlete.get_hydraulic_fitting_of_type(a_type=ActivityTypes.SRM_BBB_TEST)
+        conf = athlete.get_hydraulic_fitting_of_type_and_protocol(a_type=ActivityTypes.SRM_BBB_TEST)
         hyd_agent = ThreeCompHydAgent(hz=hz,
                                       lf=conf[0], ls=conf[1],
                                       m_u=conf[2], m_ls=conf[3],
