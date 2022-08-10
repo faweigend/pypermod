@@ -138,10 +138,16 @@ def time_dependant_rolling_average_right(seconds: pd.Series, values: pd.Series, 
     # iterate over every observation and
     # walk back and forth in time to add values within the time frame
     for i in range(len(seconds)):
+
+        # skip observations with times smaller than averaging window
+        if seconds.iloc[i] < window_size:
+            smoothed_data[i] = 0
+            continue
+
         # create clean list
         avg = []
         for b_i in range(i):
-            # walk back till radius is hit
+            # walk back till window size is reached
             if seconds.iloc[i - b_i] <= (seconds.iloc[i] - window_size):
                 break
             else:
