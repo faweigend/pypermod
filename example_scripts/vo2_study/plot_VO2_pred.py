@@ -16,7 +16,6 @@ from pypermod.data_structure.activities.protocol_types import ProtocolTypes
 from pypermod import config
 
 
-
 def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
     """
     Creates Table 1 of our paper and optional plots like Figure 4. Hydraulic model predictions for VO2 are compared
@@ -38,7 +37,8 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
                                        str(subj)))
 
         # create hydraulic agent from saved configuration
-        conf = athlete.get_hydraulic_fitting_of_type_and_protocol(a_type=ActivityTypes.SRM_BBB_TEST)
+        conf = athlete.get_hydraulic_fitting_of_type_and_protocol(a_type=ActivityTypes.SRM_BBB_TEST,
+                                                                  p_type=ProtocolTypes.TTE)
         hyd_agent = ThreeCompHydAgent(hz=hz,
                                       lf=conf[0], ls=conf[1],
                                       m_u=conf[2], m_ls=conf[3],

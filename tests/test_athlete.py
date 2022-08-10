@@ -128,6 +128,9 @@ def test_save_load_activity(athlete):
                                                                ProtocolTypes.UNDEFINED):
         acts.append(act)
     assert len(acts) == 4
+    acts_c = athlete.get_activities(ActivityTypes.UNDEFINED,
+                                    ProtocolTypes.UNDEFINED)
+    assert acts_c == acts
 
     # verify that none of SRM TEST type are found
     no_acts = []
@@ -168,12 +171,91 @@ def test_save_load_activity(athlete):
     assert len(id_list_unsorted) == (len(id_list_unsorted_smaller) + 1)
     assert id_list_unsorted[0] not in id_list_unsorted_smaller
 
+    # check save and load
+    athlete.load()
+    act_list_2 = athlete.get_activities(ActivityTypes.UNDEFINED, ProtocolTypes.UNDEFINED, False)
+    assert len(id_list_unsorted_smaller) != len(act_list_2)
+
+    athlete.remove_activity_by_id(id_list_unsorted[0])
+    athlete.save()
+    athlete.load()
+    act_list_2 = athlete.get_activities(ActivityTypes.UNDEFINED, ProtocolTypes.UNDEFINED, False)
+    assert len(id_list_unsorted_smaller) == len(act_list_2)
+
     # check the clean function
     athlete.clear_all_data()
     clean_acts = []
     for act in athlete.iterate_activities_all():
         clean_acts.append(act.id)
     assert len(clean_acts) == 0
+
+    athlete.save()
+
+
+def cpmfits_tests(athlete: Athlete):
+    # Now create specific SRM_BBB_TESTS
+    combs = [(90, 600), (120, 300), (180, 150), (240, 75)]
+    add_srm_test_ttes_to_athlete(athlete, combs)
+    athlete.save()
+
+    # create a CP fitting and check save and load functions
+    act_list = athlete.get_activities(a_type=ActivityTypes.SRM_BBB_TEST,
+                                      p_type=ProtocolTypes.TTE)
+    cpm_n = CPMFits()
+    cpm_n.fit_to_activity_list(act_list, p_type=ProtocolTypes.TTE)
+
+    athlete.set_cp_fitting_of_type_and_protocol(cpm_n,
+                                                a_type=ActivityTypes.SRM_BBB_TEST,
+                                                p_type=ProtocolTypes.TTE)
+
+    # load a fitting
+    cpm1 = athlete.get_cp_fitting_of_type_and_protocol(a_type=ActivityTypes.SRM_BBB_TEST,
+                                                       p_type=ProtocolTypes.TTE)
+    assert type(cpm1) is CPMFits
+
+    # double check W' and CP values
+    assert cpm1.get_fitted_params(CPMTypes.P2_LINEAR)["w_p"] == 15096.0
+    assert cpm1.get_fitted_params(CPMTypes.P2_LINEAR)["cp"] == 66.0
+    logging.info("PASSED first SRM BBB TTE fitting")
+
+    # clear one TTE and see if fitting is updated
+    tte_ids = athlete.list_activity_ids(ActivityTypes.SRM_BBB_TEST, ProtocolTypes.TTE)
+    athlete.remove_activity_by_id(tte_ids[0])
+
+    # create a CP fitting and check save and load functions
+    act_list = athlete.get_activities(a_type=ActivityTypes.SRM_BBB_TEST,
+                                      p_type=ProtocolTypes.TTE)
+    assert len(act_list) == 3
+    athlete.save()
+    logging.info("PASSED changed TTEs test")
+
+    combs2 = [(100, 500), (190, 130)]
+    add_srm_test_ttes_to_athlete(athlete, combs2)
+    athlete.save()
+    tte_list = athlete.list_activity_ids(ActivityTypes.SRM_BBB_TEST,
+                                         ProtocolTypes.TTE)
+    assert len(tte_list) == 5
+    athlete.load()
+    tte_list = athlete.list_activity_ids(ActivityTypes.SRM_BBB_TEST,
+                                         ProtocolTypes.TTE)
+    assert len(tte_list) == 5
+    logging.info("PASSED save/load test")
+
+    # check if a new object indeed loads the same data
+    athlete2 = Athlete(os.path.join(
+        config.paths["data_storage"],
+        athlete.id)
+    )
+
+    tte_list = athlete2.get_activities(ActivityTypes.SRM_BBB_TEST, ProtocolTypes.TTE)
+    assert len(tte_list) == 5
+
+    cpm5 = CPMFits()
+    cpm5.fit_to_activity_list(tte_list, p_type=ProtocolTypes.TTE)
+
+    assert cpm5.get_fitted_params(CPMTypes.P2_LINEAR)["w_p"] == 14475.303501945524
+    assert cpm5.get_fitted_params(CPMTypes.P2_LINEAR)["cp"] == 71.73346303501945
+    logging.info("PASSED 2 athletes 1 ID tests")
 
 
 if __name__ == "__main__":
@@ -198,73 +280,8 @@ if __name__ == "__main__":
     test_save_load_activity(athlete)
     logging.info("PASSED activity save and load tests")
 
-    # Now create specific SRM_BBB_TESTS
-    combs = [(90, 600), (120, 300), (180, 150), (240, 75)]
-    add_srm_test_ttes_to_athlete(athlete, combs)
-    athlete.save()
-
-    # load a fitting
-    cpm1 = athlete.get_cp_fitting_of_type_and_protocol(ActivityTypes.SRM_BBB_TEST)
-    assert type(cpm1) is CPMFits
-
-    # double check W' and CP values
-    assert cpm1.get_fitted_params(CPMTypes.P2_LINEAR)["w_p"] == 15096.0
-    assert cpm1.get_fitted_params(CPMTypes.P2_LINEAR)["cp"] == 66.0
-    logging.info("PASSED first SRM BBB TTE fitting")
-
-    # clear one TTE and see if fitting is updated
-    tte_ids = athlete.list_activity_ids(ActivityTypes.SRM_BBB_TEST, ProtocolTypes.TTE)
-    athlete.remove_activity_by_id(tte_ids[0])
-
-    # no fitting possible because only three tests remain
-    cpm2 = athlete.get_cp_fitting_of_type_and_protocol(ActivityTypes.SRM_BBB_TEST)
-    assert cpm2 != cpm1
-    assert cpm2.has_time_power_pairs() == False
-    logging.info("PASSED changed TTEs test")
-
-    # add new ttes
-    combs2 = [(100, 500), (190, 130)]
-    add_srm_test_ttes_to_athlete(athlete, combs2)
-    tte_list = athlete.list_activity_ids(ActivityTypes.SRM_BBB_TEST,
-                                         ProtocolTypes.TTE)
-    assert len(tte_list) == 5
-
-    cpm3 = athlete.get_cp_fitting_of_type_and_protocol(ActivityTypes.SRM_BBB_TEST)
-
-    assert cpm2 != cpm1 != cpm3
-
-    # double check W' and CP values
-    assert cpm3.get_fitted_params(CPMTypes.P2_LINEAR)["w_p"] == 14475.303501945524
-    assert cpm3.get_fitted_params(CPMTypes.P2_LINEAR)["cp"] == 71.73346303501945
-
-    # nothing changed -> should be loaded
-    cpm4 = athlete.get_cp_fitting_of_type_and_protocol(ActivityTypes.SRM_BBB_TEST)
-    assert cpm4 == cpm3
-
-    logging.info("PASSED changed TTEs test 2")
-
-    athlete.save()
-    athlete.load()
-    tte_list = athlete.list_activity_ids(ActivityTypes.SRM_BBB_TEST,
-                                         ProtocolTypes.TTE)
-    assert len(tte_list) == 5
-
-    logging.info("PASSED save/load test")
-
-    # check if a new object indeed loads the same data
-    athlete2 = Athlete(os.path.join(
-        config.paths["data_storage"],
-        athlete.id)
-    )
-    cpm5 = athlete2.get_cp_fitting_of_type_and_protocol(ActivityTypes.SRM_BBB_TEST)
-    tte_list = athlete2.list_activity_ids(ActivityTypes.SRM_BBB_TEST,
-                                          ProtocolTypes.TTE)
-    assert len(tte_list) == 5
-
-    assert cpm5.get_fitted_params(CPMTypes.P2_LINEAR)["w_p"] == 14475.303501945524
-    assert cpm5.get_fitted_params(CPMTypes.P2_LINEAR)["cp"] == 71.73346303501945
-
-    logging.info("PASSED 2 athletes 1 ID tests")
+    # some more tests
+    cpmfits_tests(athlete)
 
     hyd_conf = [12627.151127290388, 38502.21530457119,
                 216.63752756838872, 77.153935498425,
@@ -279,8 +296,8 @@ if __name__ == "__main__":
     logging.info("PASSED hyd conf setting tests")
 
     # clean up
-    athlete.clear_all_data()
-    shutil.rmtree(os.path.join(
-        config.paths["data_storage"],
-        "test_athlete")
-    )
+    # athlete.clear_all_data()
+    # shutil.rmtree(os.path.join(
+    #     config.paths["data_storage"],
+    #     "test_athlete")
+    # )
