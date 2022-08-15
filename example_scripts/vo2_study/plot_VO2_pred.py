@@ -66,6 +66,10 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
                                                            values=bbb_vo2,
                                                            window_size=30)
 
+            # observations with 0 were outside of the averaging window
+            bbb_t = bbb_t[avg_vo2 != 0]
+            avg_vo2 = avg_vo2[avg_vo2 != 0]
+
             # simulate hydraulic
             h, g, anf, ans, p_ae, p_an, m_flow, _ = ThreeCompHydSimulator.simulate_course_detail(agent=hyd_agent,
                                                                                                  powers=srm_pow,
@@ -84,12 +88,11 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
 
             # ground truth peak
             vo2_peak_pos = np.argmax(avg_vo2)
-            vo2_peak_t = bbb_t[vo2_peak_pos]
+            vo2_peak_t = bbb_t.iloc[vo2_peak_pos]
 
             # SRM resistance
             res = np.max(srm_alt)
 
-            # srm_pow = activity.altitude_data
             t = np.arange(len(srm_pow))
 
             # add estimations to results data frame
@@ -114,8 +117,10 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
 
                 # power output
                 d = np.zeros(len(srm_pow[:int(vo2_peak_t) + 10]))
-                ax2.fill_between(t[:int(vo2_peak_t) + 10], srm_pow[:int(vo2_peak_t) + 10],
-                                 where=srm_pow[:int(vo2_peak_t) + 10] >= d, interpolate=True,
+                ax2.fill_between(t[:int(vo2_peak_t) + 10],
+                                 srm_pow[:int(vo2_peak_t) + 10],
+                                 where=srm_pow[:int(vo2_peak_t) + 10] >= d,
+                                 interpolate=True,
                                  color=Pl.get_plot_color("intensity"),
                                  alpha=0.3,
                                  label="power output")
@@ -146,6 +151,7 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
                 ax.set_xlabel("time since exercise started (s)")
                 ax2.set_ylabel("power (W)")
                 ax.set_ylabel("normalised flow/uptake")
+                ax.set_ylim(-0.1,1.1)
 
                 # legends
                 ax.legend(loc=2)
