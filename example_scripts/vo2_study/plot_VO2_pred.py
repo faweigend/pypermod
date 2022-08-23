@@ -16,7 +16,6 @@ from pypermod.data_structure.activities.protocol_types import ProtocolTypes
 from pypermod import config
 
 
-
 def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
     """
     Creates Table 1 of our paper and optional plots like Figure 4. Hydraulic model predictions for VO2 are compared
@@ -101,7 +100,7 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
                 "prediction error": [int(vo2_peak_t - m_u_t)]
             }
             df_row = pd.DataFrame(row)
-            results = results.append(df_row, ignore_index=True)
+            results = pd.concat([results, df_row], ignore_index=True)
 
             if show_plot:
                 Pl.set_rc_params()
