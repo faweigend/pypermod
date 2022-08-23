@@ -6,11 +6,11 @@ from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
 from pypermod.simulator.study_simulator import StudySimulator
 from pypermod.utility import PlotLayout
-from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
+from pypermod.agents.hyd_agents.three_comp_hyd_agent import ThreeCompHydAgent
 
 # This script recreates the plot 4.1 of our paper [paper](https://arxiv.org/abs/2108.04510)
 if __name__ == "__main__":
-    # set logging level to highest level
+    # set logging level to the highest level
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 

@@ -10,10 +10,10 @@ from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartr
 from pypermod.agents.wbal_agents.wbal_ode_agent_linear import CpODEAgentBasisLinear
 from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
 from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
-from threecomphyd.agents.two_comp_hyd_agent import TwoCompHydAgent
+from pypermod.agents.hyd_agents.two_comp_hyd_agent import TwoCompHydAgent
 
 if __name__ == "__main__":
-    # set logging level to highest level
+    # set logging level to the highest level
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
