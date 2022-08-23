@@ -103,7 +103,7 @@ fig.legend(handles=legend_handles,
            loc='upper center',
            ncol=5,
            labelspacing=0.)
-fig.text(0.5, 0.04, '$T_{\mathrm{rec}}$ (seconds)', ha='center')
+fig.text(0.5, 0.04, '$T_{\mathrm{rec}}$ (s)', ha='center')
 fig.text(0.01, 0.5, 'recovery ratio (%)', va='center', rotation='vertical')
 
 # finish the plot

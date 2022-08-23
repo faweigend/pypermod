@@ -90,8 +90,8 @@ def compare_caen_2021_dataset(plot: bool = False, hz: int = 1) -> dict:
                     linestyle=PlotLayout.get_plot_linestyle(agent_n))
 
         # finalise layout
-        ax.set_title("$P_{\mathrm{work}} = P240$ \n         $P_{\mathrm{rec}}$  = 161 watts")
-        ax.set_xlabel("$T_{\mathrm{rec}}$ (seconds)")
+        ax.set_title("$P_{\mathrm{work}} = P240$ \n   $P_{\mathrm{rec}}$  = 161 W")
+        ax.set_xlabel("$T_{\mathrm{rec}}$ (s)")
         ax.set_xticks(ground_truth_t)
         ax.set_xticklabels(ax.get_xticks(), rotation=-45, ha='center')
         ax.set_ylabel("recovery ratio (%)")

@@ -107,14 +107,14 @@ def compare_chidnok_dataset(plot: bool = False, hz: int = 1) -> dict:
 
         for i, ax in enumerate(axes):
             ax.set_title("$P_{\mathrm{work}} = P240$ \n "
-                         "      $P_{\mathrm{rec}}$  = " + str(p_recs[i]) + " watts")
+                         " $P_{\mathrm{rec}}$  = " + str(p_recs[i]) + " W")
 
             ax.set_xticks([0, t_rec, plot_rec_times[-1]])
             ax.set_xticklabels([0, t_rec, plot_rec_times[-1]])
             ax.grid(axis="y", linestyle=':', alpha=0.5)
 
             if i == 1:
-                ax.set_xlabel("$T_{\mathrm{rec}}$ (seconds)")
+                ax.set_xlabel("$T_{\mathrm{rec}}$ (s)")
             if i == 0:
                 ax.set_ylabel("recovery ratio (%)")
                 ax.set_yticks([25, 50, 75])
