@@ -1,15 +1,15 @@
 import logging
 
-from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
+from pypermod.agents.hyd_agents.three_comp_hyd_agent import ThreeCompHydAgent
+from pypermod.agents.hyd_agents.two_comp_hyd_agent import TwoCompHydAgent
 from pypermod.agents.wbal_agents.wbal_ode_agent_linear import CpODEAgentBasisLinear
 from pypermod.agents.wbal_agents.wbal_int_agent import WbalIntAgent
-from threecomphyd.agents.two_comp_hyd_agent import TwoCompHydAgent
 
 
 class SimulatorBasis:
     """
     Contains convenience functions to run simulations with performance modelling agents. Example simulations are
-    time-to-exhaustion (TTE) or recovery estimations according with the WB1 -> RB -> WB2 protocol
+    time-to-exhaustion (TTE) or recovery estimations according to the WB1 -> RB -> WB2 protocol
     """
     # the maximal number of steps for a single simulation run
     step_limit = 5000

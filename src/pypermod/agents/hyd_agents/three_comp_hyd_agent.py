@@ -1,6 +1,6 @@
-from threecomphyd import config
+from pypermod import config
 
-from threecomphyd.agents.hyd_agent_basis import HydAgentBasis
+from pypermod.agents.hyd_agents.hyd_agent_basis import HydAgentBasis
 
 
 class ThreeCompHydAgent(HydAgentBasis):

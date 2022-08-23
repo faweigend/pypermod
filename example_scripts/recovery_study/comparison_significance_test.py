@@ -4,7 +4,7 @@ import random
 import numpy as np
 from matplotlib import pyplot as plt
 
-from example_scripts.recovery_study.compare_all import grand_comparison
+from compare_all import grand_comparison
 
 
 def mae_error_func(group_a, group_b) -> float:

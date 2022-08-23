@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 from pypermod.processing.time_series_processing import time_dependant_rolling_average_right
 
-from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
-from threecomphyd.simulator.three_comp_hyd_simulator import ThreeCompHydSimulator
+from pypermod.agents.hyd_agents.three_comp_hyd_agent import ThreeCompHydAgent
+from pypermod.simulator.three_comp_hyd_simulator import ThreeCompHydSimulator
 
 from pypermod.utility import PlotLayout as Pl
 from pypermod.data_structure.athlete import Athlete

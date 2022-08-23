@@ -3,13 +3,13 @@ import math
 
 import numpy as np
 import pandas as pd
-
-from example_scripts.recovery_study.compare_bartram_dataset import compare_bartram_dataset
-from example_scripts.recovery_study.compare_caen_2021_dataset import compare_caen_2021_dataset
-from example_scripts.recovery_study.compare_chidnok_dataset import compare_chidnok_dataset
-from example_scripts.recovery_study.compare_ferguson_dataset import compare_ferguson_dataset
-from example_scripts.recovery_study.compare_weigend_dataset import compare_weigend_dataset
 from pypermod.utility import PlotLayout
+
+from compare_bartram_dataset import compare_bartram_dataset
+from compare_caen_2021_dataset import compare_caen_2021_dataset
+from compare_chidnok_dataset import compare_chidnok_dataset
+from compare_ferguson_dataset import compare_ferguson_dataset
+from compare_weigend_dataset import compare_weigend_dataset
 
 
 def grand_comparison(hz=10) -> pd.DataFrame:

@@ -1,4 +1,4 @@
-from threecomphyd.agents.hyd_agent_basis import HydAgentBasis
+from pypermod.agents.hyd_agents.hyd_agent_basis import HydAgentBasis
 
 
 class TwoCompHydAgent(HydAgentBasis):
