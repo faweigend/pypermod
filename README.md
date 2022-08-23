@@ -45,7 +45,7 @@ folder of our [GitHub_repository](https://github.com/faweigend/pypermod) for exa
 its own README.md with instructions. 
 
 __Many example scripts require our published data__. You can download it from [Data Storage](src/pypermod/data_storage) and make sure to set the path in the
-[pypermod.config](src/config.py) to where the data was downloaded to.
+[pypermod.config](src/pypermod/config.py) to where the data was downloaded to.
 
 Available examples are
 * [Recovery Study](example_scripts/recovery_study)
