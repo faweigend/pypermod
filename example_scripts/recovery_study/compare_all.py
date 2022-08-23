@@ -106,12 +106,12 @@ def grand_comparison(hz=10) -> pd.DataFrame:
                            columns=total.columns)
 
     # add scores to total dataframe
-    total = total.append([me_row, sd_row, rmse_row, aic_row], sort=False)
+    total = pd.concat([total, me_row, sd_row, rmse_row, aic_row], sort=False)
     return total
 
 
 if __name__ == "__main__":
-    # set logging level to highest level
+    # set logging level to the highest level
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. "
                                "[file=%(filename)s:%(lineno)d]")
