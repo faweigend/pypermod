@@ -4,7 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
+from pypermod.agents.hyd_agents.three_comp_hyd_agent import ThreeCompHydAgent
 from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
 from pypermod.agents.wbal_agents.wbal_ode_agent_fix_tau import WbalODEAgentFixTau
 from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
@@ -12,7 +12,7 @@ from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeige
 from pypermod.utility import PlotLayout
 from pypermod.simulator.study_simulator import StudySimulator
 
-from example_scripts.recovery_study.fitting_tau_chidnok import fit_taus_chidnok
+from fitting_tau_chidnok import fit_taus_chidnok
 import pypermod.config as pypconfig
 
 

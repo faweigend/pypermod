@@ -3,13 +3,13 @@ import math
 
 import numpy as np
 import pandas as pd
-
-from example_scripts.recovery_study.compare_bartram_dataset import compare_bartram_dataset
-from example_scripts.recovery_study.compare_caen_2021_dataset import compare_caen_2021_dataset
-from example_scripts.recovery_study.compare_chidnok_dataset import compare_chidnok_dataset
-from example_scripts.recovery_study.compare_ferguson_dataset import compare_ferguson_dataset
-from example_scripts.recovery_study.compare_weigend_dataset import compare_weigend_dataset
 from pypermod.utility import PlotLayout
+
+from compare_bartram_dataset import compare_bartram_dataset
+from compare_caen_2021_dataset import compare_caen_2021_dataset
+from compare_chidnok_dataset import compare_chidnok_dataset
+from compare_ferguson_dataset import compare_ferguson_dataset
+from compare_weigend_dataset import compare_weigend_dataset
 
 
 def grand_comparison(hz=10) -> pd.DataFrame:
@@ -106,12 +106,12 @@ def grand_comparison(hz=10) -> pd.DataFrame:
                            columns=total.columns)
 
     # add scores to total dataframe
-    total = total.append([me_row, sd_row, rmse_row, aic_row], sort=False)
+    total = pd.concat([total, me_row, sd_row, rmse_row, aic_row], sort=False)
     return total
 
 
 if __name__ == "__main__":
-    # set logging level to highest level
+    # set logging level to the highest level
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. "
                                "[file=%(filename)s:%(lineno)d]")

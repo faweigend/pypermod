@@ -38,9 +38,15 @@ can install the files from the repository by running `pip3 install -e <path_to_p
 
 ### Usage
 
+
+
 Please see the scripts in the `example_scripts`
 folder of our [GitHub_repository](https://github.com/faweigend/pypermod) for example applications. Each subdirectory has
-its own README.md with instructions. Available examples are
+its own README.md with instructions. 
 
+__Many example scripts require our published data__. You can download it from [Data Storage](src/pypermod/data_storage) and make sure to set the path in the
+[pypermod.config](src/pypermod/config.py) to where the data was downloaded to.
+
+Available examples are
 * [Recovery Study](example_scripts/recovery_study)
 * [VO2 Study](example_scripts/vo2_study)

@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 from pypermod.processing.time_series_processing import time_dependant_rolling_average_right
 
-from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
-from threecomphyd.simulator.three_comp_hyd_simulator import ThreeCompHydSimulator
+from pypermod.agents.hyd_agents.three_comp_hyd_agent import ThreeCompHydAgent
+from pypermod.simulator.three_comp_hyd_simulator import ThreeCompHydSimulator
 
 from pypermod.utility import PlotLayout as Pl
 from pypermod.data_structure.athlete import Athlete
@@ -104,7 +104,7 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
                 "prediction error": [int(vo2_peak_t - m_u_t)]
             }
             df_row = pd.DataFrame(row)
-            results = results.append(df_row, ignore_index=True)
+            results = pd.concat([results, df_row], ignore_index=True)
 
             if show_plot:
                 Pl.set_rc_params()
