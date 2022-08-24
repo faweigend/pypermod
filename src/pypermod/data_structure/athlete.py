@@ -295,6 +295,16 @@ class Athlete:
         with open(os.path.join(self.__dir_path, 'meta.json'), 'w') as fp:
             json.dump(json_dict, fp, indent=4)
 
+    def get_num_activities(self):
+        """
+        returns activity count
+        """
+        a_count = 0
+        for _, ats in self.__activities.items():
+            for _, pts in ats.items():
+                a_count += len(pts)
+        return a_count
+
     def load(self):
         """
         loads meta.json and creates activity objects
