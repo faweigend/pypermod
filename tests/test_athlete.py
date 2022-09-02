@@ -7,7 +7,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
-from pypermod.data_structure.activities.type_classes.srm_bbb_test import SrmBbbTest
+from pypermod.data_structure.activities.type_classes.srm_bbb import SrmBbb
 from pypermod.data_structure.activities.activity import Activity
 from pypermod.data_structure.activities.activity_types import ActivityTypes
 from pypermod.data_structure.activities.protocol_types import ProtocolTypes
@@ -95,7 +95,7 @@ def add_srm_test_ttes_to_athlete(athlete, combs):
     for i, comb in enumerate(combs):
         # create srm test according to power duration combination
         dt = datetime.utcnow()
-        new_tte = SrmBbbTest(date_time=dt)
+        new_tte = SrmBbb(date_time=dt)
         new_tte.set_data(pd.DataFrame({
             'sec': np.arange(0, comb[1]),
             'speed': np.full_like(np.ones(comb[1]), 14),

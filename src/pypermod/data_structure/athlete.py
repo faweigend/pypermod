@@ -210,6 +210,7 @@ class Athlete:
         os.makedirs(self.__dir_path)
         # empty stored activities
         self.__activities.clear()
+        self.__meta_data.clear()
         # reset metadata to empty state
         self.save()
 

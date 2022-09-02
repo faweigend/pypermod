@@ -3,7 +3,7 @@ from pypermod.data_structure.activities.data_formats.protocol_time_stamps import
 from pypermod.data_structure.activities.data_formats.bbb_measured import BbbMeasured
 
 
-class StandardBikeBbbTest(ProtocolTimeStamps, BbbMeasured):
+class StandardBikeBbb(ProtocolTimeStamps, BbbMeasured):
     """
     A performance bike test on a standard cycle ergometer.
     coupled with breath-by-breath data collection with the Cosmed.

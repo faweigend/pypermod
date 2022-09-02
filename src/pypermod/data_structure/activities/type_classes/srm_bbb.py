@@ -1,9 +1,9 @@
 import pandas as pd
 
-from pypermod.data_structure.activities.type_classes.standard_bike_bbb_test import StandardBikeBbbTest
+from pypermod.data_structure.activities.type_classes.standard_bike_bbb import StandardBikeBbb
 
 
-class SrmBbbTest(StandardBikeBbbTest):
+class SrmBbb(StandardBikeBbb):
     """
     A performance bike test on the SRM cycle ergometer (With the SRM resistance is altitude)
     coupled with breath-by-breath data collection with the Cosmed.
