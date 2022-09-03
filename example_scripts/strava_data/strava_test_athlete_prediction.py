@@ -4,64 +4,56 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from pypermod import config
+from pypermod.agents.hyd_agents.three_comp_hyd_agent import ThreeCompHydAgent
+from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
+from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
+from pypermod.data_structure.activities.activity_types import ActivityTypes
+from pypermod.data_structure.activities.protocol_types import ProtocolTypes
+from pypermod.data_structure.athlete import Athlete
 
 from pypermod.simulator.simulator_basis import SimulatorBasis
 from pypermod.utility import PlotLayout
 
-from pypermod.agents.wbal_agents.wbal_int_agent_skiba import WbalIntAgentSkiba
-from pypermod.agents.wbal_agents.wbal_ode_agent_bartram import WbalODEAgentBartram
-from pypermod.agents.wbal_agents.wbal_ode_agent_linear import CpODEAgentBasisLinear
-from pypermod.agents.wbal_agents.wbal_ode_agent_skiba import WbalODEAgentSkiba
-from pypermod.agents.wbal_agents.wbal_ode_agent_weigend import WbalODEAgentWeigend
-from threecomphyd.agents.three_comp_hyd_agent import ThreeCompHydAgent
-from threecomphyd.agents.two_comp_hyd_agent import TwoCompHydAgent
+# set logging level to the highest level
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
 
-from example_scripts.strava_data.strava_to_activity import strava_to_activity
+hz = 1
 
-if __name__ == "__main__":
-    # set logging level to highest level
-    logging.basicConfig(level=logging.INFO,
-                        format="%(asctime)s %(levelname)-5s %(name)s - %(message)s. [file=%(filename)s:%(lineno)d]")
+# load athlete
+athlete_path = os.path.join(config.paths["data_storage"],
+                            "strava_study",
+                            "athlete_0")
+athlete = Athlete(path=athlete_path)
 
-    hz = 1
+# Get CP and W'
+cpmfits = athlete.get_cp_fitting_of_type_and_protocol(a_type=ActivityTypes.STANDARD_BIKE_BBB,
+                                                      p_type=ProtocolTypes.TT)
+best_fit = cpmfits.get_best_2p_fit()
+cp = best_fit["cp"]
+w_p = best_fit["w_p"]
 
-    # agent parameters
-    cp = 285
-    w_p = 21296
+# get hydraulic model configuration
+conf = athlete.get_hydraulic_fitting_of_type_and_protocol(a_type=ActivityTypes.STANDARD_BIKE_BBB,
+                                                          p_type=ProtocolTypes.TT)
 
-    # hydraulic configuration
-    conf = [
-        20483.578851118305,
-        54119.517965096005,
-        284.1878643271425,
-        129.37694316427448,
-        19.113019370136378,
-        0.7148379713482587,
-        0.013721751604313055,
-        0.26277097070768024
-    ]
+# the agent to perform simulations
+agent_ode = WbalODEAgentSkiba(w_p=w_p, cp=cp, hz=hz)
+agent_bar = WbalODEAgentBartram(w_p=w_p, cp=cp, hz=hz)
+agent_hyd = ThreeCompHydAgent(hz=hz, lf=conf[0], ls=conf[1], m_u=conf[2], m_lf=conf[3],
+                              m_ls=conf[4], the=conf[5], gam=conf[6], phi=conf[7])
+agents = [agent_ode, agent_bar, agent_hyd]
 
-    # the agent to perform simulations
-    agent_ode = WbalODEAgentSkiba(w_p, cp, hz=hz)
-    agent_bar = WbalODEAgentBartram(w_p, cp, hz=hz)
-    agent_hyd = ThreeCompHydAgent(hz=hz, lf=conf[0], ls=conf[1], m_u=conf[2], m_lf=conf[3],
-                                  m_ls=conf[4], the=conf[5], gam=conf[6], phi=conf[7])
-    agents = [agent_ode, agent_bar, agent_hyd]
+# other agents exist too. We don't use them in this example
+# agent_wei = WbalODEAgentWeigend(w_p, cp, hz=hz)
+# agent_int = WbalIntAgentSkiba(w_p, cp)
+# agent_lin = CpODEAgentBasisLinear(w_p=w_p, cp=cp, hz=hz)
+# agent_2tm_lin = TwoCompHydAgent(an=w_p, cp=cp, phi=0.3, psi=0.7, hz=hz)
+# agent_2tm_exp = TwoCompHydAgent(an=w_p, cp=cp, phi=0.5, psi=0.1, hz=hz)
 
-    # other agents exist too. We don't use them in this example
-    # agent_wei = WbalODEAgentWeigend(w_p, cp, hz=hz)
-    # agent_int = WbalIntAgentSkiba(w_p, cp)
-    # agent_lin = CpODEAgentBasisLinear(w_p=w_p, cp=cp, hz=hz)
-    # agent_2tm_lin = TwoCompHydAgent(an=w_p, cp=cp, phi=0.3, psi=0.7, hz=hz)
-    # agent_2tm_exp = TwoCompHydAgent(an=w_p, cp=cp, phi=0.5, psi=0.1, hz=hz)
-
-    datapath = os.path.join(config.paths["data_storage"],
-                            "strava_data",
-                            "athlete_0",
-                            "race_0.fit")
-    na = strava_to_activity(datapath=datapath)
-    pow_course = na.power_data
-
+for race in athlete.iterate_activities_of_type_and_protocol(a_type=ActivityTypes.STANDARD_BIKE,
+                                                            p_type=ProtocolTypes.RACE):
+    pow_course = race.power_data
     pow_times = np.arange(len(pow_course))
 
     # we start predicted W'bal with second 1 because simulations omit the initial time step 0
@@ -89,7 +81,7 @@ if __name__ == "__main__":
     # plot power demands
     ax.plot(pow_times, pow_course, color='black', label="intensity")
 
-    ax2.set_title(na.id)
+    ax2.set_title(race.id)
     # format axis
     ax.set_ylabel("power output (W)")
     ax.set_xlabel("time (sec)")
