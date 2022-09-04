@@ -234,7 +234,7 @@ class CpToTPPsFitter:
     @staticmethod
     def fit_2p_hyp(tpps: SimpleTimePowerPairs, initial_guess: list = None):
         """
-        Fits 2 parameter hyperbolic CP model using Moritani et. al. (1981)
+        Fits 2 parameter hyperbolic CP model using Moritani et al. (1981)
         Uses given times to fit an estimate of W' and CP using the two parameter model.
         :return: w' and critical power as two variables
         """

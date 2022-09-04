@@ -26,14 +26,15 @@ if __name__ == "__main__":
     # the agent to perform simulations
     agent_ode = WbalODEAgentSkiba(w_p, cp, hz=hz)
     agent_bar = WbalODEAgentBartram(w_p, cp, hz=hz)
-    agents = [agent_ode, agent_bar]
 
     # other agents exist too. We don't use them in this example
-    # agent_wei = WbalODEAgentWeigend(w_p, cp, hz=hz)
     # agent_int = WbalIntAgentSkiba(w_p, cp)
+    # agent_wei = WbalODEAgentWeigend(w_p, cp, hz=hz)
     # agent_lin = CpODEAgentBasisLinear(w_p=w_p, cp=cp, hz=hz)
     # agent_2tm_lin = TwoCompHydAgent(an=w_p, cp=cp, phi=0.3, psi=0.7, hz=hz)
     # agent_2tm_exp = TwoCompHydAgent(an=w_p, cp=cp, phi=0.5, psi=0.1, hz=hz)
+
+    agents = [agent_ode, agent_bar]
 
     inter = 180 * hz
     # the power demands over the artificial course
@@ -53,7 +54,7 @@ if __name__ == "__main__":
 
     # set up plot
     PlotLayout.set_rc_params()
-    fig = plt.figure(figsize=(8, 5))
+    fig = plt.figure(figsize=(7.5, 4.5))
     ax2 = fig.add_subplot(2, 1, 1)
     ax = fig.add_subplot(2, 1, 2, sharex=ax2)
 
@@ -75,7 +76,7 @@ if __name__ == "__main__":
     ax.set_ylabel("power output (W)")
     ax.set_xlabel("time (min)")
     ax.set_yticks([agent_ode.cp])
-    ax.set_yticklabels(["CP"])
+    ax.set_yticklabels(["$CP$"])
     ax.tick_params(axis='y', colors='red')
     ax.axhline(y=cp, linestyle="--", color='red', label="critical power (CP)")
     # format x ticks to minutes
