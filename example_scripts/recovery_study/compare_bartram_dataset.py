@@ -88,7 +88,7 @@ def compare_bartram_dataset(plot: bool = False, hz: int = 1) -> dict:
 
         for i, ax in enumerate(axes):
             ax.set_title("$P_{\mathrm{work}} = P100$\n" +
-                         "$P_{\mathrm{rec}}  = D_{CP}$" +
+                         "$P_{\mathrm{rec}}  = D_\mathrm{CP}$" +
                          "{}".format(cp - p_recs[i]))
 
             ax.set_xticks([0, t_rec, plot_rec_times[-1]])

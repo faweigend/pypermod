@@ -1,6 +1,6 @@
 {
     "id": "1",
-    "SRMBbbTest": {
+    "SrmBbb": {
         "ramp": [
             "2021-01-04_17:20:00:0"
         ],
@@ -14,7 +14,7 @@
     },
     "meta_data": {
         "threecomphyd_fitting": {
-            "SRM_BBB_TEST": [
+            "SrmBbb_TTE": [
                 12561.599441011336,
                 36678.58868767655,
                 209.9699155993486,
@@ -27,7 +27,7 @@
         }
     },
     "cp_fittings": {
-        "SRM_BBB_TEST": {
+        "SrmBbb_TTE": {
             "ttes": [
                 "SRMBbbTestA2021-01-15_15:59:00:0",
                 "SRMBbbTestA2021-02-01_16:47:00:0",

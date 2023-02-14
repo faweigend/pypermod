@@ -161,7 +161,8 @@ def get_vo2_predictions(show_plot=False) -> pd.DataFrame:
 
                 # formant plot
                 plt.tight_layout()
-                plt.show()
+                plt.savefig(os.path.join(athlete.dir_path, "VO2_pred_{}.png".format(res)))
+                # plt.show()
                 plt.close()
 
     return results.sort_values(by=['participant', 'power (W)'])

@@ -83,7 +83,7 @@ for i in range(4):
 
     # create a nicely formatted p_work and p_rec title
     axes[i].set_title(
-        "$P_{\mathrm{work}} = P" + str(p_work_labels[i]) + "{}$ \n  $P_{\mathrm{rec}}   = 33\%$ of $CP$"
+        "$P_{\mathrm{work}} = P" + str(p_work_labels[i]) + "{}$ \n  $P_{\mathrm{rec}}   = 33\%$ of $\mathrm{CP}$"
     )
     # add some grid lines
     axes[i].grid(linestyle=":", axis="y")

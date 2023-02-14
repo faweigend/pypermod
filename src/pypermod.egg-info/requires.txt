@@ -1,0 +1,5 @@
+matplotlib
+scipy
+scikit-learn
+numpy
+fitparse

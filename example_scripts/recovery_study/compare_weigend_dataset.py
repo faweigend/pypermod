@@ -105,10 +105,10 @@ def compare_weigend_dataset(plot: bool = False, hz: int = 1) -> dict:
             ax4.plot(plot_rec_times, results_p8_cp_66[p_res_key], color=PlotLayout.get_plot_color(p_res_key))
 
         # finalise layout
-        ax1.set_title("$P_{\mathrm{work}} = P240$\n         $P_{\mathrm{rec}}$  = 33% of $CP$")
-        ax2.set_title("$P_{\mathrm{work}} = P240$\n         $P_{\mathrm{rec}}$  = 66% of $CP$")
-        ax3.set_title("$P_{\mathrm{work}} = P480$\n         $P_{\mathrm{rec}}$  = 33% of $CP$")
-        ax4.set_title("$P_{\mathrm{work}} = P480$\n         $P_{\mathrm{rec}}$  = 66% of $CP$")
+        ax1.set_title("$P_{\mathrm{work}} = P240$\n         $P_{\mathrm{rec}}$  = 33% of $\mathrm{CP}$")
+        ax2.set_title("$P_{\mathrm{work}} = P240$\n         $P_{\mathrm{rec}}$  = 66% of $\mathrm{CP}$")
+        ax3.set_title("$P_{\mathrm{work}} = P480$\n         $P_{\mathrm{rec}}$  = 33% of $\mathrm{CP}$")
+        ax4.set_title("$P_{\mathrm{work}} = P480$\n         $P_{\mathrm{rec}}$  = 66% of $\mathrm{CP}$")
 
         # create legend
         handles = PlotLayout.create_standardised_legend(agents=results_p8_cp_33.keys(),

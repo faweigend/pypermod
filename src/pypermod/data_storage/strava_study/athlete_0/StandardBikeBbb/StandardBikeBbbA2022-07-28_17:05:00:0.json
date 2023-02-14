@@ -1,0 +1,12 @@
+{
+    "activity": "StandardBikeBbb",
+    "protocol": "ramp",
+    "datetime": "2022-07-28 17:05:00",
+    "steps": 998,
+    "duration": 1026.0,
+    "warmup": 0.0,
+    "recovery": 943.0,
+    "bbb_offset": 1.0,
+    "vo2_avr": 3624.9654186153525,
+    "vo2_max": 5403.5318318
+}

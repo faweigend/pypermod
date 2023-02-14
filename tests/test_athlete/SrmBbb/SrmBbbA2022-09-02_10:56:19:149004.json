@@ -1,0 +1,13 @@
+{
+    "activity": "SrmBbb",
+    "protocol": "tte",
+    "datetime": "2022-09-02 10:56:19.149004",
+    "steps": 75,
+    "duration": 74,
+    "warmup": 0,
+    "recovery": 74,
+    "resistance": 240.0,
+    "bbb_offset": 0,
+    "vo2_avr": 36.0,
+    "vo2_max": 72.0
+}
