@@ -19,8 +19,10 @@ If you make use of this project, we would be grateful if you star the repository
 
 
 ```
-Weigend, F. C., Clarke, D. C., Obst, O., & Siegler, J. (2023). A hydraulic model outperforms work-balance models for
-predicting recovery kinetics from intermittent exercise. Annals of Operations Research, 325(1), 589-613.
+Weigend, F. C., Clarke, D. C., Obst, O., & Siegler, J. (2023).
+A hydraulic model outperforms work-balance models for
+predicting recovery kinetics from intermittent exercise.
+Annals of Operations Research, 325(1), 589-613.
 ```
 
 ### Setup
